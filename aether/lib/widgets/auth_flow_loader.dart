@@ -1,122 +1,153 @@
-import 'dart:math' as math;
+import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+/// ===============================
+/// 🔥 WRAPPER
+/// ===============================
 Future<T> runWithAuthFlowLoader<T>({
   required BuildContext context,
   required String message,
   required Future<T> Function() action,
-  Duration entryDelay = const Duration(milliseconds: 120),
-  Duration settleDelay = const Duration(milliseconds: 340),
 }) async {
   BuildContext? dialogContext;
 
-  showGeneralDialog<void>(
+  showGeneralDialog(
     context: context,
     barrierDismissible: false,
-    barrierLabel: 'Auth loader',
-    barrierColor: const Color(0x66102D34),
-    transitionDuration: const Duration(milliseconds: 220),
-    pageBuilder: (ctx, animation, secondaryAnimation) {
+    barrierColor: Colors.black.withOpacity(0.25),
+    pageBuilder: (ctx, _, __) {
       dialogContext = ctx;
-      return _AuthFlowLoader(message: message);
-    },
-    transitionBuilder: (ctx, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
-      return FadeTransition(
-        opacity: curved,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.06),
-            end: Offset.zero,
-          ).animate(curved),
-          child: child,
-        ),
-      );
+      return _SnakeLoader(message: message);
     },
   );
 
-  await Future<void>.delayed(entryDelay);
   try {
     final result = await action();
-    await Future<void>.delayed(settleDelay);
+    await Future.delayed(const Duration(milliseconds: 600)); // smooth exit
     return result;
   } finally {
-    final ctx = dialogContext;
-    if (ctx != null) {
-      final nav = Navigator.of(ctx, rootNavigator: true);
-      if (nav.canPop()) {
-        nav.pop();
-      }
+    if (dialogContext != null) {
+      Navigator.of(dialogContext!, rootNavigator: true).pop();
     }
   }
 }
 
-class _AuthFlowLoader extends StatefulWidget {
-  const _AuthFlowLoader({required this.message});
-
+/// ===============================
+/// 🐍 LOADER UI
+/// ===============================
+class _SnakeLoader extends StatefulWidget {
+  const _SnakeLoader({required this.message});
   final String message;
 
   @override
-  State<_AuthFlowLoader> createState() => _AuthFlowLoaderState();
+  State<_SnakeLoader> createState() => _SnakeLoaderState();
 }
 
-class _AuthFlowLoaderState extends State<_AuthFlowLoader>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+class _SnakeLoaderState extends State<_SnakeLoader> {
+  static const gridSize = 8;
+  static const pixel = 8.0;
+
+  late List<Point<int>> snake;
+  late Point<int> food;
+  late Timer timer;
+  final random = Random();
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat();
+
+    snake = [const Point(3, 3)];
+    food = _randomFood();
+
+    /// 🐢 slower movement
+    timer = Timer.periodic(const Duration(milliseconds: 260), (_) {
+      setState(_moveSnake);
+    });
+  }
+
+  Point<int> _randomFood() {
+    while (true) {
+      final p = Point(random.nextInt(gridSize), random.nextInt(gridSize));
+      if (!snake.contains(p)) return p;
+    }
+  }
+
+  void _moveSnake() {
+    final head = snake.first;
+
+    /// 🎯 simple AI movement (towards food)
+    int dx = 0;
+    int dy = 0;
+
+    if (food.x > head.x) dx = 1;
+    if (food.x < head.x) dx = -1;
+    if (food.y > head.y) dy = 1;
+    if (food.y < head.y) dy = -1;
+
+    /// randomize slight movement to feel natural
+    if (random.nextBool()) {
+      final tmp = dx;
+      dx = dy;
+      dy = tmp;
+    }
+
+    final newHead = Point(
+      (head.x + dx).clamp(0, gridSize - 1),
+      (head.y + dy).clamp(0, gridSize - 1),
+    );
+
+    if (snake.contains(newHead)) return;
+
+    snake.insert(0, newHead);
+
+    if (newHead == food) {
+      food = _randomFood(); // grow
+    } else {
+      snake.removeLast(); // move
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    timer.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      type: MaterialType.transparency,
+      color: Colors.black.withOpacity(0.25),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: 120,
-              height: 120,
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return CustomPaint(
-                    painter: _PixelOrbitPainter(progress: _controller.value),
-                  );
-                },
+            /// 🟩 GRID BOX
+            Container(
+              width: gridSize * pixel,
+              height: gridSize * pixel,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: CustomPaint(
+                painter: _SnakePainter(
+                  snake: snake,
+                  food: food,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+
+            const SizedBox(height: 18),
+
             Text(
               widget.message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 13.5,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFEAFDFC),
-                height: 1.25,
-                shadows: [
-                  Shadow(
-                    color: Color(0x66102D34),
-                    offset: Offset(0, 1),
-                    blurRadius: 6,
-                  ),
-                ],
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFFEAFDFC),
               ),
             ),
           ],
@@ -126,85 +157,60 @@ class _AuthFlowLoaderState extends State<_AuthFlowLoader>
   }
 }
 
-class _PixelOrbitPainter extends CustomPainter {
-  _PixelOrbitPainter({required this.progress});
+/// ===============================
+/// 🎨 PAINTER
+/// ===============================
+class _SnakePainter extends CustomPainter {
+  final List<Point<int>> snake;
+  final Point<int> food;
 
-  final double progress;
+  static const pixel = 8.0;
+
+  _SnakePainter({required this.snake, required this.food});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final t = progress * 2 * math.pi;
+    final paint = Paint()..isAntiAlias = false;
 
-    final softGlow = Paint()
-      ..color = const Color(0xFF5CB6A5).withValues(alpha: 0.18)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16);
-    canvas.drawCircle(center, 27, softGlow);
+    /// 🐍 draw snake
+    for (int i = 0; i < snake.length; i++) {
+      final segment = snake[i];
 
-    final ringPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..color = const Color(0xFF5CB6A5).withValues(alpha: 0.24);
-    canvas.drawCircle(center, 30, ringPaint);
-    canvas.drawCircle(
-      center,
-      42,
-      ringPaint..color = const Color(0xFF2D726B).withValues(alpha: 0.22),
-    );
-
-    final pixelPaint = Paint()..isAntiAlias = false;
-    const outerCount = 18;
-    const innerCount = 12;
-
-    for (var i = 0; i < outerCount; i++) {
-      final p = i / outerCount;
-      final angle = (p * 2 * math.pi) + t;
-      final wobble = 1.0 + 0.09 * math.sin((t * 2.4) + (i * 0.55));
-      final radius = 42 * wobble;
-      final x = center.dx + math.cos(angle) * radius;
-      final y = center.dy + math.sin(angle) * radius;
-      final alpha = (0.25 + 0.75 * (0.5 + 0.5 * math.sin(t + (i * 0.5))))
-          .clamp(0.0, 1.0);
-      final px = 2.6 + (1.6 * (0.5 + 0.5 * math.sin((t * 1.8) + i)));
-
-      pixelPaint.color = Color.lerp(
+      final color = Color.lerp(
+        const Color(0xFF5CB6A5),
         const Color(0xFF2D726B),
-        const Color(0xFF5CB6A5),
-        p,
-      )!
-          .withValues(alpha: alpha);
+        i / snake.length,
+      )!;
+
+      paint.color = color;
+
       canvas.drawRect(
-        Rect.fromCenter(center: Offset(x, y), width: px, height: px),
-        pixelPaint,
+        Rect.fromLTWH(
+          segment.x * pixel,
+          segment.y * pixel,
+          pixel,
+          pixel,
+        ),
+        paint,
       );
     }
 
-    for (var i = 0; i < innerCount; i++) {
-      final p = i / innerCount;
-      final angle = (p * 2 * math.pi) - (t * 0.74);
-      final wobble = 1.0 + 0.07 * math.cos((t * 2.1) + (i * 0.62));
-      final radius = 30 * wobble;
-      final x = center.dx + math.cos(angle) * radius;
-      final y = center.dy + math.sin(angle) * radius;
-      final alpha = (0.22 + 0.68 * (0.5 + 0.5 * math.cos((t * 1.2) + i)))
-          .clamp(0.0, 1.0);
-      final px = 2.2 + (1.1 * (0.5 + 0.5 * math.cos((t * 1.5) + i)));
+    /// 🍏 food
+    paint.color = const Color(0xFF8BE3C8);
 
-      pixelPaint.color = Color.lerp(
-        const Color(0xFF5CB6A5),
-        const Color(0xFFEAFDFC),
-        p,
-      )!
-          .withValues(alpha: alpha);
-      canvas.drawRect(
-        Rect.fromCenter(center: Offset(x, y), width: px, height: px),
-        pixelPaint,
-      );
-    }
+    canvas.drawRect(
+      Rect.fromLTWH(
+        food.x * pixel,
+        food.y * pixel,
+        pixel,
+        pixel,
+      ),
+      paint,
+    );
   }
 
   @override
-  bool shouldRepaint(covariant _PixelOrbitPainter oldDelegate) {
-    return oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _SnakePainter oldDelegate) {
+    return true;
   }
 }

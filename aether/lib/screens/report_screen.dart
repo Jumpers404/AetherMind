@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../services/report_service.dart';
 
@@ -17,7 +18,21 @@ class ReportScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mental Health Report')),
+      backgroundColor: const Color(0xFFF9FBFA),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Mental Health Report',
+          style: TextStyle(
+            fontFamily: 'Doto',
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF1E3A45),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -36,8 +51,6 @@ class ReportScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             _buildStressLevelCard(context, stressStyle),
-            const SizedBox(height: 16),
-            _buildKeystrokeSignalCard(context),
             const SizedBox(height: 16),
             _buildEmotionalVariabilityCard(context),
             const SizedBox(height: 16),
@@ -106,7 +119,7 @@ class ReportScreen extends StatelessWidget {
 
   Widget _buildSummaryCard(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 0,
       color: const Color(0xFFF1F7FF),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
@@ -116,7 +129,8 @@ class ReportScreen extends StatelessWidget {
           children: [
             Text(
               'Summary',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              style: GoogleFonts.poppins(
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF1E3A5F),
               ),
@@ -172,7 +186,9 @@ class ReportScreen extends StatelessWidget {
 
   Widget _buildTrendCard(BuildContext context, _TrendStyle trendStyle) {
     return Card(
-      elevation: 1,
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -180,9 +196,11 @@ class ReportScreen extends StatelessWidget {
           children: [
             Text(
               'Trend',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E3A45),
+              ),
             ),
             const SizedBox(height: 10),
             Row(
@@ -211,7 +229,9 @@ class ReportScreen extends StatelessWidget {
 
   Widget _buildDominantEmotionCard(BuildContext context) {
     return Card(
-      elevation: 1,
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -219,9 +239,11 @@ class ReportScreen extends StatelessWidget {
           children: [
             Text(
               'Dominant Emotion',
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E3A45),
+              ),
             ),
             const SizedBox(height: 10),
             Row(
@@ -247,7 +269,9 @@ class ReportScreen extends StatelessWidget {
 
   Widget _buildStressLevelCard(BuildContext context, _StressStyle stressStyle) {
     return Card(
-      elevation: 1,
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -257,9 +281,11 @@ class ReportScreen extends StatelessWidget {
             Expanded(
               child: Text(
                 'Stress Level',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1E3A45),
+                ),
               ),
             ),
             Container(
@@ -327,73 +353,7 @@ class ReportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildKeystrokeSignalCard(BuildContext context) {
-    final emotion = report.keystrokeEmotion.trim().isEmpty
-        ? 'unknown'
-        : report.keystrokeEmotion;
-    final confidencePercent = (report.keystrokeConfidence * 100).clamp(0, 100);
-
-    final showAsKnown = emotion.toLowerCase() != 'unknown' && emotion.toLowerCase() != 'mixed';
-    final chipColor = showAsKnown ? const Color(0xFFE6F4EA) : const Color(0xFFECEFF1);
-    final chipTextColor = showAsKnown ? const Color(0xFF1B5E20) : const Color(0xFF455A64);
-
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.keyboard_outlined),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Keystroke Signal',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: chipColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    _titleCase(emotion),
-                    style: TextStyle(
-                      color: chipTextColor,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _buildMetricRow(
-              'Confidence',
-              '${confidencePercent.toStringAsFixed(1)}%',
-            ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                minHeight: 8,
-                value: report.keystrokeConfidence.clamp(0.0, 1.0),
-                backgroundColor: const Color(0xFFE9EEF3),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  showAsKnown ? const Color(0xFF2E7D32) : const Color(0xFF78909C),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  
 
   Widget _buildEmotionDistributionCard(BuildContext context) {
     return Card(
