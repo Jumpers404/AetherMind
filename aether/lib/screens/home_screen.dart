@@ -7,7 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'journal_test_screen.dart';
 import 'report_screen.dart';
+import 'login_screen.dart';
+import 'profile_screen.dart';
+import 'notification_screen.dart';
 import '../services/report_controller.dart';
+import '../widgets/auth_flow_loader.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -54,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     _shimmerController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 9800),
+      duration: const Duration(milliseconds: 6200),
     )..repeat();
   }
 
@@ -98,7 +102,10 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _HeaderSection(userName: _greetingName),
+                      _HeaderSection(
+                        userName: _greetingName,
+                        onSignOut: _handleSignOut,
+                      ),
                       const SizedBox(height: 14),
                       const _MoodInputBar(),
                       const SizedBox(height: 16),
@@ -186,12 +193,40 @@ class _HomeScreenState extends State<HomeScreen>
       }
     }
   }
+
+  Future<void> _handleSignOut() async {
+    try {
+      await runWithAuthFlowLoader<void>(
+        context: context,
+        message: 'Signing you out...',
+        action: () => FirebaseAuth.instance.signOut(),
+      );
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to sign out right now.')),
+      );
+    }
+  }
 }
 
 class _HeaderSection extends StatelessWidget {
-  const _HeaderSection({required this.userName});
+  const _HeaderSection({
+    required this.userName,
+    required this.onSignOut,
+  });
 
   final String userName;
+  final VoidCallback onSignOut;
 
   @override
   Widget build(BuildContext context) {
@@ -225,10 +260,16 @@ class _HeaderSection extends StatelessWidget {
           ),
         ),
         Row(
-          children: const [
-            _RoundActionIcon(icon: Icons.notifications_none_rounded, showDot: true),
-            SizedBox(width: 12),
-            _RoundActionIcon(icon: Icons.more_horiz_rounded),
+          children: [
+            _RoundActionIcon(
+              icon: Icons.notifications_none_rounded,
+              showDot: true,
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationScreen()));
+              },
+            ),
+            const SizedBox(width: 12),
+            _OptionsMenuButton(onSignOut: onSignOut),
           ],
         ),
       ],
@@ -236,11 +277,80 @@ class _HeaderSection extends StatelessWidget {
   }
 }
 
+class _OptionsMenuButton extends StatelessWidget {
+  const _OptionsMenuButton({required this.onSignOut});
+
+  final VoidCallback onSignOut;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 46,
+      height: 46,
+      child: ClipOval(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Material(
+            color: Colors.transparent,
+                  child: Ink(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.82),
+                      Colors.white.withValues(alpha: 0.46),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.68),
+                    width: 1.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1C333B).withValues(alpha: 0.10),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFF4FB894).withValues(alpha: 0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ProfileScreen(onSignOut: onSignOut),
+                      ),
+                    );
+                  },
+                  child: const Center(
+                    child: Icon(
+                      Icons.person_rounded,
+                      color: Color(0xFF2FB07E),
+                      size: 22,
+                    ),
+                  ),
+                ),
+              ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _RoundActionIcon extends StatelessWidget {
-  const _RoundActionIcon({required this.icon, this.showDot = false});
+  const _RoundActionIcon({required this.icon, this.showDot = false, this.onTap});
 
   final IconData icon;
   final bool showDot;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +392,7 @@ class _RoundActionIcon extends StatelessWidget {
               ),
               child: InkWell(
                 customBorder: const CircleBorder(),
-                onTap: () {},
+                onTap: onTap,
                 child: Stack(
                   children: [
                     Positioned.fill(
@@ -304,7 +414,7 @@ class _RoundActionIcon extends StatelessWidget {
                     Center(
                       child: Icon(
                         icon,
-                        color: const Color(0xFF21424B),
+                        color: const Color(0xFF2FB07E),
                         size: 22,
                       ),
                     ),
@@ -494,6 +604,7 @@ class _TodayVibeCard extends StatelessWidget {
                   Expanded(
                     flex: 42,
                     child: Stack(
+                      clipBehavior: Clip.none,
                       fit: StackFit.expand,
                       children: [
                         AnimatedBuilder(
@@ -502,16 +613,19 @@ class _TodayVibeCard extends StatelessWidget {
                             final y = math.sin(shimmer.value * 2 * math.pi) * 2.8;
                             return Transform.translate(
                               offset: Offset(0, y),
-                              child: child,
+                              child: Transform.scale(
+                                scale: 1.55,
+                                child: child,
+                              ),
                             );
                           },
                           child: Align(
-                            alignment: Alignment.center,
+                            alignment: Alignment.bottomCenter,
                             child: Opacity(
-                              opacity: 0.75,
+                              opacity: 0.88,
                               child: SizedBox(
-                                width: 96,
-                                height: 96,
+                                width: 210,
+                                height: 210,
                                 child: Image.asset(
                                   'assets/imgs/new-pet.png',
                                   fit: BoxFit.contain,
@@ -549,6 +663,7 @@ class _CardPixelPanelPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    const intensityBoost = 1.8;
     final cols = (size.width / 8.4).round().clamp(16, 34);
     final cell = size.width / cols;
     final rows = (size.height / cell).ceil() + 1;
@@ -591,7 +706,9 @@ class _CardPixelPanelPainter extends CustomPainter {
                 .clamp(0.0, 1.0);
 
         final depth = (0.72 + (0.28 * ny)).clamp(0.0, 1.0);
-        final alpha = ((0.045 + (0.18 * blend)) * visibility * depth).clamp(0.0, 0.36);
+        final alpha =
+          (((0.045 + (0.18 * blend)) * visibility * depth) * intensityBoost)
+            .clamp(0.0, 0.45);
 
         paint.color = Color.lerp(
           const Color(0xFF6FB09A),
@@ -614,7 +731,10 @@ class _CardPixelPanelPainter extends CustomPainter {
                   .clamp(0.0, 1.0);
           if (starStrength > 0.07) {
             final starTint = Color.lerp(const Color(0xFFA1E0C6), Colors.white, starStrength)!;
-            paint.color = starTint.withValues(alpha: (0.03 + (0.16 * starStrength)).clamp(0.0, 0.18));
+            paint.color = starTint.withValues(
+              alpha: ((0.03 + (0.16 * starStrength)) * intensityBoost)
+                  .clamp(0.0, 0.225),
+            );
             canvas.drawRect(Rect.fromLTRB(left, top, right, bottom), paint);
           }
         }
@@ -636,49 +756,32 @@ class _HeroCheckInButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 38,
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF36B37E), Color(0xFF2F9E6F)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF2F9E6F).withValues(alpha: 0.24),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: isLoading ? null : onTap,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.16),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF36B37E), Color(0xFF2F9E6F)],
               ),
-              Center(
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2F9E6F).withValues(alpha: 0.24),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Center(
                 child: isLoading
                     ? const SizedBox(
                         width: 16,
@@ -696,19 +799,19 @@ class _HeroCheckInButton extends StatelessWidget {
                             color: Colors.white,
                             size: 20,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 8),
                           Text(
                             'Check In Now',
                             style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
                         ],
                       ),
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -747,46 +850,40 @@ class _ProgressSection extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final isNarrow = constraints.maxWidth < 360;
-            final cards = [
-              Expanded(
-                child: _ProgressStatCard(
-                  title: 'Current Streak',
-                  valueText: '12 days',
-                  subtitle: 'Consistency this month',
-                  progress: 0.76,
-                  icon: Icons.local_fire_department_rounded,
-                  ringColor: const Color(0xFF2FB07E),
-                  iconBg: const Color(0xFFD9F1E7),
-                ),
-              ),
-              Expanded(
-                child: _ProgressStatCard(
-                  title: 'Weekly Goals',
-                  valueText: '4 / 5',
-                  subtitle: 'One check-in to complete',
-                  progress: 0.80,
-                  icon: Icons.track_changes_rounded,
-                  ringColor: const Color(0xFF3AA9DE),
-                  iconBg: const Color(0xFFD9EEFA),
-                ),
-              ),
-            ];
+            final card1 = _ProgressStatCard(
+              title: 'Current Streak',
+              valueText: '12 days',
+              subtitle: 'Consistency',
+              progress: 0.76,
+              icon: Icons.local_fire_department_rounded,
+              ringColor: const Color(0xFF2FB07E),
+              iconBg: const Color(0xFFD9F1E7),
+            );
+            final card2 = _ProgressStatCard(
+              title: 'Weekly Goals',
+              valueText: '4 / 5',
+              subtitle: 'Entries',
+              progress: 0.80,
+              icon: Icons.track_changes_rounded,
+              ringColor: const Color(0xFF3AA9DE),
+              iconBg: const Color(0xFFD9EEFA),
+            );
 
             if (isNarrow) {
               return Column(
                 children: [
-                  cards[0],
+                  card1,
                   const SizedBox(height: 12),
-                  cards[1],
+                  card2,
                 ],
               );
             }
 
             return Row(
               children: [
-                cards[0],
+                Expanded(child: card1),
                 const SizedBox(width: 12),
-                cards[1],
+                Expanded(child: card2),
               ],
             );
           },
@@ -852,30 +949,30 @@ class _ProgressStatCard extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(
-                width: 68,
-                height: 68,
+                  width: 54,
+                  height: 54,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    SizedBox(
-                      width: 68,
-                      height: 68,
-                      child: CircularProgressIndicator(
-                        value: progress,
-                        strokeWidth: 6,
-                        backgroundColor: const Color(0xFFE3ECE8),
-                        valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+                      SizedBox(
+                        width: 54,
+                        height: 54,
+                        child: CircularProgressIndicator(
+                          value: progress,
+                          strokeWidth: 5,
+                          backgroundColor: const Color(0xFFE3ECE8),
+                          valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+                        ),
                       ),
-                    ),
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: iconBg,
-                        shape: BoxShape.circle,
+                      Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: iconBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(icon, color: ringColor, size: 18),
                       ),
-                      child: Icon(icon, color: ringColor, size: 22),
-                    ),
                   ],
                 ),
               ),
@@ -1002,6 +1099,17 @@ class _QuickActionsRow extends StatelessWidget {
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
               buttonTextColor: Color(0xFF4A86D7),
+            ),
+            SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Psychology Facts',
+              subtitle: 'Learn & Grow',
+              icon: Icons.psychology_rounded,
+              gradient: [Color(0xFFB388FF), Color(0xFF7C4DFF)],
+              buttonText: 'Fact',
+              buttonIcon: Icons.lightbulb_rounded,
+              buttonTextColor: Color(0xFF7C4DFF),
             ),
           ],
         ),
@@ -1376,10 +1484,10 @@ class _SuggestedCard extends StatelessWidget {
         return DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
-            color: Colors.white.withValues(alpha: 0.88),
+            color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF203A42).withValues(alpha: 0.07),
+                color: iconColor.withOpacity(0.09),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -1416,7 +1524,7 @@ class _SuggestedCard extends StatelessWidget {
                         style: GoogleFonts.poppins(
                           fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF203D49),
+                          color: iconColor,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -1469,7 +1577,7 @@ class _MoodInputBar extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF28A67A).withValues(alpha: 0.08),
+                color: const Color(0xFF28A67A).withValues(alpha: 0.2),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),

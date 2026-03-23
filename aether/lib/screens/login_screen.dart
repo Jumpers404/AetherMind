@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 
 import '../services/auth_service.dart';
+import '../widgets/auth_flow_loader.dart';
 import 'home_screen.dart';
 import 'psychiatrist_screen.dart';
 
@@ -199,8 +200,6 @@ class _LoginScreenState extends State<LoginScreen>
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final width = constraints.maxWidth;
-                    final titleSize = clampDouble(width * 0.09, 28, 32);
-                    final subtitleSize = clampDouble(width * 0.042, 14, 16);
                     final bodySize = clampDouble(width * 0.033, 12.5, 13.2);
                     final buttonHeight = clampDouble(
                       constraints.maxHeight * 0.075,
@@ -212,39 +211,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     return Stack(
                       children: [
-                        Positioned(
-                          top: clampDouble(constraints.maxHeight * 0.055, 34, 54),
-                          left: 20,
-                          right: 20,
-                          child: Column(
-                            children: [
-                              Text(
-                                'AETHER',
-                                textAlign: TextAlign.center,
-                                style: _buildBrandTitleStyle(titleSize),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'Aether grows with you\nthrough every small step',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.38,
-                                  color: const Color.fromARGB(255, 69, 123, 113),
-                                  shadows: const [
-                                    Shadow(
-                                      color: Color(0x66121816),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                         Positioned(
                           left: 0,
                           right: 0,
@@ -364,11 +330,73 @@ class _LoginScreenState extends State<LoginScreen>
                 final transitionFactor = _currentScreen == 'main'
                     ? 0.0
                     : screenTransition.value;
+                final easedT = Curves.easeInOut.transform(transitionFactor);
 
-                final mainTop = screenHeight * 0.29;
-                final formTop = mediaQuery.padding.top +
-                    clampDouble(screenHeight * 0.01, 4, 12);
-                final top = lerpDouble(mainTop, formTop, transitionFactor) ?? mainTop;
+                final brandSize = clampDouble(mediaQuery.size.width * 0.09, 28, 32);
+                final subtitleSize = clampDouble(mediaQuery.size.width * 0.042, 14, 16);
+                final mainBrandTop = clampDouble(screenHeight * 0.055, 34, 54);
+              final formBrandTop = (mediaQuery.padding.top +
+                  clampDouble(screenHeight * 0.035, 18, 30))
+                .clamp(mediaQuery.padding.top + 8, screenHeight * 0.42);
+
+                final animatedTop =
+                    lerpDouble(mainBrandTop, formBrandTop, transitionFactor) ?? mainBrandTop;
+                final subtitleOpacity = (1.0 - easedT).clamp(0.0, 1.0);
+                final subtitleLift = lerpDouble(0, -22, easedT) ?? 0.0;
+
+                return Positioned(
+                  top: animatedTop,
+                  left: 20,
+                  right: 20,
+                  child: IgnorePointer(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'AETHER',
+                          textAlign: TextAlign.center,
+                          style: _buildBrandTitleStyle(brandSize),
+                        ),
+                        Transform.translate(
+                          offset: Offset(0, subtitleLift),
+                          child: Opacity(
+                            opacity: subtitleOpacity,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 18),
+                              child: Text(
+                                'Aether grows with you\nthrough every small step',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: subtitleSize,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.38,
+                                  color: const Color.fromARGB(255, 69, 123, 113),
+                                  shadows: const [
+                                    Shadow(
+                                      color: Color(0x66121816),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            AnimatedBuilder(
+              animation: screenTransition,
+              builder: (context, child) {
+                final transitionFactor = _currentScreen == 'main'
+                    ? 0.0
+                    : screenTransition.value;
 
                 final mainHeight = clampDouble(screenHeight * 0.4, 280, 380);
                 final formHeight = clampDouble(mediaQuery.size.width * 0.95, 230, 320);
@@ -379,10 +407,39 @@ class _LoginScreenState extends State<LoginScreen>
                 final petSize = lerpDouble(mainSize, formSize, transitionFactor) ?? mainSize;
 
                 final opacity = lerpDouble(1.0, 0.96, transitionFactor) ?? 1.0;
-                final petScale = 0.32;
-                final petContainerHeight = height * 0.75;
+                final petScale = 1.12;
+                final basePetContainerHeight = height * 0.75;
                 final rawPetSize = petSize * petScale;
-                final resolvedPetSize = math.min(rawPetSize, petContainerHeight);
+                final maxVisiblePetSize = basePetContainerHeight * 1.15;
+                final resolvedPetSize = math.min(rawPetSize, maxVisiblePetSize);
+                final petContainerHeight = math.max(basePetContainerHeight, resolvedPetSize);
+
+                final brandSize = clampDouble(mediaQuery.size.width * 0.09, 28, 32);
+                final subtitleSize = clampDouble(mediaQuery.size.width * 0.042, 14, 16);
+                final mainBrandTop = clampDouble(screenHeight * 0.055, 34, 54);
+                final formBrandTop = (mediaQuery.padding.top +
+                    clampDouble(screenHeight * 0.035, 18, 30))
+                  .clamp(mediaQuery.padding.top + 8, screenHeight * 0.42);
+                final titleTop =
+                  lerpDouble(mainBrandTop, formBrandTop, transitionFactor) ?? mainBrandTop;
+                final titleCenterY = titleTop + (brandSize * 0.5);
+
+                final mainTitleSectionBottom = mainBrandTop +
+                    brandSize +
+                    18 +
+                    (subtitleSize * 1.38 * 2);
+                final mainButtonsTop = screenHeight * 0.72;
+                final mainTargetCenterY =
+                    (mainTitleSectionBottom + mainButtonsTop) * 0.5;
+                final mainTop = mainTargetCenterY - (petContainerHeight * 0.5);
+
+                final formPanelTop =
+                  (screenHeight * 0.72) - ((screenHeight * 0.22) * transitionFactor);
+                final formTargetCenterY = (titleCenterY + formPanelTop) * 0.5;
+                final formTargetTop = formTargetCenterY - (petContainerHeight * 0.5);
+
+                final top =
+                  lerpDouble(mainTop, formTargetTop, transitionFactor) ?? mainTop;
 
                 return Positioned(
                   top: top,
@@ -394,7 +451,9 @@ class _LoginScreenState extends State<LoginScreen>
                       child: SizedBox(
                         height: petContainerHeight,
                         child: Center(
-                          child: AnimatedPet(petSize: resolvedPetSize),
+                          child: AnimatedPet(
+                            petSize: resolvedPetSize,
+                          ),
                         ),
                       ),
                     ),
@@ -441,7 +500,9 @@ class _LoginScreenState extends State<LoginScreen>
 
 class _AnimatedTopBottomGradient extends StatefulWidget {
   const _AnimatedTopBottomGradient({
+    this.gridColumns,
     this.animationSpeed = 1.0,
+    this.colorIntensity = 1.25,
   });
 
   final int? gridColumns;
@@ -1110,7 +1171,7 @@ class _AuthFormHeader extends StatelessWidget {
   }
 }
 
-class _AuthInputField extends StatelessWidget {
+class _AuthInputField extends StatefulWidget {
   const _AuthInputField({
     required this.controller,
     required this.label,
@@ -1126,31 +1187,40 @@ class _AuthInputField extends StatelessWidget {
   final String? Function(String?)? validator;
 
   @override
+  State<_AuthInputField> createState() => _AuthInputFieldState();
+}
+
+class _AuthInputFieldState extends State<_AuthInputField> {
+  bool _isPasswordVisible = false;
+
+  @override
   Widget build(BuildContext context) {
     const fieldText = Color(0xFF3D6760);
     const fieldLabel = Color(0xFF6D8D87);
     const fieldFill = Color(0xFFEFF6F3);
     const fieldBorder = Color(0xFFC5D7D1);
     const fieldFocus = Color(0xFF8EB2AB);
+    final shouldObscure = widget.obscureText && !_isPasswordVisible;
 
     return SizedBox(
-      height: 56,
+      width: double.infinity,
+      height: 60,
       child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        validator: validator,
+        controller: widget.controller,
+        obscureText: shouldObscure,
+        validator: widget.validator,
         style: TextStyle(
           fontFamily: 'Poppins',
-          fontSize: bodySize * 0.93,
+          fontSize: widget.bodySize * 0.93,
           color: fieldText,
           fontWeight: FontWeight.w400,
           height: 1.2,
         ),
         decoration: InputDecoration(
-          labelText: label,
+          labelText: widget.label,
           labelStyle: TextStyle(
             fontFamily: 'Poppins',
-            fontSize: bodySize * 0.88,
+            fontSize: widget.bodySize * 0.88,
             color: fieldLabel,
             fontWeight: FontWeight.w400,
             height: 1.2,
@@ -1160,6 +1230,24 @@ class _AuthInputField extends StatelessWidget {
             color: Color(0xFF729891),
             fontWeight: FontWeight.w500,
           ),
+          suffixIcon: widget.obscureText
+              ? IconButton(
+                  splashRadius: 20,
+                  tooltip: _isPasswordVisible ? 'Hide password' : 'Show password',
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    color: const Color(0xFF4E7E76).withValues(alpha: 0.88),
+                    size: 21,
+                  ),
+                )
+              : null,
           filled: true,
           fillColor: fieldFill,
           border: OutlineInputBorder(
@@ -1188,7 +1276,7 @@ class _AuthInputField extends StatelessWidget {
               width: 1.2,
             ),
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 17, horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 18),
           isDense: true,
         ),
       ),
@@ -1263,6 +1351,105 @@ class _AuthSubmitButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showAuthErrorSnackbar(
+  BuildContext context, {
+  required String title,
+  required String message,
+}) {
+  final messenger = ScaffoldMessenger.of(context);
+  final media = MediaQuery.of(context);
+  final maxWidth = math.min(media.size.width * 0.9, 600.0);
+  final horizontalMargin = math.max(16.0, (media.size.width - maxWidth) * 0.5);
+  final bottomMargin = 20.0 + media.viewPadding.bottom;
+
+  messenger.hideCurrentSnackBar(reason: SnackBarClosedReason.hide);
+
+  final snackBar = SnackBar(
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    duration: const Duration(milliseconds: 2800),
+    dismissDirection: DismissDirection.down,
+    margin: EdgeInsets.fromLTRB(horizontalMargin, 0, horizontalMargin, bottomMargin),
+    padding: EdgeInsets.zero,
+    content: ClipRRect(
+      borderRadius: BorderRadius.circular(15),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE4EEE9).withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: const Color(0xFFC5D7D1).withValues(alpha: 0.65),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF2D726B).withValues(alpha: 0.18),
+                blurRadius: 16,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 1),
+                child: Icon(
+                  Icons.error_outline,
+                  size: 21,
+                  color: Color(0xFF2D726B),
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF244A44),
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      message,
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w400,
+                        color: Color(0xDD365A54),
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  messenger.showSnackBar(
+    snackBar,
+    snackBarAnimationStyle: const AnimationStyle(
+      duration: Duration(milliseconds: 250),
+      reverseDuration: Duration(milliseconds: 220),
+    ),
+  );
 }
 
 class _StaggerReveal extends StatefulWidget {
@@ -1371,6 +1558,7 @@ class _SignUpFormState extends State<_SignUpForm> {
         Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _StaggerReveal(
                 order: 1,
@@ -1441,10 +1629,14 @@ class _SignUpFormState extends State<_SignUpForm> {
                 _isLoading = true;
               });
 
-              final error = await _authService.registerGeneralUser(
-                name: _nameController.text.trim(),
-                email: _emailController.text.trim(),
-                password: _passwordController.text,
+              final error = await runWithAuthFlowLoader<String?>(
+                context: context,
+                message: 'Creating your account...',
+                action: () => _authService.registerGeneralUser(
+                  name: _nameController.text.trim(),
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text,
+                ),
               );
 
               if (!mounted) {
@@ -1460,10 +1652,10 @@ class _SignUpFormState extends State<_SignUpForm> {
                   MaterialPageRoute(builder: (_) => const HomeScreen()),
                 );
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: $error'),
-                  ),
+                _showAuthErrorSnackbar(
+                  context,
+                  title: 'Sign up failed',
+                  message: error,
                 );
               }
             },
@@ -1530,6 +1722,7 @@ class _LoginFormState extends State<_LoginForm> {
         Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _StaggerReveal(
                 order: 1,
@@ -1573,9 +1766,13 @@ class _LoginFormState extends State<_LoginForm> {
                 _isLoading = true;
               });
 
-              final result = await _authService.loginUser(
-                email: _emailController.text.trim(),
-                password: _passwordController.text,
+              final result = await runWithAuthFlowLoader<AuthResult>(
+                context: context,
+                message: 'Signing you in...',
+                action: () => _authService.loginUser(
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text,
+                ),
               );
 
               if (!mounted) {
@@ -1587,10 +1784,10 @@ class _LoginFormState extends State<_LoginForm> {
               });
 
               if (!result.success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(result.error ?? 'Login failed.'),
-                  ),
+                _showAuthErrorSnackbar(
+                  context,
+                  title: 'Login failed',
+                  message: 'Invalid credentials. Please try again.',
                 );
                 return;
               }
@@ -1674,6 +1871,7 @@ class _ProfessionalFormState extends State<_ProfessionalForm> {
         Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _StaggerReveal(
                 order: 1,
@@ -1743,11 +1941,15 @@ class _ProfessionalFormState extends State<_ProfessionalForm> {
                 _isLoading = true;
               });
 
-              final error = await _authService.registerProfessionalUser(
-                name: _nameController.text.trim(),
-                email: _emailController.text.trim(),
-                password: _passwordController.text,
-                licenseNumber: _licenseController.text.trim(),
+              final error = await runWithAuthFlowLoader<String?>(
+                context: context,
+                message: 'Verifying professional profile...',
+                action: () => _authService.registerProfessionalUser(
+                  name: _nameController.text.trim(),
+                  email: _emailController.text.trim(),
+                  password: _passwordController.text,
+                  licenseNumber: _licenseController.text.trim(),
+                ),
               );
 
               if (!mounted) {
@@ -1763,8 +1965,10 @@ class _ProfessionalFormState extends State<_ProfessionalForm> {
                   MaterialPageRoute(builder: (_) => const PsychiatristScreen()),
                 );
               } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error: $error')),
+                _showAuthErrorSnackbar(
+                  context,
+                  title: 'Verification failed',
+                  message: error,
                 );
               }
             },
@@ -1873,22 +2077,76 @@ class _FullScreenBackgroundImage extends StatelessWidget {
   }
 }
 
-class AnimatedPet extends StatelessWidget {
+class AnimatedPet extends StatefulWidget {
   const AnimatedPet({
     super.key,
     required this.petSize,
+    this.glow = false,
   });
 
   final double petSize;
+  final bool glow;
+
+  @override
+  State<AnimatedPet> createState() => _AnimatedPetState();
+}
+
+class _AnimatedPetState extends State<AnimatedPet>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _floatController;
+
+  @override
+  void initState() {
+    super.initState();
+    _floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3400),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _floatController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/imgs/new-pet.png',
-      height: petSize,
-      fit: BoxFit.contain,
-      filterQuality: FilterQuality.none,
-      gaplessPlayback: true,
+    return AnimatedBuilder(
+      animation: _floatController,
+      builder: (context, child) {
+        final wave = math.sin(_floatController.value * 2 * math.pi);
+        final yOffset = wave * 6.0;
+        return Transform.translate(
+          offset: Offset(0, yOffset),
+          child: child,
+        );
+      },
+      child: Container(
+        decoration: widget.glow
+            ? BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF5CB6A5).withValues(alpha: 0.22),
+                    blurRadius: 20,
+                    spreadRadius: 1.5,
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF2D726B).withValues(alpha: 0.16),
+                    blurRadius: 30,
+                    spreadRadius: 2.0,
+                  ),
+                ],
+              )
+            : null,
+        child: Image.asset(
+          'assets/imgs/new-pet.png',
+          height: widget.petSize,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.none,
+          gaplessPlayback: true,
+        ),
+      ),
     );
   }
 }
