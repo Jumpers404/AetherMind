@@ -6,7 +6,7 @@ class KeystrokeService {
 	KeystrokeService({http.Client? client}) : _client = client ?? http.Client();
 
 	static const String _defaultApiUrl =
-			'http://127.0.0.1:8010/predict';
+		  'https://aethermind-ml.onrender.com/predict';
 	static final Uri _predictUri = Uri.parse(
 		const String.fromEnvironment(
 			'KEYSTROKE_API_URL',
