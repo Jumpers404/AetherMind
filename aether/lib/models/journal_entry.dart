@@ -14,6 +14,8 @@ class JournalEntry {
     required this.stressKeywords,
     required this.cognitivePatterns,
     required this.sentimentLabel,
+    this.keystrokeEmotion = 'unknown',
+    this.keystrokeConfidence = 0.0,
     required this.processed,
   });
 
@@ -29,6 +31,8 @@ class JournalEntry {
   final List<String> stressKeywords;
   final List<String> cognitivePatterns;
   final String sentimentLabel;
+  final String keystrokeEmotion;
+  final double keystrokeConfidence;
   final bool processed;
 
   Map<String, dynamic> toMap() {
@@ -45,6 +49,8 @@ class JournalEntry {
       'stress_keywords': List<String>.from(stressKeywords),
       'cognitive_patterns': List<String>.from(cognitivePatterns),
       'sentiment_label': sentimentLabel,
+      'keystroke_emotion': keystrokeEmotion,
+      'keystroke_confidence': keystrokeConfidence,
       'processed': processed,
     };
   }
@@ -63,6 +69,8 @@ class JournalEntry {
       stressKeywords: _parseStringList(map['stress_keywords']),
       cognitivePatterns: _parseStringList(map['cognitive_patterns']),
       sentimentLabel: map['sentiment_label'] as String? ?? '',
+      keystrokeEmotion: map['keystroke_emotion'] as String? ?? 'unknown',
+      keystrokeConfidence: _parseDouble(map['keystroke_confidence']),
       processed: map['processed'] as bool? ?? false,
     );
   }

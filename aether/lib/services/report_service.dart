@@ -14,6 +14,8 @@ class MentalHealthReport {
     required this.emotionalVariability,
     required this.riskFlags,
     required this.behavioralInsights,
+    required this.keystrokeEmotion,
+    required this.keystrokeConfidence,
     required this.summary,
   });
 
@@ -28,6 +30,8 @@ class MentalHealthReport {
   final String emotionalVariability;
   final List<String> riskFlags;
   final List<String> behavioralInsights;
+  final String keystrokeEmotion;
+  final double keystrokeConfidence;
   final String summary;
 }
 
@@ -51,6 +55,8 @@ class ReportService {
         emotionalVariability: 'low',
         riskFlags: <String>[],
         behavioralInsights: <String>[],
+        keystrokeEmotion: 'unknown',
+        keystrokeConfidence: 0.0,
         summary: 'No data available for this period.',
       );
     }
@@ -95,6 +101,8 @@ class ReportService {
       emotionalVariability: emotionalVariability,
       riskFlags: riskFlags,
       behavioralInsights: behavioralInsights,
+      keystrokeEmotion: 'mixed',
+      keystrokeConfidence: 0.0,
       summary: summary,
     );
   }
@@ -128,6 +136,8 @@ class ReportService {
         emotionalVariability: 'low',
         riskFlags: <String>[],
         behavioralInsights: <String>[],
+        keystrokeEmotion: 'unknown',
+        keystrokeConfidence: 0.0,
         summary: 'No sufficient data available',
       );
     }
@@ -172,6 +182,8 @@ class ReportService {
       emotionalVariability: 'low',
       riskFlags: riskFlags,
       behavioralInsights: behavioralInsights,
+      keystrokeEmotion: entry.keystrokeEmotion,
+      keystrokeConfidence: entry.keystrokeConfidence,
       summary: summary,
     );
   }

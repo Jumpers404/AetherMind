@@ -37,6 +37,8 @@ class ReportScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildStressLevelCard(context, stressStyle),
             const SizedBox(height: 16),
+            _buildKeystrokeSignalCard(context),
+            const SizedBox(height: 16),
             _buildEmotionalVariabilityCard(context),
             const SizedBox(height: 16),
             _buildEmotionDistributionCard(context),
@@ -318,6 +320,74 @@ class ReportScreen extends StatelessWidget {
             Text(
               'Variability: ${_titleCase(report.emotionalVariability)}',
               style: const TextStyle(color: Color(0xFF546E7A), fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildKeystrokeSignalCard(BuildContext context) {
+    final emotion = report.keystrokeEmotion.trim().isEmpty
+        ? 'unknown'
+        : report.keystrokeEmotion;
+    final confidencePercent = (report.keystrokeConfidence * 100).clamp(0, 100);
+
+    final showAsKnown = emotion.toLowerCase() != 'unknown' && emotion.toLowerCase() != 'mixed';
+    final chipColor = showAsKnown ? const Color(0xFFE6F4EA) : const Color(0xFFECEFF1);
+    final chipTextColor = showAsKnown ? const Color(0xFF1B5E20) : const Color(0xFF455A64);
+
+    return Card(
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.keyboard_outlined),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Keystroke Signal',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: chipColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _titleCase(emotion),
+                    style: TextStyle(
+                      color: chipTextColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildMetricRow(
+              'Confidence',
+              '${confidencePercent.toStringAsFixed(1)}%',
+            ),
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                minHeight: 8,
+                value: report.keystrokeConfidence.clamp(0.0, 1.0),
+                backgroundColor: const Color(0xFFE9EEF3),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  showAsKnown ? const Color(0xFF2E7D32) : const Color(0xFF78909C),
+                ),
+              ),
             ),
           ],
         ),

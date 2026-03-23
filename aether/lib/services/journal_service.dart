@@ -17,6 +17,8 @@ class JournalService {
       print('SERVICE: Writing to Firestore...');
       print('Saving journal for UID: ${entry.userId}');
       final data = entry.toMap();
+  data['keystroke_emotion'] = entry.keystrokeEmotion;
+  data['keystroke_confidence'] = entry.keystrokeConfidence;
       data['timestamp'] = FieldValue.serverTimestamp();
       await _collection.doc(entry.id).set(data);
       print('SERVICE: Write successful');

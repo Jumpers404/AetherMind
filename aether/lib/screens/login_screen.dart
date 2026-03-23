@@ -502,7 +502,6 @@ class _AnimatedTopBottomGradient extends StatefulWidget {
   const _AnimatedTopBottomGradient({
     this.gridColumns,
     this.animationSpeed = 1.0,
-    this.colorIntensity = 1.25,
   });
 
   final int? gridColumns;

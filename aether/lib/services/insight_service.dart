@@ -38,6 +38,7 @@ class InsightService {
       stressLevel: stressLevel,
       riskFlags: riskFlags,
     );
+    final fusion = _buildSignalFusion(sorted);
 
     return <String, dynamic>{
       'trend': trend,
@@ -46,6 +47,43 @@ class InsightService {
       'risk_flags': riskFlags,
       'behavioral_insights': behavioralInsights,
       'summary': summary,
+      'signal_fusion': fusion,
+    };
+  }
+
+  Map<String, dynamic> _buildSignalFusion(List<JournalEntry> journals) {
+    var aligned = 0;
+    var mixed = 0;
+    var confidenceBoost = 0.0;
+
+    for (final journal in journals) {
+      final journalEmotion = _resolveEmotion(journal).toLowerCase();
+      final keyEmotion = journal.keystrokeEmotion.toLowerCase().trim();
+      final keyConfidence = journal.keystrokeConfidence;
+
+      if (keyEmotion.isEmpty || keyEmotion == 'unknown') {
+        continue;
+      }
+
+      if (journalEmotion == keyEmotion) {
+        aligned += 1;
+        confidenceBoost += 0.1 * keyConfidence;
+      } else {
+        mixed += 1;
+      }
+    }
+
+    final signalStatus = mixed > aligned
+        ? 'mixed signal'
+        : aligned > 0
+            ? 'aligned'
+            : 'insufficient keystroke signal';
+
+    return <String, dynamic>{
+      'status': signalStatus,
+      'aligned_count': aligned,
+      'mixed_count': mixed,
+      'confidence_boost': confidenceBoost,
     };
   }
 
