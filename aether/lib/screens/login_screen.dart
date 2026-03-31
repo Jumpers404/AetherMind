@@ -500,9 +500,7 @@ class _LoginScreenState extends State<LoginScreen>
 
 class _AnimatedTopBottomGradient extends StatefulWidget {
   const _AnimatedTopBottomGradient({
-    this.gridColumns,
     this.animationSpeed = 1.0,
-    this.colorIntensity = 1.0,
   });
 
   final int? gridColumns;

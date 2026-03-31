@@ -3,6 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../services/report_service.dart';
 
+const Color kPrimaryTeal = Color(0xFF6EC6B3);
+const Color kPrimaryTealDark = Color(0xFF4DA692);
+
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key, required this.report});
 
@@ -29,7 +32,7 @@ class ReportScreen extends StatelessWidget {
             fontFamily: 'Doto',
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF1E3A45),
+            color: kPrimaryTealDark,
           ),
         ),
       ),

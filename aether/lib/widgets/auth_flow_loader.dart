@@ -18,7 +18,7 @@ Future<T> runWithAuthFlowLoader<T>({
     context: context,
     barrierDismissible: false,
     barrierColor: Colors.black.withOpacity(0.25),
-    pageBuilder: (ctx, _, __) {
+    pageBuilder: (ctx, _, _) {
       dialogContext = ctx;
       return _SnakeLoader(message: message);
     },

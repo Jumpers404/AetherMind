@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+
+const Color kPrimaryTeal = Color(0xFF6EC6B3);
+const Color kPrimaryTealDark = Color(0xFF4DA692);
 class NotificationScreen extends StatelessWidget {
-  const NotificationScreen({Key? key}) : super(key: key);
+  const NotificationScreen({super.key});
 
   // Example notifications list. Replace with real data when available.
   List<Map<String, String>> _mockNotifications() {
     return [
       {
         'avatar': '',
-        'text': 'alex started following you',
+        'text': 'Write your daily journal',
         'time': '2h'
       },
       {
         'avatar': '',
-        'text': 'sara liked your journal entry',
+        'text': 'Claim your 50XP bonus for maintaining the streak',
         'time': '6h'
       },
       {
         'avatar': '',
-        'text': 'daily reminder: check-in today',
+        'text': 'You got a friend request from Aether',
         'time': '1d'
       },
     ];
@@ -41,7 +44,7 @@ class NotificationScreen extends StatelessWidget {
         title: Text(
           'Notifications',
           style: GoogleFonts.doto(
-            color: const Color(0xFF203D49),
+            color: kPrimaryTeal,
             fontWeight: FontWeight.w700,
             fontSize: 22,
           ),
@@ -108,7 +111,7 @@ class NotificationScreen extends StatelessWidget {
                             width: 52,
                             height: 36,
                             decoration: BoxDecoration(color: const Color(0xFFF4F9F7), borderRadius: BorderRadius.circular(8)),
-                            child: Center(child: Text('View', style: GoogleFonts.poppins(color: const Color(0xFF244A44), fontWeight: FontWeight.w600))),
+                            child: Center(child: Text('Check', style: GoogleFonts.poppins(color: const Color(0xFF244A44), fontWeight: FontWeight.w600))),
                           ),
                         ],
                       ),

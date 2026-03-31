@@ -1,177 +1,306 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
+// Using local font 'Doto' (declared in pubspec.yaml)
 
-class ProfileScreen extends StatelessWidget {
-  final VoidCallback onSignOut;
-  const ProfileScreen({Key? key, required this.onSignOut}) : super(key: key);
+// Design system colors
+const Color kPrimaryTeal = Color(0xFF6EC6B3);
+const Color kPrimaryTealDark = Color(0xFF4DA692);
+const Color kBackground = Color(0xFFF5F7F6);
+const double kRadius = 20.0;
+
+class UserProfile {
+  final String username;
+  final String fullName;
+  final int followers;
+  final int following;
+  final List<String> tags;
+  final List<BadgeModel> badges;
+  final int streak;
+  final double goalProgress;
+
+  UserProfile({
+    required this.username,
+    required this.fullName,
+    required this.followers,
+    required this.following,
+    required this.tags,
+    required this.badges,
+    required this.streak,
+    required this.goalProgress,
+  });
+}
+
+class BadgeModel {
+  final String title;
+  final IconData icon;
+  final Color color;
+
+  BadgeModel({required this.title, required this.icon, required this.color});
+}
+
+class ProfileScreen extends StatefulWidget {
+  final UserProfile? user;
+  final VoidCallback? onSignOut;
+
+  const ProfileScreen({Key? key, this.user, this.onSignOut}) : super(key: key);
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _animController;
+  late final Animation<double> _fadeIn;
+
+  late final UserProfile _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _fadeIn = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _animController.forward();
+
+    // Fallback demo user when not provided (still dynamic)
+    _user = widget.user ?? UserProfile(
+      username: '@johndoe',
+      fullName: 'John Doe',
+      followers: 1240,
+      following: 312,
+      tags: ['Mindfulness', 'Sleep', 'Anxiety', 'Breathing', 'Daily Journal'],
+      badges: List.generate(6, (i) => BadgeModel(title: 'Badge ${i+1}', icon: Icons.self_improvement, color: const Color.fromARGB(255, 27, 233, 188))),
+      streak: 12,
+      goalProgress: 0.64,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final displayName = (user?.displayName != null && user!.displayName!.trim().isNotEmpty)
-      ? user.displayName!
-      : (user?.email?.split('@').first ?? 'Your Name');
-    final email = user?.email ?? 'you@example.com';
-    final photoUrl = user?.photoURL;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FBFA),
+      backgroundColor: kBackground,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF203D49)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Profile',
-          style: GoogleFonts.doto(
-            color: const Color(0xFF203D49),
-            fontWeight: FontWeight.w700,
-            fontSize: 22,
+        centerTitle: true,
+        title: Text('Profile', style: const TextStyle(fontFamily: 'Doto', color: kPrimaryTealDark, fontWeight: FontWeight.w600, fontSize: 22)),
+        leading: BackButton(color: kPrimaryTealDark),
+      ),
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeIn,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    ProfileHeader(user: _user),
+                    const SizedBox(height: 14),
+                    TagsSection(tags: _user.tags),
+                    const SizedBox(height: 14),
+                    StreakGoalsSection(streak: _user.streak, goalProgress: _user.goalProgress),
+                    const SizedBox(height: 120),
+                  ]),
+                ),
+              ),
+            ],
           ),
         ),
-        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 18),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Colors.white.withOpacity(0.92), const Color(0xFFF4F9F7)],
-                ),
-                border: Border.all(color: Colors.white.withOpacity(0.9), width: 1),
-                boxShadow: [
-                  BoxShadow(color: const Color(0xFF1D3D47).withOpacity(0.06), blurRadius: 18, offset: const Offset(0, 8)),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 84,
-                      height: 84,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFEAF3EF),
-                        boxShadow: [BoxShadow(color: const Color(0xFF203A42).withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 6))],
-                      ),
-                      child: ClipOval(
-                        child: photoUrl != null && photoUrl.isNotEmpty
-                            ? Image.network(photoUrl, fit: BoxFit.cover, errorBuilder: (c, s, e) => const Icon(Icons.person_rounded, size: 42, color: Color(0xFF217F66)))
-                            : const Center(child: Icon(Icons.person_rounded, size: 42, color: Color(0xFF217F66))),
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(displayName, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF203D49))),
-                          const SizedBox(height: 6),
-                          Text(email, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.poppins(fontSize: 13.5, fontWeight: FontWeight.w500, color: const Color(0xFF6E818D))),
-                          const SizedBox(height: 8),
-                          Row(children: [
-                            Container(padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10), decoration: BoxDecoration(color: const Color(0xFFD9F1E7), borderRadius: BorderRadius.circular(10)), child: Text('Premium', style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFF2D726B), fontWeight: FontWeight.w600))),
-                          ]),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const SizedBox(height: 22),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _ProfileStatCard(title: 'Streak', value: '12'),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ProfileStatCard(title: 'Check-ins', value: '42'),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ProfileStatCard(title: 'Minutes', value: '320'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 22),
-            Expanded(
-              child: Center(
-                child: Text(
-                  'Manage your account, view activity, and sign out from here.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(color: const Color(0xFF4D6A72)),
-                ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(bottom: 18.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF244A44),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                    side: const BorderSide(color: Color(0xFFEAF3EF)),
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    onSignOut();
-                  },
-                  child: Text('Sign out', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-                ),
-              ),
-            ),
-          ],
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: SizedBox(
+            height: 60,
+            child: _buildSignOut(context),
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildSignOut(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        widget.onSignOut?.call();
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: kPrimaryTealDark,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      child: const Text('Sign out', style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600, fontSize: 16)),
+    );
+  }
 }
 
-class _ProfileStatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  const _ProfileStatCard({Key? key, required this.title, required this.value}) : super(key: key);
+// ------------------- Widgets -------------------
+
+class ProfileHeader extends StatelessWidget {
+  final UserProfile user;
+
+  const ProfileHeader({Key? key, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
+    final textTheme = Theme.of(context).textTheme;
+    return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: const Color(0xFF203A42).withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 6))],
+        borderRadius: BorderRadius.circular(kRadius),
+        gradient: const LinearGradient(colors: [kPrimaryTeal, Color(0xFFDFF7F2)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 18, offset: const Offset(0, 8))],
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(value, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 6),
-            Text(title, style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFF6E818D))),
-          ],
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(user.username, style: const TextStyle(fontFamily: 'Poppins', color: Colors.white70, fontSize: 13)),
+                const SizedBox(height: 6),
+                Text(user.fullName, style: const TextStyle(fontFamily: 'Doto', color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 12),
+                Row(children: [
+                  _statItem('${user.followers}', 'Followers'),
+                  const SizedBox(width: 12),
+                  _statItem('${user.following}', 'Following'),
+                ])
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Hero(
+            tag: 'profile-avatar-${user.username}',
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {},
+                borderRadius: BorderRadius.circular(40),
+                child: Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.18),
+                    border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
+                  ),
+                  child: const Center(child: Icon(Icons.person_rounded, color: Colors.white, size: 34)),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statItem(String value, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(value, style: const TextStyle(fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(fontFamily: 'Poppins', color: Colors.white70, fontSize: 12)),
+      ],
+    );
+  }
+}
+
+class TagsSection extends StatelessWidget {
+  final List<String> tags;
+
+  const TagsSection({Key? key, required this.tags}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 44,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: List.generate(tags.length, (i) {
+            final tag = tags[i];
+            return Padding(
+              padding: EdgeInsets.only(left: i == 0 ? 4 : 8, right: i == tags.length - 1 ? 8 : 0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: kPrimaryTeal.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(tag, style: const TextStyle(fontFamily: 'Poppins', color: kPrimaryTealDark, fontSize: 13)),
+              ),
+            );
+          }),
         ),
       ),
     );
   }
 }
+
+
+
+class StreakGoalsSection extends StatelessWidget {
+  final int streak;
+  final double goalProgress;
+
+  const StreakGoalsSection({Key? key, required this.streak, required this.goalProgress}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final isNarrow = constraints.maxWidth < 360;
+      return isNarrow ? Column(children: _children(context)) : Row(children: _children(context));
+    });
+  }
+
+  List<Widget> _children(BuildContext context) {
+    return [
+      Expanded(
+        child: Container(
+          height: 110,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: LinearGradient(colors: [kPrimaryTeal.withOpacity(0.14), Colors.white], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+          padding: const EdgeInsets.all(14),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+            Row(children: [
+              Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: kPrimaryTeal.withOpacity(0.18), borderRadius: BorderRadius.circular(10)), child: const Icon(Icons.local_fire_department, color: kPrimaryTealDark)),
+              const SizedBox(width: 10),
+              Text('Streak', style: const TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w600, color: kPrimaryTealDark)),
+            ]),
+            const SizedBox(height: 12),
+            Text('$streak days', style: const TextStyle(fontFamily: 'Poppins', fontSize: 20, fontWeight: FontWeight.w700, color: kPrimaryTealDark)),
+          ]),
+        ),
+      ),
+      const SizedBox(width: 12, height: 12),
+      Expanded(
+        child: Container(
+          height: 110,
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 6))]),
+          padding: const EdgeInsets.all(14),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+            Text('Goals', style: const TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w600, color: kPrimaryTealDark)),
+            const SizedBox(height: 10),
+            Row(children: [
+              Expanded(child: LinearProgressIndicator(value: goalProgress, color: kPrimaryTeal, backgroundColor: Colors.grey.shade200)),
+              const SizedBox(width: 10),
+              Text('${(goalProgress * 100).toInt()}%', style: const TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600, color: kPrimaryTealDark)),
+            ])
+          ]),
+        ),
+      ),
+    ];
+  }
+}
+

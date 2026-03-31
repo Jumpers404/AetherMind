@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +7,9 @@ import 'package:flutter/material.dart';
 import '../services/journal_controller.dart';
 import '../services/report_service.dart';
 import 'report_screen.dart';
+
+const Color kPrimaryTeal = Color(0xFF6EC6B3);
+const Color kPrimaryTealDark = Color(0xFF4DA692);
 
 class JournalTestScreen extends StatefulWidget {
   const JournalTestScreen({super.key});
@@ -152,7 +154,7 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
             fontFamily: 'Doto',
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF1E3A46),
+            color: kPrimaryTealDark,
           ),
         ),
       ),
