@@ -7,13 +7,16 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'journal_test_screen.dart';
 import 'report_screen.dart';
+import 'test_experience_screen.dart';
+import 'dream_entry_screen.dart';
+import 'support_wall_screen.dart';
+import 'fact_reels_screen.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
 import 'notification_screen.dart';
-import 'test_experience_screen.dart';
-import 'dream_entry_screen.dart';
 import '../services/report_controller.dart';
 import '../widgets/auth_flow_loader.dart';
+import '../app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,11 +25,10 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-  with TickerProviderStateMixin {
-  static const _horizontalPadding = 20.0;
-  static const _sectionSpacing = 24.0;
-  static const _internalSpacing = 14.0;
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+  static const _horizontalPadding = AppSpacing.md;
+  static const _sectionSpacing = AppSpacing.md;
+  static const _internalSpacing = AppSpacing.sm;
 
   bool _isLoading = false;
   late final AnimationController _shimmerController;
@@ -93,7 +95,9 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+              padding: const EdgeInsets.symmetric(
+                horizontal: _horizontalPadding,
+              ),
               child: ScrollConfiguration(
                 behavior: const _NoScrollbarBehavior(),
                 child: SingleChildScrollView(
@@ -153,17 +157,17 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _handleCheckInNow() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please sign in first.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please sign in first.')));
       return;
     }
-  final currentUserId = user.uid;
+    final currentUserId = user.uid;
 
     setState(() => _isLoading = true);
 
     try {
-  final report = await _reportController.getWeeklyReport(currentUserId);
+      final report = await _reportController.getWeeklyReport(currentUserId);
 
       if (!mounted) {
         return;
@@ -178,9 +182,7 @@ class _HomeScreenState extends State<HomeScreen>
 
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => ReportScreen(report: report),
-        ),
+        MaterialPageRoute(builder: (_) => ReportScreen(report: report)),
       );
     } catch (_) {
       if (!mounted) {
@@ -222,10 +224,7 @@ class _HomeScreenState extends State<HomeScreen>
 }
 
 class _HeaderSection extends StatelessWidget {
-  const _HeaderSection({
-    required this.userName,
-    required this.onSignOut,
-  });
+  const _HeaderSection({required this.userName, required this.onSignOut});
 
   final String userName;
   final VoidCallback onSignOut;
@@ -244,7 +243,11 @@ class _HeaderSection extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Doto',
                   fontSize: 27,
-                  fontWeight: FontWeight.lerp(FontWeight.w800, FontWeight.w900, 0.4),
+                  fontWeight: FontWeight.lerp(
+                    FontWeight.w800,
+                    FontWeight.w900,
+                    0.4,
+                  ),
                   color: const Color(0xFF1E3A45),
                   height: 1.12,
                 ),
@@ -267,7 +270,9 @@ class _HeaderSection extends StatelessWidget {
               icon: Icons.notifications_none_rounded,
               showDot: true,
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotificationScreen()));
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                );
               },
             ),
             const SizedBox(width: 12),
@@ -294,52 +299,52 @@ class _OptionsMenuButton extends StatelessWidget {
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: Material(
             color: Colors.transparent,
-                  child: Ink(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.82),
-                      Colors.white.withValues(alpha: 0.46),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.68),
-                    width: 1.0,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1C333B).withValues(alpha: 0.10),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
-                    BoxShadow(
-                      color: const Color(0xFF4FB894).withValues(alpha: 0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
+            child: Ink(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withValues(alpha: 0.82),
+                    Colors.white.withValues(alpha: 0.46),
                   ],
                 ),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => ProfileScreen(onSignOut: onSignOut),
-                      ),
-                    );
-                  },
-                  child: const Center(
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: Color(0xFF2FB07E),
-                      size: 22,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.68),
+                  width: 1.0,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1C333B).withValues(alpha: 0.10),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: const Color(0xFF4FB894).withValues(alpha: 0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(onSignOut: onSignOut),
                     ),
+                  );
+                },
+                child: const Center(
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: Color(0xFF2FB07E),
+                    size: 22,
                   ),
                 ),
               ),
+            ),
           ),
         ),
       ),
@@ -348,7 +353,11 @@ class _OptionsMenuButton extends StatelessWidget {
 }
 
 class _RoundActionIcon extends StatelessWidget {
-  const _RoundActionIcon({required this.icon, this.showDot = false, this.onTap});
+  const _RoundActionIcon({
+    required this.icon,
+    this.showDot = false,
+    this.onTap,
+  });
 
   final IconData icon;
   final bool showDot;
@@ -433,7 +442,9 @@ class _RoundActionIcon extends StatelessWidget {
                             border: Border.all(color: Colors.white, width: 1.1),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF3BC497).withValues(alpha: 0.45),
+                                color: const Color(
+                                  0xFF3BC497,
+                                ).withValues(alpha: 0.45),
                                 blurRadius: 6,
                                 offset: const Offset(0, 1),
                               ),
@@ -509,10 +520,7 @@ class _TodayVibeCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(23.2)),
                         border: Border.fromBorderSide(
-                          BorderSide(
-                            color: Color(0xFF79B299),
-                            width: 1.15,
-                          ),
+                          BorderSide(color: Color(0xFF79B299), width: 1.15),
                         ),
                       ),
                     ),
@@ -564,83 +572,89 @@ class _TodayVibeCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                  Expanded(
-                    flex: 58,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Happy to see you...',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: 'Doto',
-                              fontSize: 17,
-                              fontWeight: FontWeight.lerp(FontWeight.w800, FontWeight.w900, 0.4),
-                              color: const Color(0xFF2F9E6F),
+                    Expanded(
+                      flex: 58,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Happy to see you...',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Doto',
+                                fontSize: 17,
+                                fontWeight: FontWeight.lerp(
+                                  FontWeight.w800,
+                                  FontWeight.w900,
+                                  0.4,
+                                ),
+                                color: const Color(0xFF2F9E6F),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Be calm - Stay consistent -\nYou\'re doing great',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12.4,
-                              height: 1.25,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white.withValues(alpha: 0.9),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Be calm - Stay consistent -\nYou\'re doing great',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12.4,
+                                height: 1.25,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          _HeroCheckInButton(
-                            isLoading: isLoading,
-                            onTap: onTapCheckIn,
-                          ),
-                        ],
+                            const Spacer(),
+                            _HeroCheckInButton(
+                              isLoading: isLoading,
+                              onTap: onTapCheckIn,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 42,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      fit: StackFit.expand,
-                      children: [
-                        AnimatedBuilder(
-                          animation: shimmer,
-                          builder: (context, child) {
-                            final y = math.sin(shimmer.value * 2 * math.pi) * 2.8;
-                            return Transform.translate(
-                              offset: Offset(0, y),
-                              child: Transform.scale(
-                                scale: 1.55,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Opacity(
-                              opacity: 0.88,
-                              child: SizedBox(
-                                width: 210,
-                                height: 210,
-                                child: Image.asset(
-                                  'assets/imgs/new-pet.png',
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      const SizedBox.shrink(),
+                    Expanded(
+                      flex: 42,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        fit: StackFit.expand,
+                        children: [
+                          AnimatedBuilder(
+                            animation: shimmer,
+                            builder: (context, child) {
+                              final y =
+                                  math.sin(shimmer.value * 2 * math.pi) * 2.8;
+                              return Transform.translate(
+                                offset: Offset(0, y),
+                                child: Transform.scale(
+                                  scale: 1.55,
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Opacity(
+                                opacity: 0.88,
+                                child: SizedBox(
+                                  width: 210,
+                                  height: 210,
+                                  child: Image.asset(
+                                    'assets/imgs/new-pet.png',
+                                    fit: BoxFit.contain,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const SizedBox.shrink(),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
                   ],
                 ),
               ),
@@ -658,7 +672,8 @@ class _CardPixelPanelPainter extends CustomPainter {
   final Animation<double> progress;
 
   double _hash01(int x, int y, [int salt = 0]) {
-    final n = math.sin((x * 127.1 + y * 311.7 + salt * 74.7).toDouble()) *
+    final n =
+        math.sin((x * 127.1 + y * 311.7 + salt * 74.7).toDouble()) *
         43758.5453123;
     return n - n.floorToDouble();
   }
@@ -673,7 +688,8 @@ class _CardPixelPanelPainter extends CustomPainter {
 
     final t = progress.value * 2 * math.pi;
     final focusX = size.width * (0.22 + (0.58 * (0.5 + (0.5 * math.sin(t)))));
-    final focusY = size.height * (0.30 + (0.40 * (0.5 + (0.5 * math.cos(t + 0.8)))));
+    final focusY =
+        size.height * (0.30 + (0.40 * (0.5 + (0.5 * math.cos(t + 0.8)))));
     final spanY = size.height.clamp(1.0, double.infinity);
 
     for (var row = 0; row < rows; row++) {
@@ -691,7 +707,8 @@ class _CardPixelPanelPainter extends CustomPainter {
         final phase = _hash01(col, row, 1) * 2 * math.pi;
         final phase2 = _hash01(col, row, 2) * 2 * math.pi;
         final wave = 0.5 + 0.5 * math.sin((nx * 4.8) + (ny * 3.7) + phase + t);
-        final sweep = 0.5 + 0.5 * math.cos((nx * 6.9) - (ny * 2.9) - phase2 + (t * 2));
+        final sweep =
+            0.5 + 0.5 * math.cos((nx * 6.9) - (ny * 2.9) - phase2 + (t * 2));
         final blend = (0.58 * wave) + (0.42 * sweep);
 
         final vx = (cx - focusX) / size.width;
@@ -709,8 +726,8 @@ class _CardPixelPanelPainter extends CustomPainter {
 
         final depth = (0.72 + (0.28 * ny)).clamp(0.0, 1.0);
         final alpha =
-          (((0.045 + (0.18 * blend)) * visibility * depth) * intensityBoost)
-            .clamp(0.0, 0.45);
+            (((0.045 + (0.18 * blend)) * visibility * depth) * intensityBoost)
+                .clamp(0.0, 0.45);
 
         paint.color = Color.lerp(
           const Color(0xFF6FB09A),
@@ -726,16 +743,27 @@ class _CardPixelPanelPainter extends CustomPainter {
           final starPhase = _hash01(col, row, 4) * 2 * math.pi;
           final starBase = 0.5 + 0.5 * math.sin((t * 2) + starPhase);
           final starTwinkle = 0.5 + 0.5 * math.sin((t * 3) + (phase * 1.2));
-          final starPulse = math.pow(((starBase * 0.7) + (starTwinkle * 0.3)).clamp(0.0, 1.0), 4.0).toDouble();
+          final starPulse = math
+              .pow(
+                ((starBase * 0.7) + (starTwinkle * 0.3)).clamp(0.0, 1.0),
+                4.0,
+              )
+              .toDouble();
 
           final starStrength =
               (starPulse * (0.55 + (0.45 * _hash01(col, row, 5))) * visibility)
                   .clamp(0.0, 1.0);
           if (starStrength > 0.07) {
-            final starTint = Color.lerp(const Color(0xFFA1E0C6), Colors.white, starStrength)!;
+            final starTint = Color.lerp(
+              const Color(0xFFA1E0C6),
+              Colors.white,
+              starStrength,
+            )!;
             paint.color = starTint.withValues(
-              alpha: ((0.03 + (0.16 * starStrength)) * intensityBoost)
-                  .clamp(0.0, 0.225),
+              alpha: ((0.03 + (0.16 * starStrength)) * intensityBoost).clamp(
+                0.0,
+                0.225,
+              ),
             );
             canvas.drawRect(Rect.fromLTRB(left, top, right, bottom), paint);
           }
@@ -790,7 +818,9 @@ class _HeroCheckInButton extends StatelessWidget {
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Row(
@@ -873,11 +903,7 @@ class _ProgressSection extends StatelessWidget {
 
             if (isNarrow) {
               return Column(
-                children: [
-                  card1,
-                  const SizedBox(height: 12),
-                  card2,
-                ],
+                children: [card1, const SizedBox(height: 12), card2],
               );
             }
 
@@ -951,30 +977,30 @@ class _ProgressStatCard extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(
-                  width: 54,
-                  height: 54,
+                width: 54,
+                height: 54,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                      SizedBox(
-                        width: 54,
-                        height: 54,
-                        child: CircularProgressIndicator(
-                          value: progress,
-                          strokeWidth: 5,
-                          backgroundColor: const Color(0xFFE3ECE8),
-                          valueColor: AlwaysStoppedAnimation<Color>(ringColor),
-                        ),
+                    SizedBox(
+                      width: 54,
+                      height: 54,
+                      child: CircularProgressIndicator(
+                        value: progress,
+                        strokeWidth: 5,
+                        backgroundColor: const Color(0xFFE3ECE8),
+                        valueColor: AlwaysStoppedAnimation<Color>(ringColor),
                       ),
-                      Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          color: iconBg,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(icon, color: ringColor, size: 18),
+                    ),
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: iconBg,
+                        shape: BoxShape.circle,
                       ),
+                      child: Icon(icon, color: ringColor, size: 18),
+                    ),
                   ],
                 ),
               ),
@@ -1072,15 +1098,58 @@ class _QuickActionsRow extends StatelessWidget {
           children: [
             _QuickActionCard(
               size: cardSize,
+              title: 'Safe Space',
+              subtitle: 'Connect • Anonymous',
+              icon: Icons.favorite_rounded,
+              gradient: const [
+                Color(0xFFE5989B),
+                Color(0xFFFFB5A7),
+              ], // Soft pink/coral
+              buttonText: 'Open',
+              buttonIcon: Icons.people_alt_rounded,
+              buttonTextColor: const Color(0xFF8F4145),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SupportWallScreen()),
+                );
+              },
+            ),
+            const SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Facts',
+              subtitle: 'Mind in moments • 1–2 min',
+              icon: Icons.psychology_rounded,
+              gradient: const [
+                Color(0xFF80CBC4),
+                Color(0xFFB2DFDB),
+              ], // Prescribed exact gradient
+              buttonText: 'Open',
+              buttonIcon: Icons.play_arrow_rounded,
+              buttonTextColor: const Color(0xFF26665D),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const FactReelsScreen()),
+                );
+              },
+            ),
+            const SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
               title: 'Anxiety Test',
               subtitle: 'Story-driven • 2–3 min',
               icon: Icons.blur_on_rounded,
-              gradient: [Color(0xFFD7EAF8), Color(0xFFBBDFF2)],
+              gradient: const [Color(0xFF7CB6DE), Color(0xFFA1CBE8)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: Color(0xFF4A86D7),
+              buttonTextColor: const Color(0xFF3569A5),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.anxietyTest())));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        TestExperienceScreen(testData: TestData.anxietyTest()),
+                  ),
+                );
               },
             ),
             const SizedBox(width: 14),
@@ -1089,12 +1158,17 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Stress Test',
               subtitle: 'Warm • 2–3 min',
               icon: Icons.local_fire_department_rounded,
-              gradient: [Color(0xFFFFE1C9), Color(0xFFF5B88A)],
+              gradient: const [Color(0xFFE88A58), Color(0xFFF0AA82)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: Color(0xFFF1914E),
+              buttonTextColor: const Color(0xFFC1662F),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.stressTest())));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        TestExperienceScreen(testData: TestData.stressTest()),
+                  ),
+                );
               },
             ),
             const SizedBox(width: 14),
@@ -1103,12 +1177,18 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Self-esteem Test',
               subtitle: 'Uplifting • 2–3 min',
               icon: Icons.self_improvement_rounded,
-              gradient: [Color(0xFFDFF7EE), Color(0xFFBEEBD7)],
+              gradient: const [Color(0xFF81C784), Color(0xFFA5D6A7)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: Color(0xFF2EA985),
+              buttonTextColor: const Color(0xFF2B8C43),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.selfEsteemTest())));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TestExperienceScreen(
+                      testData: TestData.selfEsteemTest(),
+                    ),
+                  ),
+                );
               },
             ),
             const SizedBox(width: 14),
@@ -1117,12 +1197,18 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Depression Test',
               subtitle: 'Muted • 2–3 min',
               icon: Icons.cloud_queue_rounded,
-              gradient: [Color(0xFFF0F3F8), Color(0xFFE7EAF0)],
+              gradient: const [Color(0xFFB1BCCF), Color(0xFFC7D0E0)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: Color(0xFF667085),
+              buttonTextColor: const Color(0xFF4B566E),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.depressionTest())));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TestExperienceScreen(
+                      testData: TestData.depressionTest(),
+                    ),
+                  ),
+                );
               },
             ),
           ],
@@ -1316,8 +1402,8 @@ class _InteractiveScaleCardState extends State<_InteractiveScaleCard> {
     final scale = _isPressed
         ? 0.97
         : _isHovered
-            ? 1.01
-            : 1.0;
+        ? 1.01
+        : 1.0;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -1481,7 +1567,9 @@ class _SuggestedRow extends StatelessWidget {
           title: 'Dream Recorder',
           subtitle: 'Log a dream • Journal',
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DreamEntryScreen()));
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const DreamEntryScreen()));
           },
         ),
       ],
@@ -1539,7 +1627,10 @@ class _SuggestedCard extends StatelessWidget {
                   Container(
                     width: dense ? 40 : (compact ? 44 : 52),
                     height: dense ? 40 : (compact ? 44 : 52),
-                    decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: iconBg,
+                      shape: BoxShape.circle,
+                    ),
                     child: Icon(
                       icon,
                       size: dense ? 23 : (compact ? 25 : 30),
@@ -1680,11 +1771,11 @@ class _NoScrollbarBehavior extends MaterialScrollBehavior {
 
   @override
   Set<PointerDeviceKind> get dragDevices => const {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.trackpad,
-        PointerDeviceKind.stylus,
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.stylus,
+  };
 
   @override
   Widget buildScrollbar(
@@ -1695,4 +1786,3 @@ class _NoScrollbarBehavior extends MaterialScrollBehavior {
     return child;
   }
 }
-

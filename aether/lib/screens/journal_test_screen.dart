@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import '../services/journal_controller.dart';
 import '../services/report_service.dart';
 import 'report_screen.dart';
-
-const Color kPrimaryTeal = Color(0xFF6EC6B3);
-const Color kPrimaryTealDark = Color(0xFF4DA692);
+import '../app_theme.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_chip.dart';
 
 class JournalTestScreen extends StatefulWidget {
   const JournalTestScreen({super.key});
@@ -143,7 +143,7 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5FAF7),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -154,28 +154,30 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
             fontFamily: 'Doto',
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: kPrimaryTealDark,
+            color: AppColors.textPrimary,
           ),
         ),
       ),
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(0, 12, 0, 100),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 100),
             child: Column(
               children: [
                 _InfoCard(),
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.md),
 
-                ..._questions.map((q) => _QuestionCard(
-                      q: q,
-                      selected: _selectedAnswers[q.id],
-                      onSelect: (v) {
-                        setState(() => _selectedAnswers[q.id] = v);
-                      },
-                    )),
+                ..._questions.map((q) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: _QuestionCard(
+                        q: q,
+                        selected: _selectedAnswers[q.id],
+                        onSelect: (v) {
+                          setState(() => _selectedAnswers[q.id] = v);
+                        },
+                      ),
+                )),
 
-                const SizedBox(height: 14),
                 _FreeWriteCard(controller: _controller),
               ],
             ),
@@ -183,9 +185,9 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
 
           /// Sticky Button
           Positioned(
-            left: 16,
-            right: 16,
-            bottom: 20,
+            left: AppSpacing.md,
+            right: AppSpacing.md,
+            bottom: AppSpacing.lg,
             child: _SubmitButton(
               isLoading: _isLoading,
               onTap: _handleSubmit,
@@ -202,28 +204,19 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
 class _InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FractionallySizedBox(
-        widthFactor: 0.94,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              colors: [
-                const Color(0xFFDCF4E9),
-                Colors.white.withOpacity(0.9),
-              ],
-            ),
-          ),
-          child: Text(
-            'Reflect on your day. Answer a few prompts or write freely.',
-            style: GoogleFonts.poppins(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF2F5C63),
-            ),
-          ),
+    return AppCard(
+      gradient: LinearGradient(
+        colors: [
+          const Color(0xFFDCF4E9),
+          Colors.white.withValues(alpha: 0.9),
+        ],
+      ),
+      child: Text(
+        'Reflect on your day. Answer a few prompts or write freely.',
+        style: GoogleFonts.poppins(
+          fontSize: 12.5,
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFF2F5C63),
         ),
       ),
     );
@@ -236,26 +229,25 @@ class _FreeWriteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FractionallySizedBox(
-        widthFactor: 0.94,
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white,
+    return AppCard(
+      child: TextField(
+        controller: controller,
+        minLines: 5,
+        maxLines: 10,
+        style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textPrimary),
+        decoration: InputDecoration(
+          hintText: 'Write thoughts, triggers, wins...',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderSide: const BorderSide(color: Colors.transparent),
           ),
-          child: TextField(
-            controller: controller,
-            minLines: 5,
-            maxLines: 10,
-            style: GoogleFonts.poppins(fontSize: 13),
-            decoration: InputDecoration(
-              hintText: 'Write thoughts, triggers, wins...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderSide: const BorderSide(color: AppColors.background),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderSide: const BorderSide(color: AppColors.primary),
           ),
         ),
       ),
@@ -275,16 +267,16 @@ class _SubmitButton extends StatelessWidget {
       onPressed: isLoading ? null : onTap,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(56),
-        backgroundColor: const Color.fromARGB(255, 36, 120, 116),
+        backgroundColor: AppColors.primary,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
       ),
       child: isLoading
           ? const CircularProgressIndicator(color: Colors.white)
-          : Text(
+          : const Text(
               'Submit Entry',
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
@@ -322,77 +314,32 @@ class _QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FractionallySizedBox(
-        widthFactor: 0.94,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.white.withOpacity(0.92),
-            border: Border.all(color: Colors.white),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF203A43).withOpacity(0.08),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            q.title,
+            style: const TextStyle(
+              fontFamily: 'Doto',
+              fontSize: 16.5,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                q.title,
-                style: const TextStyle(
-                  fontFamily: 'Doto',
-                  fontSize: 16.5,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF21464D),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: q.options.map((o) {
-                  final isSelected = selected == o;
-
-                  return GestureDetector(
-                    onTap: () => onSelect(o),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: isSelected
-                            ? const Color(0xFFDDF5EA)
-                            : const Color(0xFFF5FAF7),
-                        border: Border.all(
-                          color: isSelected
-                              ? const Color(0xFF8ED7B7)
-                              : const Color(0xFFD7E7E1),
-                        ),
-                      ),
-                      child: Text(
-                        o,
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: isSelected
-                              ? const Color(0xFF1E5944)
-                              : const Color(0xFF335D63),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: q.options.map((o) {
+              return AppChip(
+                label: o,
+                isSelected: selected == o,
+                onTap: () => onSelect(o),
+              );
+            }).toList(),
           ),
-        ),
+        ],
       ),
     );
   }

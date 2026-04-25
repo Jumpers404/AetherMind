@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/report_service.dart';
-
-const Color kPrimaryTeal = Color(0xFF6EC6B3);
-const Color kPrimaryTealDark = Color(0xFF4DA692);
+import '../app_theme.dart';
+import '../widgets/app_card.dart';
+import '../widgets/app_chip.dart';
 
 class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key, required this.report});
@@ -21,50 +21,50 @@ class ReportScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FBFA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        title: Text(
+        title: const Text(
           'Mental Health Report',
           style: TextStyle(
             fontFamily: 'Doto',
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: kPrimaryTealDark,
+            color: AppColors.textPrimary,
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildRiskBanner(context, riskStyle),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildOverviewCard(context),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             Row(
               children: [
                 Expanded(child: _buildTrendCard(context, trendStyle)),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(child: _buildDominantEmotionCard(context)),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildStressLevelCard(context, stressStyle),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildEmotionalVariabilityCard(context),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildEmotionDistributionCard(context),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildTriggersCard(context),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildBehavioralInsightsCard(context),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildStressCard(context),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             _buildSummaryCard(context),
           ],
         ),
@@ -73,23 +73,19 @@ class ReportScreen extends StatelessWidget {
   }
 
   Widget _buildOverviewCard(BuildContext context) {
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Overview', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
-            _buildMetricRow('Total Entries', report.totalEntries.toString()),
-            _buildMetricRow(
-              'Average Sentiment',
-              report.averageSentiment.toStringAsFixed(2),
-            ),
-            _buildMetricRow('Dominant Emotion', report.dominantEmotion),
-          ],
-        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Overview', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 12),
+          _buildMetricRow('Total Entries', report.totalEntries.toString()),
+          _buildMetricRow(
+            'Average Sentiment',
+            report.averageSentiment.toStringAsFixed(2),
+          ),
+          _buildMetricRow('Dominant Emotion', report.dominantEmotion),
+        ],
       ),
     );
   }
@@ -100,213 +96,181 @@ class ReportScreen extends StatelessWidget {
         ? 'High stress detected'
         : 'No significant stress detected';
 
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(Icons.info, color: color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(color: color, fontWeight: FontWeight.w600),
-              ),
+    return AppCard(
+      child: Row(
+        children: [
+          Icon(Icons.info, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: color, fontWeight: FontWeight.w600),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSummaryCard(BuildContext context) {
-    return Card(
-      elevation: 0,
+    return AppCard(
       color: const Color(0xFFF1F7FF),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Summary',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E3A5F),
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Summary',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1E3A5F),
             ),
-            const SizedBox(height: 12),
-            Text(
-              report.summary.isEmpty
-                  ? 'No data available for this period.'
-                  : report.summary,
-              style: const TextStyle(height: 1.45, color: Color(0xFF2A3C54)),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            report.summary.isEmpty
+                ? 'No data available for this period.'
+                : report.summary,
+            style: const TextStyle(height: 1.45, color: Color(0xFF2A3C54)),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildRiskBanner(BuildContext context, _RiskStyle riskStyle) {
-    return Card(
-      elevation: 1,
+    return AppCard(
       color: riskStyle.background,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            Icon(riskStyle.icon, color: riskStyle.foreground),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    riskStyle.label,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: riskStyle.foreground,
-                      fontWeight: FontWeight.w800,
-                    ),
+      child: Row(
+        children: [
+          Icon(riskStyle.icon, color: riskStyle.foreground),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  riskStyle.label,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: riskStyle.foreground,
+                    fontWeight: FontWeight.w800,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Stress level: ${_titleCase(report.stressLevel)}',
-                    style: TextStyle(color: riskStyle.foreground),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Stress level: ${_titleCase(report.stressLevel)}',
+                  style: TextStyle(color: riskStyle.foreground),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildTrendCard(BuildContext context, _TrendStyle trendStyle) {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Trend',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF1E3A45),
-              ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Trend',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1E3A45),
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: trendStyle.color.withValues(alpha: 0.14),
-                  child: Icon(trendStyle.icon, color: trendStyle.color),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _titleCase(report.trend),
-                    style: TextStyle(
-                      color: trendStyle.color,
-                      fontWeight: FontWeight.w700,
-                    ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: trendStyle.color.withValues(alpha: 0.14),
+                child: Icon(trendStyle.icon, color: trendStyle.color),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _titleCase(report.trend),
+                  style: TextStyle(
+                    color: trendStyle.color,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildDominantEmotionCard(BuildContext context) {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Dominant Emotion',
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Dominant Emotion',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1E3A45),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              const Icon(Icons.mood_outlined, color: Color(0xFF415A77)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _titleCase(report.dominantEmotion),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2A3C54),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStressLevelCard(BuildContext context, _StressStyle stressStyle) {
+    return AppCard(
+      child: Row(
+        children: [
+          const Icon(Icons.monitor_heart_outlined),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Stress Level',
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF1E3A45),
               ),
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                const Icon(Icons.mood_outlined, color: Color(0xFF415A77)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _titleCase(report.dominantEmotion),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF2A3C54),
-                    ),
-                  ),
-                ),
-              ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: stressStyle.background,
+              borderRadius: BorderRadius.circular(20),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStressLevelCard(BuildContext context, _StressStyle stressStyle) {
-    return Card(
-      elevation: 0,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.monitor_heart_outlined),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Stress Level',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1E3A45),
-                ),
+            child: Text(
+              _titleCase(report.stressLevel),
+              style: TextStyle(
+                color: stressStyle.text,
+                fontWeight: FontWeight.w700,
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: stressStyle.background,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                _titleCase(report.stressLevel),
-                style: TextStyle(
-                  color: stressStyle.text,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -317,166 +281,145 @@ class ReportScreen extends StatelessWidget {
     final statusText = isUnstable ? 'Unstable' : 'Stable';
     final statusColor = isUnstable ? Colors.red : Colors.green;
 
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(Icons.insights_outlined, color: statusColor),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Emotional Stability',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+    return AppCard(
+      child: Row(
+        children: [
+          Icon(Icons.insights_outlined, color: statusColor),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Emotional Stability',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    statusText,
-                    style: TextStyle(
-                      color: statusColor,
-                      fontWeight: FontWeight.w700,
-                    ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  statusText,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            Text(
-              'Variability: ${_titleCase(report.emotionalVariability)}',
-              style: const TextStyle(color: Color(0xFF546E7A), fontSize: 12),
-            ),
-          ],
-        ),
+          ),
+          Text(
+            'Variability: ${_titleCase(report.emotionalVariability)}',
+            style: const TextStyle(color: Color(0xFF546E7A), fontSize: 12),
+          ),
+        ],
       ),
     );
   }
 
-  
-
   Widget _buildEmotionDistributionCard(BuildContext context) {
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Emotion Distribution',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 10),
-            if (report.emotionDistribution.isEmpty)
-              const Text('No emotion data available.')
-            else
-              ...report.emotionDistribution.entries.map(
-                (entry) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: _buildEmotionBar(
-                    label: _titleCase(entry.key),
-                    value: entry.value,
-                    max: _maxMapValue(report.emotionDistribution),
-                  ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Emotion Distribution',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+          if (report.emotionDistribution.isEmpty)
+            const Text('No emotion data available.')
+          else
+            ...report.emotionDistribution.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: _buildEmotionBar(
+                  label: _titleCase(entry.key),
+                  value: entry.value,
+                  max: _maxMapValue(report.emotionDistribution),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 
   Widget _buildTriggersCard(BuildContext context) {
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Triggers',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Triggers',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          if (report.triggerFrequency.isEmpty)
+            const Text('No trigger data available.')
+          else
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: report.triggerFrequency.entries
+                  .map(
+                    (entry) => AppChip(
+                      label: '${_titleCase(entry.key)} (${entry.value})',
+                      isSelected: false,
+                    ),
+                  )
+                  .toList(),
             ),
-            const SizedBox(height: 12),
-            if (report.triggerFrequency.isEmpty)
-              const Text('No trigger data available.')
-            else
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: report.triggerFrequency.entries
-                    .map(
-                      (entry) => Chip(
-                        label: Text(
-                          '${_titleCase(entry.key)} (${entry.value})',
-                        ),
-                        backgroundColor: const Color(0xFFF2F6FA),
-                        side: const BorderSide(color: Color(0xFFD8E2ED)),
-                      ),
-                    )
-                    .toList(),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildBehavioralInsightsCard(BuildContext context) {
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Behavioral Insights',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            if (report.behavioralInsights.isEmpty)
-              const Text('No behavioral insights available yet.')
-            else
-              ...report.behavioralInsights.map(
-                (insight) => Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F7FB),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDCE7F3)),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        child: Icon(
-                          Icons.brightness_1,
-                          size: 8,
-                          color: Color(0xFF456C93),
-                        ),
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Behavioral Insights',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          if (report.behavioralInsights.isEmpty)
+            const Text('No behavioral insights available yet.')
+          else
+            ...report.behavioralInsights.map(
+              (insight) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F7FB),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  border: Border.all(color: const Color(0xFFDCE7F3)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Icon(
+                        Icons.brightness_1,
+                        size: 8,
+                        color: Color(0xFF456C93),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(child: Text(insight)),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(insight)),
+                  ],
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -494,9 +437,7 @@ class ReportScreen extends StatelessWidget {
   }
 
   String _titleCase(String value) {
-    if (value.isEmpty) {
-      return value;
-    }
+    if (value.isEmpty) return value;
     return value[0].toUpperCase() + value.substring(1);
   }
 
@@ -582,9 +523,7 @@ Widget _buildEmotionBar({
 }
 
 int _maxMapValue(Map<String, int> data) {
-  if (data.isEmpty) {
-    return 0;
-  }
+  if (data.isEmpty) return 0;
   return data.values.reduce((a, b) => a > b ? a : b);
 }
 
