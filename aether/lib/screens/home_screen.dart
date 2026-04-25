@@ -10,6 +10,8 @@ import 'report_screen.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
 import 'notification_screen.dart';
+import 'test_experience_screen.dart';
+import 'dream_entry_screen.dart';
 import '../services/report_controller.dart';
 import '../widgets/auth_flow_loader.dart';
 
@@ -132,11 +134,11 @@ class _HomeScreenState extends State<HomeScreen>
                       const SizedBox(height: _sectionSpacing),
                       const _SectionTitle(text: 'Quick Actions'),
                       const SizedBox(height: _internalSpacing),
-                      const _QuickActionsRow(),
+                      _QuickActionsRow(),
                       const SizedBox(height: _sectionSpacing),
                       const _SectionTitle(text: 'Suggested for You'),
                       const SizedBox(height: _internalSpacing),
-                      const _SuggestedRow(),
+                      _SuggestedRow(),
                     ],
                   ),
                 ),
@@ -1067,49 +1069,61 @@ class _QuickActionsRow extends StatelessWidget {
         child: ListView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
-          children: const [
+          children: [
             _QuickActionCard(
               size: cardSize,
-              title: 'Breathwork',
-              subtitle: '2 min • Calm',
-              icon: Icons.air_rounded,
-              gradient: [Color(0xFFF8B270), Color(0xFFF49A5A)],
-              buttonText: 'Start',
-              buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: Color(0xFFF1914E),
-            ),
-            SizedBox(width: 14),
-            _QuickActionCard(
-              size: cardSize,
-              title: 'Positive Energy',
-              subtitle: '5 min • Uplift',
-              icon: Icons.favorite_rounded,
-              gradient: [Color(0xFF5BC79C), Color(0xFF2EA985)],
-              buttonText: '15 min',
-              buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: Color(0xFF2EA985),
-            ),
-            SizedBox(width: 14),
-            _QuickActionCard(
-              size: cardSize,
-              title: 'Sleep',
-              subtitle: '7 min • Relax',
-              icon: Icons.nightlight_round,
-              gradient: [Color(0xFF78A8E6), Color(0xFF4A86D7)],
+              title: 'Anxiety Test',
+              subtitle: 'Story-driven • 2–3 min',
+              icon: Icons.blur_on_rounded,
+              gradient: [Color(0xFFD7EAF8), Color(0xFFBBDFF2)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
               buttonTextColor: Color(0xFF4A86D7),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.anxietyTest())));
+              },
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
             _QuickActionCard(
               size: cardSize,
-              title: 'Psychology Facts',
-              subtitle: 'Learn & Grow',
-              icon: Icons.psychology_rounded,
-              gradient: [Color(0xFFB388FF), Color(0xFF7C4DFF)],
-              buttonText: 'Fact',
-              buttonIcon: Icons.lightbulb_rounded,
-              buttonTextColor: Color(0xFF7C4DFF),
+              title: 'Stress Test',
+              subtitle: 'Warm • 2–3 min',
+              icon: Icons.local_fire_department_rounded,
+              gradient: [Color(0xFFFFE1C9), Color(0xFFF5B88A)],
+              buttonText: 'Start',
+              buttonIcon: Icons.play_arrow_rounded,
+              buttonTextColor: Color(0xFFF1914E),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.stressTest())));
+              },
+            ),
+            const SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Self-esteem Test',
+              subtitle: 'Uplifting • 2–3 min',
+              icon: Icons.self_improvement_rounded,
+              gradient: [Color(0xFFDFF7EE), Color(0xFFBEEBD7)],
+              buttonText: 'Start',
+              buttonIcon: Icons.play_arrow_rounded,
+              buttonTextColor: Color(0xFF2EA985),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.selfEsteemTest())));
+              },
+            ),
+            const SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Depression Test',
+              subtitle: 'Muted • 2–3 min',
+              icon: Icons.cloud_queue_rounded,
+              gradient: [Color(0xFFF0F3F8), Color(0xFFE7EAF0)],
+              buttonText: 'Start',
+              buttonIcon: Icons.play_arrow_rounded,
+              buttonTextColor: Color(0xFF667085),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => TestExperienceScreen(testData: TestData.depressionTest())));
+              },
             ),
           ],
         ),
@@ -1128,6 +1142,7 @@ class _QuickActionCard extends StatelessWidget {
     required this.buttonText,
     required this.buttonIcon,
     required this.buttonTextColor,
+    this.onTap,
   });
 
   final double size;
@@ -1138,11 +1153,13 @@ class _QuickActionCard extends StatelessWidget {
   final String buttonText;
   final IconData buttonIcon;
   final Color buttonTextColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return _InteractiveScaleCard(
       borderRadius: 22,
+      onTap: onTap,
       child: SizedBox(
         width: size,
         height: size,
@@ -1279,10 +1296,12 @@ class _InteractiveScaleCard extends StatefulWidget {
   const _InteractiveScaleCard({
     required this.child,
     required this.borderRadius,
+    this.onTap,
   });
 
   final Widget child;
   final double borderRadius;
+  final VoidCallback? onTap;
 
   @override
   State<_InteractiveScaleCard> createState() => _InteractiveScaleCardState();
@@ -1307,7 +1326,7 @@ class _InteractiveScaleCardState extends State<_InteractiveScaleCard> {
         onTapDown: (_) => setState(() => _isPressed = true),
         onTapCancel: () => setState(() => _isPressed = false),
         onTapUp: (_) => setState(() => _isPressed = false),
-        onTap: () {},
+        onTap: widget.onTap,
         child: AnimatedScale(
           scale: scale,
           duration: const Duration(milliseconds: 130),
@@ -1437,22 +1456,33 @@ class _SuggestedRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         _SuggestedCard(
           icon: Icons.headphones_rounded,
-          iconBg: Color(0xFFD5EDE4),
-          iconColor: Color(0xFF217F66),
+          iconBg: const Color(0xFFD5EDE4),
+          iconColor: const Color(0xFF217F66),
           title: 'Morning Peace',
           subtitle: '8 min • Audio',
         ),
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         _SuggestedCard(
           icon: Icons.nightlight_round,
-          iconBg: Color(0xFFE1D8F7),
-          iconColor: Color(0xFF6750C7),
+          iconBg: const Color(0xFFE1D8F7),
+          iconColor: const Color(0xFF6750C7),
           title: 'Gratitude',
           subtitle: '3 min • Guide',
+        ),
+        const SizedBox(height: 14),
+        _SuggestedCard(
+          icon: Icons.bedtime_rounded,
+          iconBg: const Color(0xFFEFF6FB),
+          iconColor: const Color(0xFF2F9E6F),
+          title: 'Dream Recorder',
+          subtitle: 'Log a dream • Journal',
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DreamEntryScreen()));
+          },
         ),
       ],
     );
@@ -1466,6 +1496,7 @@ class _SuggestedCard extends StatelessWidget {
     required this.iconColor,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   final IconData icon;
@@ -1473,6 +1504,7 @@ class _SuggestedCard extends StatelessWidget {
   final Color iconColor;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -1481,67 +1513,70 @@ class _SuggestedCard extends StatelessWidget {
         final compact = constraints.maxWidth < 170;
         final dense = constraints.maxWidth < 150;
 
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: iconColor.withOpacity(0.09),
-                blurRadius: 18,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              dense ? 8 : 12,
-              dense ? 10 : 12,
-              dense ? 8 : 12,
-              dense ? 10 : 12,
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: dense ? 40 : (compact ? 44 : 52),
-                  height: dense ? 40 : (compact ? 44 : 52),
-                  decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-                  child: Icon(
-                    icon,
-                    size: dense ? 23 : (compact ? 25 : 30),
-                    color: iconColor,
-                  ),
-                ),
-                SizedBox(width: dense ? 7 : 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.poppins(
-                          fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
-                          fontWeight: FontWeight.w700,
-                          color: iconColor,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.poppins(
-                          fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF6E818D),
-                        ),
-                      ),
-                    ],
-                  ),
+        return GestureDetector(
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: iconColor.withValues(alpha: 0.09),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
                 ),
               ],
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                dense ? 8 : 12,
+                dense ? 10 : 12,
+                dense ? 8 : 12,
+                dense ? 10 : 12,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: dense ? 40 : (compact ? 44 : 52),
+                    height: dense ? 40 : (compact ? 44 : 52),
+                    decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                    child: Icon(
+                      icon,
+                      size: dense ? 23 : (compact ? 25 : 30),
+                      color: iconColor,
+                    ),
+                  ),
+                  SizedBox(width: dense ? 7 : 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
+                            fontWeight: FontWeight.w700,
+                            color: iconColor,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF6E818D),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
