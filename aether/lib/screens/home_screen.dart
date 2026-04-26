@@ -14,6 +14,8 @@ import 'fact_reels_screen.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
 import 'notification_screen.dart';
+import 'emotional_analytics_screen.dart';
+
 import '../services/report_controller.dart';
 import '../widgets/auth_flow_loader.dart';
 import '../app_theme.dart';
@@ -863,18 +865,25 @@ class _ProgressSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const _SectionTitle(text: 'Your Progress'),
-            Row(
-              children: [
-                Text(
-                  'View All',
-                  style: const TextStyle(
-                    fontFamily: 'Doto',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF33B286),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const EmotionalAnalyticsScreen()),
+                );
+              },
+              child: Row(
+                children: [
+                  Text(
+                    'View All',
+                    style: const TextStyle(
+                      fontFamily: 'Doto',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF33B286),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
