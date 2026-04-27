@@ -1,8 +1,42 @@
 import '../models/journal_entry.dart';
-import 'journal_parser.dart';
 
 class InsightService {
   const InsightService();
+
+  static const List<String> _crisisTerms = <String>[
+    'suicidal',
+    'suicide',
+    'kill myself',
+    'end my life',
+    'self harm',
+    'self-harm',
+    'want to die',
+    'can\'t go on',
+    'cant go on',
+  ];
+
+  static const List<String> _highStressTerms = <String>[
+    'hopeless',
+    'helpless',
+    'worthless',
+    'panic',
+    'panicking',
+    'depressed',
+    'overwhelmed',
+    'breakdown',
+  ];
+
+  static const List<String> _moderateStressTerms = <String>[
+    'sad',
+    'anxious',
+    'stressed',
+    'stress',
+    'pressure',
+    'burden',
+    'overthinking',
+    'drained',
+    'exhausted',
+  ];
 
   Map<String, dynamic> generateClinicalInsights(List<JournalEntry> journals) {
     if (journals.isEmpty) {
@@ -133,13 +167,18 @@ class InsightService {
 
   String _resolveEmotion(JournalEntry journal) {
     final stored = journal.emotion.trim();
-    if (stored.isNotEmpty && stored != 'neutral') {
+    if (stored.isNotEmpty) {
       return stored;
     }
-    if (journal.text.trim().isEmpty) {
-      return stored.isEmpty ? 'neutral' : stored;
+
+    final sentiment = journal.sentimentScore;
+    if (sentiment <= -0.2) {
+      return 'sadness';
     }
-    return JournalParser.getEmotion(journal.text);
+    if (sentiment >= 0.2) {
+      return 'joy';
+    }
+    return 'neutral';
   }
 
   Map<String, int> getTriggerFrequency(List<JournalEntry> journals) {
@@ -208,6 +247,21 @@ class InsightService {
     if (journals.isEmpty) {
       return 'low';
     }
+
+    if (journals.length == 1) {
+      final only = journals.first;
+      if (_hasCrisisLanguage(only.text)) {
+        return 'high';
+      }
+
+      final emotion = _resolveEmotion(only).toLowerCase();
+      final sentimentMag = only.sentimentScore.abs();
+      if (sentimentMag >= 0.75 || emotion == 'anxiety' || emotion == 'anger') {
+        return 'moderate';
+      }
+      return 'low';
+    }
+
     final uniqueEmotions = journals
         .map(_resolveEmotion)
         .where((emotion) => emotion.isNotEmpty)
@@ -227,24 +281,60 @@ class InsightService {
     if (journals.isEmpty) {
       return 'low';
     }
-    final withStress = journals.where((journal) {
-      if (journal.stressKeywords.isNotEmpty) {
-        return true;
-      }
-      final text = journal.text.toLowerCase();
-      return text.contains('stress') ||
-          text.contains('overwhelmed') ||
-          text.contains('deadline') ||
-          text.contains('pressure') ||
-          text.contains('burden') ||
-          text.contains('overthinking');
-    }).length;
 
-    final ratio = withStress / journals.length;
-    if (ratio > 0.5) {
+    var hasCrisisSignal = false;
+    var totalScore = 0.0;
+
+    for (final journal in journals) {
+      final text = journal.text.toLowerCase();
+      if (_containsAny(text, _crisisTerms)) {
+        hasCrisisSignal = true;
+      }
+
+      var score = 0.0;
+      if (journal.stressKeywords.isNotEmpty) {
+        score += 2.0;
+      }
+
+      if (_containsAny(text, _highStressTerms)) {
+        score += 2.0;
+      } else if (_containsAny(text, _moderateStressTerms)) {
+        score += 1.0;
+      }
+
+      final emotion = _resolveEmotion(journal).toLowerCase();
+      if (emotion == 'anxiety' || emotion == 'fear' || emotion == 'anger') {
+        score += 1.5;
+      } else if (emotion == 'sadness' || emotion == 'guilt' || emotion == 'shame') {
+        score += 1.0;
+      }
+
+      final sentiment = journal.sentimentScore;
+      if (sentiment <= -0.75) {
+        score += 2.5;
+      } else if (sentiment <= -0.45) {
+        score += 1.5;
+      } else if (sentiment <= -0.2) {
+        score += 0.75;
+      } else if (sentiment >= 0.45) {
+        score -= 0.5;
+      }
+
+      if (score < 0) {
+        score = 0;
+      }
+      totalScore += score;
+    }
+
+    if (hasCrisisSignal) {
       return 'high';
     }
-    if (ratio >= 0.2) {
+
+    final avgScore = totalScore / journals.length;
+    if (avgScore >= 2.0) {
+      return 'high';
+    }
+    if (avgScore >= 0.9) {
       return 'moderate';
     }
     return 'low';
@@ -253,25 +343,38 @@ class InsightService {
   List<String> _getRiskFlags(List<JournalEntry> journals, String stressLevel) {
     final flags = <String>[];
     final avgSentiment = getAverageSentiment(journals);
+    var crisisMentions = 0;
+    var distressMentions = 0;
+
+    for (final journal in journals) {
+      final lower = journal.text.toLowerCase();
+      if (_containsAny(lower, _crisisTerms)) {
+        crisisMentions += 1;
+      }
+      if (lower.contains('sad') ||
+          lower.contains('hopeless') ||
+          lower.contains('helpless') ||
+          lower.contains('depressed') ||
+          lower.contains('worthless')) {
+        distressMentions += 1;
+      }
+    }
+
+    if (crisisMentions > 0) {
+      flags.add('crisis');
+      flags.add('high_risk');
+    }
+
     if (avgSentiment < -0.5 && stressLevel == 'high') {
       flags.add('high_risk');
     }
 
-    var distressMentions = 0;
-    for (final journal in journals) {
-      final lower = journal.text.toLowerCase();
-      if (lower.contains('sad') ||
-          lower.contains('hopeless') ||
-          lower.contains('helpless') ||
-          lower.contains('depressed')) {
-        distressMentions += 1;
-      }
-    }
-    if (distressMentions >= 2) {
+    if (distressMentions >= 2 ||
+        (journals.length == 1 && distressMentions >= 1 && avgSentiment <= -0.25)) {
       flags.add('emotional_distress');
     }
 
-    return flags;
+    return flags.toSet().toList();
   }
 
   List<String> _buildBehavioralInsights(
@@ -306,6 +409,9 @@ class InsightService {
 
     if (stressLevel == 'high') {
       insights.add('Frequent stress indicators are present across entries.');
+      if (journals.any((journal) => _hasCrisisLanguage(journal.text))) {
+        insights.add('Critical distress language detected; immediate support is recommended.');
+      }
     }
 
     return insights;
@@ -371,13 +477,16 @@ class InsightService {
     return bestKey;
   }
 
-  String _sentimentLabel(double score) {
-    if (score > 0.2) {
-      return 'positive';
+  bool _hasCrisisLanguage(String text) {
+    return _containsAny(text.toLowerCase(), _crisisTerms);
+  }
+
+  bool _containsAny(String text, List<String> terms) {
+    for (final term in terms) {
+      if (text.contains(term)) {
+        return true;
+      }
     }
-    if (score < -0.2) {
-      return 'negative';
-    }
-    return 'neutral';
+    return false;
   }
 }

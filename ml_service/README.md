@@ -10,6 +10,7 @@ ml_service/
 │   ├── __init__.py
 │   ├── keystroke_api.py
 │   ├── model_loader.py
+│   ├── text_emotion.py
 │   └── schemas.py
 ├── data/
 │   └── keystroke_dataset.csv  # place training dataset here
@@ -74,6 +75,13 @@ Response:
   "confidence": 0.94
 }
 ```
+
+## Internal model stack
+
+- Keystroke model: `scikit-learn` `Pipeline(StandardScaler + RandomForestClassifier)`
+- Text emotion model: transformer-based model (`DistilBERT` emotion classifier), loaded once and cached globally
+
+The API contract remains unchanged (`emotion` + `confidence`).
 
 ## Deploy (Render)
 

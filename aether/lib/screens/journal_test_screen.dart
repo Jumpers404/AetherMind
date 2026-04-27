@@ -23,6 +23,13 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
   final JournalController _journalController = JournalController();
   final ReportService _reportService = ReportService();
 
+  DateTime? _typingStart;
+  DateTime? _lastKeyAt;
+  String _previousText = '';
+  int _keystrokeCount = 0;
+  int _backspaceCount = 0;
+  final List<double> _pausesSec = <double>[];
+
   final Map<String, String> _selectedAnswers = {};
   bool _isLoading = false;
 
@@ -72,9 +79,82 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onTextChanged);
+  }
+
+  @override
   void dispose() {
+    _controller.removeListener(_onTextChanged);
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onTextChanged() {
+    final now = DateTime.now();
+    final current = _controller.text;
+
+    if (_typingStart == null && current.isNotEmpty) {
+      _typingStart = now;
+    }
+
+    if (_lastKeyAt != null && current != _previousText) {
+      final pause = now.difference(_lastKeyAt!).inMilliseconds / 1000.0;
+      if (pause >= 0) {
+        _pausesSec.add(pause);
+      }
+    }
+
+    final delta = current.length - _previousText.length;
+    if (delta < 0) {
+      _backspaceCount += delta.abs();
+      _keystrokeCount += delta.abs();
+    } else if (delta > 0) {
+      _keystrokeCount += delta;
+    } else if (current != _previousText) {
+      // Replacement with same length.
+      _keystrokeCount += 1;
+    }
+
+    _lastKeyAt = now;
+    _previousText = current;
+  }
+
+  Map<String, dynamic>? _buildKeystrokeData() {
+    if (_typingStart == null || _keystrokeCount <= 0) {
+      return null;
+    }
+
+    final totalTime =
+        DateTime.now().difference(_typingStart!).inMilliseconds / 1000.0;
+    if (totalTime <= 0) {
+      return null;
+    }
+
+    final avgPause = _pausesSec.isEmpty
+        ? 0.0
+        : _pausesSec.reduce((a, b) => a + b) / _pausesSec.length;
+    final maxPause =
+        _pausesSec.isEmpty ? 0.0 : _pausesSec.reduce((a, b) => a > b ? a : b);
+
+    return <String, dynamic>{
+      'typing_speed': _keystrokeCount / totalTime,
+      'avg_pause': avgPause,
+      'max_pause': maxPause,
+      'backspace_count': _backspaceCount,
+      'total_time': totalTime,
+      'keystroke_count': _keystrokeCount,
+    };
+  }
+
+  void _resetKeystrokeTracking() {
+    _typingStart = null;
+    _lastKeyAt = null;
+    _previousText = '';
+    _keystrokeCount = 0;
+    _backspaceCount = 0;
+    _pausesSec.clear();
   }
 
   String _buildPayload() {
@@ -112,8 +192,9 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
     setState(() => _isLoading = true);
 
     try {
+      final keystrokeData = _buildKeystrokeData();
       final entry = await _journalController
-          .createJournal(payload)
+          .createJournal(payload, keystrokeData: keystrokeData)
           .timeout(const Duration(seconds: 12));
 
       if (entry == null) throw Exception("Save failed");
@@ -128,6 +209,7 @@ class _JournalTestScreenState extends State<JournalTestScreen> {
       );
 
       _controller.clear();
+      _resetKeystrokeTracking();
     } catch (e) {
       _showSnack('Error: $e');
     } finally {

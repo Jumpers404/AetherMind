@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 FEATURES = [
     "typing_speed",
@@ -27,7 +29,7 @@ def train_model(dataset_path: Path, model_output_path: Path) -> float:
 
     df = df.dropna(subset=FEATURES + [TARGET])
 
-    x = df[FEATURES]
+    x = df[FEATURES].astype("float32").to_numpy(dtype="float32")
     y = df[TARGET]
 
     x_train, x_test, y_train, y_test = train_test_split(
@@ -38,7 +40,23 @@ def train_model(dataset_path: Path, model_output_path: Path) -> float:
         stratify=y if y.nunique() > 1 else None,
     )
 
-    model = RandomForestClassifier(n_estimators=200, random_state=42)
+    model = Pipeline(
+        steps=[
+            ("scaler", StandardScaler()),
+            (
+                "classifier",
+                RandomForestClassifier(
+                    n_estimators=500,
+                    max_depth=None,
+                    min_samples_split=4,
+                    min_samples_leaf=2,
+                    class_weight="balanced_subsample",
+                    random_state=42,
+                    n_jobs=-1,
+                ),
+            ),
+        ]
+    )
     model.fit(x_train, y_train)
 
     y_pred = model.predict(x_test)

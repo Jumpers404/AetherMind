@@ -120,5 +120,15 @@ void main() {
       expect(label, equals('negative'));
       expect(stressKeywords, anyOf(isEmpty, isA<List<String>>()));
     });
+
+    test('depressed/worst-day text should not be neutral emotion', () {
+      const text = 'I am very depressed and not happy at all, i had the worst day possible';
+      final emotion = JournalParser.getEmotion(text);
+      final score = JournalParser.getSentiment(text);
+
+      expect(score, lessThan(0));
+      expect(emotion, equals('sadness'));
+      expect(emotion, isNot(equals('neutral')));
+    });
   });
 }

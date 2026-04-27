@@ -73,6 +73,7 @@ class ReportScreen extends StatelessWidget {
   }
 
   Widget _buildOverviewCard(BuildContext context) {
+    final isSingleEntry = report.totalEntries == 1;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,6 +86,13 @@ class ReportScreen extends StatelessWidget {
             report.averageSentiment.toStringAsFixed(2),
           ),
           _buildMetricRow('Dominant Emotion', report.dominantEmotion),
+          if (isSingleEntry) ...[
+            _buildMetricRow('Keystroke Emotion', report.keystrokeEmotion),
+            _buildMetricRow(
+              'Keystroke Confidence',
+              '${(report.keystrokeConfidence * 100).toStringAsFixed(1)}%',
+            ),
+          ],
         ],
       ),
     );

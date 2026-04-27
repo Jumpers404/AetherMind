@@ -155,6 +155,8 @@ class ReportService {
     final insights = _insightService.generateClinicalInsights(<JournalEntry>[entry]);
     final stressLevel = insights['stress_level'] as String? ??
         (entry.stressKeywords.isNotEmpty ? 'moderate' : 'low');
+  final emotionalVariability =
+    insights['emotional_variability'] as String? ?? 'low';
     final riskFlags = (insights['risk_flags'] as List?)
             ?.whereType<String>()
             .toList() ??
@@ -179,7 +181,7 @@ class ReportService {
       highStressDetected: computedHighStress,
       trend: 'stable',
       stressLevel: stressLevel,
-      emotionalVariability: 'low',
+  emotionalVariability: emotionalVariability,
       riskFlags: riskFlags,
       behavioralInsights: behavioralInsights,
       keystrokeEmotion: entry.keystrokeEmotion,

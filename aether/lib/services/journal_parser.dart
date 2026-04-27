@@ -261,12 +261,44 @@ class JournalParser {
       return 'neutral';
     }
 
+    const sadnessPhrases = <String>[
+      'worst day',
+      'not happy',
+      'not okay',
+      'feel depressed',
+    ];
+
+    if (sadnessPhrases.any(normalized.contains)) {
+      return 'sadness';
+    }
+
     const emotionGroups = <String, List<String>>{
-      'anxiety': ['stress', 'stressed', 'overwhelmed', 'nervous', 'anxious'],
-      'sadness': ['sad', 'down', 'hopeless'],
-      'joy': ['happy', 'great', 'good', 'relaxed', 'content', 'satisfied'],
-      'anger': ['angry', 'frustrated', 'irritated'],
-      'fear': ['scared', 'afraid', 'fear'],
+      'anxiety': [
+        'stress',
+        'stressed',
+        'overwhelmed',
+        'nervous',
+        'anxious',
+        'panic',
+        'panicked',
+        'worry',
+        'worried',
+      ],
+      'sadness': [
+        'sad',
+        'down',
+        'hopeless',
+        'depressed',
+        'unhappy',
+        'miserable',
+        'awful',
+        'terrible',
+        'worst',
+        'low',
+      ],
+      'joy': ['happy', 'great', 'good', 'relaxed', 'content', 'satisfied', 'grateful'],
+      'anger': ['angry', 'frustrated', 'irritated', 'mad', 'furious'],
+      'fear': ['scared', 'afraid', 'fear', 'dread'],
       'guilt': ['guilty', 'regret'],
       'shame': ['ashamed', 'embarrassed'],
     };
@@ -297,7 +329,23 @@ class JournalParser {
       }
     });
 
-    return bestScore == 0 ? 'neutral' : bestEmotion;
+    if (bestScore > 0) {
+      return bestEmotion;
+    }
+
+    final sentiment = getSentiment(normalized);
+    if (sentiment <= -0.25) {
+      final stressKeywords = getStressKeywords(normalized);
+      if (stressKeywords.isNotEmpty) {
+        return 'anxiety';
+      }
+      return 'sadness';
+    }
+    if (sentiment >= 0.25) {
+      return 'joy';
+    }
+
+    return 'neutral';
   }
 
   static List<String> getTriggers(String text) {

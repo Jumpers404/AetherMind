@@ -5,20 +5,24 @@ import '../models/journal_entry.dart';
 import 'journal_parser.dart';
 import 'journal_service.dart';
 import 'keystroke_service.dart';
+import 'text_emotion_service.dart';
 
 class JournalController {
   JournalController({
     JournalService? service,
     Uuid? uuid,
     KeystrokeService? keystrokeService,
+    TextEmotionService? textEmotionService,
   })
       : _service = service ?? JournalService(),
         _uuid = uuid ?? const Uuid(),
-        _keystrokeService = keystrokeService ?? KeystrokeService();
+        _keystrokeService = keystrokeService ?? KeystrokeService(),
+        _textEmotionService = textEmotionService ?? TextEmotionService();
 
   final JournalService _service;
   final Uuid _uuid;
   final KeystrokeService _keystrokeService;
+  final TextEmotionService _textEmotionService;
 
   Future<JournalEntry?> createJournal(
     String text, {
@@ -43,7 +47,23 @@ class JournalController {
 
       final sentiment = JournalParser.getSentiment(cleanText);
   print('CONTROLLER: Parsed sentiment = $sentiment');
-      final emotion = JournalParser.getEmotion(cleanText);
+      var emotion = 'neutral';
+      var emotionSource = 'ml_api';
+      try {
+        final textPrediction = await _textEmotionService.predictEmotion(cleanText);
+        final apiEmotion = (textPrediction['emotion'] ?? '').toString().trim();
+        if (apiEmotion.isNotEmpty) {
+          emotion = apiEmotion;
+        } else {
+          emotion = JournalParser.getEmotion(cleanText);
+          emotionSource = 'fallback_parser';
+        }
+      } catch (e) {
+        print('CONTROLLER: text emotion prediction failed, using fallback parser: $e');
+        emotion = JournalParser.getEmotion(cleanText);
+        emotionSource = 'fallback_parser';
+      }
+      print('CONTROLLER: Emotion source = $emotionSource, emotion = $emotion');
       final triggers = JournalParser.getTriggers(cleanText);
       final keywords = JournalParser.extractKeywords(cleanText);
       final stressKeywords = JournalParser.getStressKeywords(cleanText);

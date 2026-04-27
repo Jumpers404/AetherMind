@@ -10,6 +10,10 @@ class KeystrokeInput(BaseModel):
     keystroke_count: int
 
 
+class TextInput(BaseModel):
+    text: str
+
+
 class PredictionResponse(BaseModel):
     emotion: str
     confidence: float
