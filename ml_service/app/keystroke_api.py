@@ -1,3 +1,19 @@
+"""FastAPI ML microservice
+
+Exposes two primary endpoints:
+- POST /predict        -> keystroke-based prediction (KeystrokeInput)
+- POST /predict/text   -> text-based prediction (TextInput)
+
+The API returns the stable contract `PredictionResponse` with keys:
+ - emotion: str
+ - confidence: float
+
+Notes:
+ - Keystroke model is loaded via joblib; missing model file yields 500.
+ - Text prediction delegates to the transformer-based helper in
+     `text_emotion.py` and returns a normalized label + confidence.
+"""
+
 import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware

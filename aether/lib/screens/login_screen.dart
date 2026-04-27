@@ -1,3 +1,6 @@
+// Login and onboarding UI. Contains the multi-state authentication
+// flow (signup, login, professional) used on first run. Exposes
+// optional callbacks for navigation and external links.
 import 'dart:ui' show ImageFilter, clampDouble, lerpDouble;
 import 'dart:math' as math;
 

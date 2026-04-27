@@ -1,3 +1,5 @@
+// Authentication helper wrapping Firebase auth and user profile persistence
+// in Firestore. Provides helpful error mapping for UI-friendly messages.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

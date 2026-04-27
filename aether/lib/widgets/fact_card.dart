@@ -1,3 +1,4 @@
+// Card UI used to present a single 'fact' with actions (save/reflect/next).
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/fact_model.dart';

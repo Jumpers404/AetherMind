@@ -1,3 +1,5 @@
+// Interactive test/experience screens used for small in-app assessments.
+// Contains mini-simulations and scoring helpers used for demo content.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../app_theme.dart';

@@ -1,5 +1,21 @@
 import '../models/journal_entry.dart';
 
+/// InsightService
+///
+/// Computes clinical-style insights from a list of `JournalEntry` objects.
+///
+/// Responsibilities:
+/// - Aggregate emotion distribution and trend detection
+/// - Compute stress level and emotional variability
+/// - Detect crisis language and produce risk flags
+///
+/// Notes on behavior:
+/// - When a `JournalEntry` includes a stored `emotion` value, that label is
+///   preferred for aggregation. If `emotion` is empty the service falls back
+///   to simple sentiment thresholds.
+/// - The scoring heuristics are intentionally conservative and tuned to
+///   surface risk flags (e.g., 'crisis') when strong signals (keywords or
+///   extreme sentiment) are detected.
 class InsightService {
   const InsightService();
 

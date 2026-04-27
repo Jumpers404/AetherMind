@@ -1,3 +1,7 @@
+/// App theme primitives used across the UI.
+///
+/// Contains shared color, spacing, radius, shadow and text style
+/// constants so widgets can remain visually consistent.
 import 'package:flutter/material.dart';
 
 class AppColors {

@@ -1,3 +1,6 @@
+// Emotional analytics view.
+// Shows calendar, emotion distribution and pattern insights computed
+// from stored journal entries. This is a read-only analytics dashboard.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/emotion_entry.dart';

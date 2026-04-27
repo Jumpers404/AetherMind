@@ -1,3 +1,12 @@
+/// Application entrypoint for AetherMind.
+///
+/// Responsibilities:
+/// - Initialize Firebase using the generated `firebase_options.dart`.
+/// - Start the Flutter app and set the global theme.
+///
+/// Notes for developers:
+/// - Adjusting startup behavior (e.g., injecting mocks for testing) can be
+///   done here before `runApp` is called.
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 

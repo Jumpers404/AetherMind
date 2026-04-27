@@ -1,3 +1,6 @@
+// User profile UI and related small models used for displaying
+// account information, badges, streaks and progress. This file
+// contains simple demo data and UI components for the profile view.
 import 'package:flutter/material.dart';
 // Using local font 'Doto' (declared in pubspec.yaml)
 

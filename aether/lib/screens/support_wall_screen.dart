@@ -1,3 +1,5 @@
+// Support wall and community features.
+// In-memory demo implementation providing anonymous posts and replies.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

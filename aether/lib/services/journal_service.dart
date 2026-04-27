@@ -1,3 +1,16 @@
+/// JournalService
+///
+/// Thin Firestore-backed persistence layer for JournalEntry objects.
+///
+/// Responsibilities:
+/// - Save journal entries with server timestamping
+/// - Retrieve recent or user-scoped journals
+/// - Delete entries
+///
+/// Notes:
+/// - Queries assume a `user_id` field exists on saved documents and may
+///   require composite Firestore indexes (Firestore will provide a link to
+///   create them when a query fails).
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -17,8 +30,8 @@ class JournalService {
       print('SERVICE: Writing to Firestore...');
       print('Saving journal for UID: ${entry.userId}');
       final data = entry.toMap();
-  data['keystroke_emotion'] = entry.keystrokeEmotion;
-  data['keystroke_confidence'] = entry.keystrokeConfidence;
+      data['keystroke_emotion'] = entry.keystrokeEmotion;
+      data['keystroke_confidence'] = entry.keystrokeConfidence;
       data['timestamp'] = FieldValue.serverTimestamp();
       await _collection.doc(entry.id).set(data);
       print('SERVICE: Write successful');

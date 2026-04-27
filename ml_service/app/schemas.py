@@ -1,3 +1,9 @@
+"""Pydantic schemas for ML endpoints
+
+Defines the input and output models used by the FastAPI application. Keep
+these stable as the mobile app expects the exact JSON keys.
+"""
+
 from pydantic import BaseModel
 
 

@@ -1,3 +1,6 @@
+// Small utility that displays a playful snake loader used during auth or
+// background flows. Exported helper `runWithAuthFlowLoader` wraps an async
+// action and shows a blocking dialog while the action completes.
 import 'dart:async';
 import 'dart:math';
 

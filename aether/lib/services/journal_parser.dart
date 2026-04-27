@@ -1,3 +1,17 @@
+/// JournalParser
+///
+/// Lightweight, rule-based text parsing utilities used as a deterministic
+/// fallback for emotion/sentiment extraction when the ML service is
+/// unavailable. This parser implements simple keyword/phrase matching,
+/// negation handling, modifier multipliers, and heuristic intensity scoring.
+///
+/// Important notes:
+/// - This is intentionally simple and will not match the accuracy of the
+///   transformer-based ML model. It exists primarily to ensure the app can
+///   continue providing basic insights when offline or when the backend is
+///   unreachable.
+/// - Keep the exported function names stable as they are used across the
+///   app (JournalController, InsightService, tests).
 class JournalParser {
   static const List<String> _positiveWords = [
     'happy',

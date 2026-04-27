@@ -1,3 +1,10 @@
+"""Text emotion wrapper
+
+Provides a small, stable wrapper around `predict_text_emotion` exported by
+`model_loader`. The wrapper enforces the expected output contract used by
+the FastAPI route and centralizes any future post-processing.
+"""
+
 from .model_loader import predict_text_emotion
 
 

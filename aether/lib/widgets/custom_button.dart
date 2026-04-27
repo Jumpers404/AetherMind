@@ -1,3 +1,5 @@
+// Reusable styled button used across the app. Provides a gradient background
+// and optional loading state.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

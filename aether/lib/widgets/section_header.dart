@@ -1,3 +1,5 @@
+// Small reusable section header used to render titled rows with an optional
+// trailing widget (e.g., 'See All').
 import 'package:flutter/material.dart';
 import '../app_theme.dart';
 

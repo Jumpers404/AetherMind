@@ -1,3 +1,8 @@
+/// ReportService
+///
+/// Lightweight aggregation layer that converts a list of `JournalEntry`
+/// objects into a `MentalHealthReport` used by the UI. Delegates to
+/// `InsightService` for clinical scoring and summary generation.
 import '../models/journal_entry.dart';
 import 'insight_service.dart';
 

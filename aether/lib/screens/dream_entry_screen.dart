@@ -1,3 +1,6 @@
+// Dream entry and lightweight in-memory DreamService used for saving
+// and listing user-submitted dream descriptions. This screen is a
+// small playground feature separate from the core journaling flow.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../app_theme.dart';

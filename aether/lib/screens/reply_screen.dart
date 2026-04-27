@@ -1,3 +1,5 @@
+// Reply screen for community support posts. Contains helper UI for
+// selecting empathy chips and composing anonymous replies.
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

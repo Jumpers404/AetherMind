@@ -1,3 +1,5 @@
+// Notification center (demo). Replace mock data with backend-driven
+// notifications when available. This screen is read-only and small.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

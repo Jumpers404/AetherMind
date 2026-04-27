@@ -1,3 +1,6 @@
+// Lightweight content moderation utilities used to flag self-harm or
+// harmful language. This is a heuristic implementation and intended for
+// quick client-side checks, not as a replacement for a robust moderation API.
 enum ModerationResult { clean, mildToxicity, harmful, selfHarm }
 
 class ModerationService {

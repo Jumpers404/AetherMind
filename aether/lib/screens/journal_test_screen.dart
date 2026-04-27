@@ -1,3 +1,13 @@
+/// JournalTestScreen
+///
+/// User-facing experimental journal input screen used in the app to capture
+/// both survey answers and free-text journal entries. It also collects
+/// lightweight keystroke features (typing speed, pauses, backspaces, etc.)
+/// which are sent to the keystroke ML service when an entry is submitted.
+///
+/// Important: Keystroke capture is privacy-sensitive, ensure users are
+/// informed about telemetry collection per your privacy policy before
+/// enabling in production.
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';

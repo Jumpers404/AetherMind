@@ -1,3 +1,9 @@
+/// ReportScreen
+///
+/// Renders a `MentalHealthReport` computed from recent journal entries.
+/// The report aggregates trend, stress level, dominant emotion, and other
+/// metrics. For single-entry reports the UI displays the keystroke ML
+/// result (emotion + confidence) when available.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

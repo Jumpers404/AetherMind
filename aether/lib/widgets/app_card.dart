@@ -1,3 +1,5 @@
+// Generic card container used to keep consistent paddings, backgrounds and
+// elevation across the UI.
 import 'package:flutter/material.dart';
 import '../app_theme.dart';
 

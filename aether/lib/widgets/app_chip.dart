@@ -1,3 +1,4 @@
+// Small selectable chip widget used in questionnaire UIs.
 import 'package:flutter/material.dart';
 import '../app_theme.dart';
 

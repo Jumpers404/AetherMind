@@ -1,5 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// JournalEntry model
+///
+/// Represents the persisted journal entry. The model includes both the
+/// computed ML-backed `emotion` and optional `keystrokeEmotion` and
+/// `keystrokeConfidence` fields when the keystroke model supplied a result.
 class JournalEntry {
   const JournalEntry({
     required this.id,

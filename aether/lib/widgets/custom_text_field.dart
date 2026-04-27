@@ -1,3 +1,5 @@
+// Reusable text field with app-specific styling used in forms throughout the
+// app.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

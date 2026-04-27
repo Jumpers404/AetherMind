@@ -1,3 +1,5 @@
+// Create post screen used for community support posts. Applies a
+// local moderation check before forwarding the post to the caller.
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

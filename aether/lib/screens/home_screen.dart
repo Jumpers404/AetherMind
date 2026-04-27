@@ -1,3 +1,6 @@
+// Home screen and its subcomponents. This file implements the main
+// landing experience, daily summary cards, quick actions and sections
+// visible after user authentication.
 import 'dart:ui' show ImageFilter, PointerDeviceKind;
 import 'dart:math' as math;
 
