@@ -23,6 +23,7 @@ import 'psychiatrist_directory_screen.dart';
 import '../services/report_controller.dart';
 import '../widgets/auth_flow_loader.dart';
 import '../app_theme.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -74,6 +75,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isLoading = false;
   late final AnimationController _shimmerController;
   final ReportController _reportController = ReportController();
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isPlayingNature = false;
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    _shimmerController.dispose();
+    super.dispose();
+  }
 
   String get _greetingName {
     final user = FirebaseAuth.instance.currentUser;
@@ -107,11 +117,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     )..repeat();
   }
 
-  @override
-  void dispose() {
-    _shimmerController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +188,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       const SizedBox(height: _sectionSpacing),
                       const _SectionTitle(text: 'Suggested for You'),
                       const SizedBox(height: _internalSpacing),
-                      _SuggestedRow(),
+                      _SuggestedRow(
+                        isPlayingNature: _isPlayingNature,
+                        onToggleNature: _toggleNatureSounds,
+                      ),
                     ],
                   ),
                 ),
@@ -259,6 +267,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Unable to sign out right now.')),
+      );
+    }
+  }
+
+  Future<void> _toggleNatureSounds() async {
+    try {
+      if (_isPlayingNature) {
+        await _audioPlayer.pause();
+      } else {
+        await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+        await _audioPlayer.play(
+          UrlSource(
+            'https://cdn.pixabay.com/download/audio/2022/01/18/audio_82c66a3d9b.mp3',
+          ),
+        );
+      }
+      setState(() => _isPlayingNature = !_isPlayingNature);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to play nature sounds: $e')),
       );
     }
   }
@@ -646,8 +675,7 @@ class _TodayVibeCard extends StatelessWidget {
                                 fontSize: 12.4,
                                 height: 1.25,
                                 fontWeight: FontWeight.w500,
-                                color: _HomePalette.textPrimary
-                                    .withValues(alpha: 0.78),
+                                color: const Color(0xFF1E3C44).withValues(alpha: 0.78),
                               ),
                             ),
                             const Spacer(),
@@ -673,7 +701,7 @@ class _TodayVibeCard extends StatelessWidget {
                               return Transform.translate(
                                 offset: Offset(0, y),
                                 child: Transform.scale(
-                                  scale: 1.55,
+                                  scale: 1.34,
                                   child: child,
                                 ),
                               );
@@ -681,13 +709,14 @@ class _TodayVibeCard extends StatelessWidget {
                             child: Align(
                               alignment: Alignment.bottomCenter,
                               child: Opacity(
-                                opacity: 0.88,
+                                opacity: 1.0,
                                 child: SizedBox(
-                                  width: 210,
-                                  height: 210,
+                                  width: 180,
+                                  height: 180,
                                   child: Image.asset(
                                     'assets/imgs/new-cov.png',
                                     fit: BoxFit.contain,
+                                    alignment: Alignment.bottomCenter,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
                                             const SizedBox.shrink(),
@@ -933,23 +962,37 @@ class _ProgressSection extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final isNarrow = constraints.maxWidth < 360;
-            final card1 = _ProgressStatCard(
-              title: 'Current Streak',
-              valueText: '12 days',
-              subtitle: 'Consistency',
-              progress: 0.76,
-              icon: Icons.local_fire_department_rounded,
-              ringColor: _HomePalette.accent,
-              iconBg: const Color(0xFFE4F5EE),
+            final card1 = GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const EmotionalAnalyticsScreen()),
+                );
+              },
+              child: _ProgressStatCard(
+                title: 'Current Streak',
+                valueText: '12 days',
+                subtitle: 'Consistency',
+                progress: 0.76,
+                icon: Icons.local_fire_department_rounded,
+                ringColor: _HomePalette.accent,
+                iconBg: const Color(0xFFE4F5EE),
+              ),
             );
-            final card2 = _ProgressStatCard(
-              title: 'Weekly Goals',
-              valueText: '4 / 5',
-              subtitle: 'Entries',
-              progress: 0.80,
-              icon: Icons.track_changes_rounded,
-              ringColor: const Color(0xFF3AA9DE),
-              iconBg: const Color(0xFFD9EEFA),
+            final card2 = GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const EmotionalAnalyticsScreen()),
+                );
+              },
+              child: _ProgressStatCard(
+                title: 'Weekly Goals',
+                valueText: '4 / 5',
+                subtitle: 'Entries',
+                progress: 0.80,
+                icon: Icons.track_changes_rounded,
+                ringColor: const Color(0xFF3AA9DE),
+                iconBg: const Color(0xFFD9EEFA),
+              ),
             );
 
             if (isNarrow) {
@@ -1153,12 +1196,12 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Browse • Send request',
               icon: Icons.folder_shared_rounded,
               gradient: const [
-                Color(0xFF8FD3C9),
-                Color(0xFFCFEDE8),
+                Color(0xFFFFB382), // Modern Orange
+                Color(0xFFF98F5B),
               ],
               buttonText: 'Browse',
               buttonIcon: Icons.search_rounded,
-              buttonTextColor: const Color(0xFF2D726B),
+              buttonTextColor: const Color(0xFF9E4E2C),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -1170,35 +1213,16 @@ class _QuickActionsRow extends StatelessWidget {
             const SizedBox(width: 14),
             _QuickActionCard(
               size: cardSize,
-              title: 'Safe Space',
-              subtitle: 'Connect • Anonymous',
-              icon: Icons.favorite_rounded,
-              gradient: const [
-                Color(0xFFE5989B),
-                Color(0xFFFFB5A7),
-              ], // Soft pink/coral
-              buttonText: 'Open',
-              buttonIcon: Icons.people_alt_rounded,
-              buttonTextColor: const Color(0xFF8F4145),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SupportWallScreen()),
-                );
-              },
-            ),
-            const SizedBox(width: 14),
-            _QuickActionCard(
-              size: cardSize,
               title: 'Facts',
               subtitle: 'Mind in moments • 1–2 min',
               icon: Icons.psychology_rounded,
               gradient: const [
-                Color(0xFF80CBC4),
-                Color(0xFFB2DFDB),
-              ], // Prescribed exact gradient
+                Color(0xFF6ED3AD), // Modern Green
+                Color(0xFF33B286),
+              ],
               buttonText: 'Open',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF26665D),
+              buttonTextColor: const Color(0xFF1D7A58),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const FactReelsScreen()),
@@ -1208,19 +1232,19 @@ class _QuickActionsRow extends StatelessWidget {
             const SizedBox(width: 14),
             _QuickActionCard(
               size: cardSize,
-              title: 'Anxiety Test',
-              subtitle: 'Story-driven • 2–3 min',
-              icon: Icons.blur_on_rounded,
-              gradient: const [Color(0xFF7CB6DE), Color(0xFFA1CBE8)],
-              buttonText: 'Start',
-              buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF3569A5),
+              title: 'Safe Space',
+              subtitle: 'Connect • Anonymous',
+              icon: Icons.favorite_rounded,
+              gradient: const [
+                Color(0xFF81D4FA), // Modern Blue
+                Color(0xFF4FC3F7),
+              ],
+              buttonText: 'Open',
+              buttonIcon: Icons.people_alt_rounded,
+              buttonTextColor: const Color(0xFF0277BD),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        TestExperienceScreen(testData: TestData.anxietyTest()),
-                  ),
+                  MaterialPageRoute(builder: (_) => const SupportWallScreen()),
                 );
               },
             ),
@@ -1230,10 +1254,13 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Stress Test',
               subtitle: 'Warm • 2–3 min',
               icon: Icons.local_fire_department_rounded,
-              gradient: const [Color(0xFFE88A58), Color(0xFFF0AA82)],
+              gradient: const [
+                Color(0xFFBA68C8), // Modern Purple
+                Color(0xFF9C27B0),
+              ],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFFC1662F),
+              buttonTextColor: const Color(0xFF6A1B9A),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -1246,19 +1273,21 @@ class _QuickActionsRow extends StatelessWidget {
             const SizedBox(width: 14),
             _QuickActionCard(
               size: cardSize,
-              title: 'Self-esteem Test',
-              subtitle: 'Uplifting • 2–3 min',
-              icon: Icons.self_improvement_rounded,
-              gradient: const [Color(0xFF81C784), Color(0xFFA5D6A7)],
+              title: 'Anxiety Test',
+              subtitle: 'Story-driven • 2–3 min',
+              icon: Icons.blur_on_rounded,
+              gradient: const [
+                Color(0xFFCFD8DC), // Modern Grey
+                Color(0xFFB0BEC5),
+              ],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF2B8C43),
+              buttonTextColor: const Color(0xFF455A64),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => TestExperienceScreen(
-                      testData: TestData.selfEsteemTest(),
-                    ),
+                    builder: (_) =>
+                        TestExperienceScreen(testData: TestData.anxietyTest()),
                   ),
                 );
               },
@@ -1269,15 +1298,41 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Depression Test',
               subtitle: 'Muted • 2–3 min',
               icon: Icons.cloud_queue_rounded,
-              gradient: const [Color(0xFFB1BCCF), Color(0xFFC7D0E0)],
+              gradient: const [
+                Color(0xFF78909C), // Dark Grey
+                Color(0xFF546E7A),
+              ],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF4B566E),
+              buttonTextColor: const Color(0xFF263238),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => TestExperienceScreen(
                       testData: TestData.depressionTest(),
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Self-esteem Test',
+              subtitle: 'Uplifting • 2–3 min',
+              icon: Icons.self_improvement_rounded,
+              gradient: const [
+                Color(0xFF90CAF9), // Soft Blue
+                Color(0xFF64B5F6),
+              ],
+              buttonText: 'Start',
+              buttonIcon: Icons.play_arrow_rounded,
+              buttonTextColor: const Color(0xFF1565C0),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => TestExperienceScreen(
+                      testData: TestData.selfEsteemTest(),
                     ),
                   ),
                 );
@@ -1610,28 +1665,18 @@ class _DailyJournalCard extends StatelessWidget {
 }
 
 class _SuggestedRow extends StatelessWidget {
-  const _SuggestedRow();
+  const _SuggestedRow({
+    required this.isPlayingNature,
+    required this.onToggleNature,
+  });
+
+  final bool isPlayingNature;
+  final VoidCallback onToggleNature;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _SuggestedCard(
-          icon: Icons.headphones_rounded,
-          iconBg: const Color(0xFFD5EDE4),
-          iconColor: const Color(0xFF217F66),
-          title: 'Morning Peace',
-          subtitle: '8 min • Audio',
-        ),
-        const SizedBox(height: 14),
-        _SuggestedCard(
-          icon: Icons.nightlight_round,
-          iconBg: const Color(0xFFE1D8F7),
-          iconColor: const Color(0xFF6750C7),
-          title: 'Gratitude',
-          subtitle: '3 min • Guide',
-        ),
-        const SizedBox(height: 14),
         _SuggestedCard(
           icon: Icons.bedtime_rounded,
           iconBg: const Color(0xFFEFF6FB),
@@ -1643,6 +1688,28 @@ class _SuggestedRow extends StatelessWidget {
               context,
             ).push(MaterialPageRoute(builder: (_) => const DreamEntryScreen()));
           },
+        ),
+        const SizedBox(height: 14),
+        _SuggestedCard(
+          icon: isPlayingNature ? Icons.pause_circle_filled_rounded : Icons.play_circle_filled_rounded,
+          iconBg: const Color(0xFFD5EDE4),
+          iconColor: const Color(0xFF217F66),
+          title: 'Morning Peace',
+          subtitle: 'Nature sounds • Relaxing',
+          onTap: onToggleNature,
+          trailing: Icon(
+            isPlayingNature ? Icons.equalizer_rounded : Icons.chevron_right_rounded,
+            color: const Color(0xFF217F66).withValues(alpha: 0.6),
+            size: 20,
+          ),
+        ),
+        const SizedBox(height: 14),
+        _SuggestedCard(
+          icon: Icons.volunteer_activism_rounded,
+          iconBg: const Color(0xFFE1D8F7),
+          iconColor: const Color(0xFF6750C7),
+          title: 'Gratitude',
+          subtitle: '3 min • Guide',
         ),
       ],
     );
@@ -1657,6 +1724,7 @@ class _SuggestedCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.onTap,
+    this.trailing,
   });
 
   final IconData icon;
@@ -1665,6 +1733,7 @@ class _SuggestedCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -1710,34 +1779,45 @@ class _SuggestedCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: dense ? 7 : 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
-                            fontWeight: FontWeight.w700,
-                            color: iconColor,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
+                              fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF223F4A),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
-                            fontWeight: FontWeight.w500,
-                            color: _HomePalette.textMuted.withValues(alpha: 0.85),
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
+                              fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
+                              fontWeight: FontWeight.w500,
+                              color: _HomePalette.textMuted.withValues(alpha: 0.85),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: 8),
+                      trailing!,
+                    ] else ...[
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: Colors.black.withValues(alpha: 0.2),
+                        size: 20,
+                      ),
+                    ],
                 ],
               ),
             ),

@@ -1,8 +1,9 @@
-// Small utility that displays a playful snake loader used during auth or
-// background flows. Exported helper `runWithAuthFlowLoader` wraps an async
+// Small utility that displays an ultra-mini 5x5 pixel snake loader used during
+// auth or background flows. Exported helper `runWithAuthFlowLoader` wraps an
 // action and shows a blocking dialog while the action completes.
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,8 +21,8 @@ Future<T> runWithAuthFlowLoader<T>({
   showGeneralDialog(
     context: context,
     barrierDismissible: false,
-    barrierColor: Colors.black.withOpacity(0.25),
-    pageBuilder: (ctx, _, _) {
+    barrierColor: Colors.black.withValues(alpha: 0.12),
+    pageBuilder: (ctx, _, __) {
       dialogContext = ctx;
       return _SnakeLoader(message: message);
     },
@@ -29,7 +30,8 @@ Future<T> runWithAuthFlowLoader<T>({
 
   try {
     final result = await action();
-    await Future.delayed(const Duration(milliseconds: 600)); // smooth exit
+    // Maintain a minimum display time for visual weight
+    await Future.delayed(const Duration(milliseconds: 1000)); 
     return result;
   } finally {
     if (dialogContext != null) {
@@ -39,7 +41,7 @@ Future<T> runWithAuthFlowLoader<T>({
 }
 
 /// ===============================
-/// 🐍 LOADER UI
+/// 🐍 ULTRA-MINI PIXEL LOADER
 /// ===============================
 class _SnakeLoader extends StatefulWidget {
   const _SnakeLoader({required this.message});
@@ -50,51 +52,49 @@ class _SnakeLoader extends StatefulWidget {
 }
 
 class _SnakeLoaderState extends State<_SnakeLoader> {
-  static const gridSize = 8;
-  static const pixel = 8.0;
-
-  late List<Point<int>> snake;
+  static const int gridSize = 5;
   late Point<int> food;
+  late List<Point<int>> snake;
   late Timer timer;
   final random = Random();
 
   @override
   void initState() {
     super.initState();
-
-    snake = [const Point(3, 3)];
-    food = _randomFood();
-
-    /// 🐢 slower movement
-    timer = Timer.periodic(const Duration(milliseconds: 260), (_) {
+    snake = [const Point(2, 2)];
+    food = _generateFood();
+    
+    // Classic discrete movement (350ms for a 'pixel game' feel)
+    timer = Timer.periodic(const Duration(milliseconds: 350), (_) {
       setState(_moveSnake);
     });
   }
 
-  Point<int> _randomFood() {
+  Point<int> _generateFood() {
     while (true) {
       final p = Point(random.nextInt(gridSize), random.nextInt(gridSize));
-      if (!snake.contains(p)) return p;
+      bool onSnake = false;
+      for (var s in snake) {
+        if (s.x == p.x && s.y == p.y) onSnake = true;
+      }
+      if (!onSnake) return p;
     }
   }
 
   void _moveSnake() {
     final head = snake.first;
-
-    /// 🎯 simple AI movement (towards food)
     int dx = 0;
     int dy = 0;
 
+    // Direct movement towards food
     if (food.x > head.x) dx = 1;
-    if (food.x < head.x) dx = -1;
-    if (food.y > head.y) dy = 1;
-    if (food.y < head.y) dy = -1;
+    else if (food.x < head.x) dx = -1;
+    else if (food.y > head.y) dy = 1;
+    else if (food.y < head.y) dy = -1;
 
-    /// randomize slight movement to feel natural
-    if (random.nextBool()) {
-      final tmp = dx;
-      dx = dy;
-      dy = tmp;
+    // Stochastic choice for multi-axis movement
+    if (dx != 0 && dy != 0) {
+      if (random.nextBool()) dx = 0; else dy = 0;
     }
 
     final newHead = Point(
@@ -102,14 +102,19 @@ class _SnakeLoaderState extends State<_SnakeLoader> {
       (head.y + dy).clamp(0, gridSize - 1),
     );
 
-    if (snake.contains(newHead)) return;
+    // Collision check
+    bool collision = false;
+    for (var s in snake) {
+      if (s.x == newHead.x && s.y == newHead.y) collision = true;
+    }
+    if (collision) return;
 
     snake.insert(0, newHead);
-
-    if (newHead == food) {
-      food = _randomFood(); // grow
+    if (newHead.x == food.x && newHead.y == food.y) {
+      food = _generateFood();
+      if (snake.length > 3) snake.removeLast(); // Maintain mini length
     } else {
-      snake.removeLast(); // move
+      snake.removeLast();
     }
   }
 
@@ -122,98 +127,125 @@ class _SnakeLoaderState extends State<_SnakeLoader> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withOpacity(0.25),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            /// 🟩 GRID BOX
-            Container(
-              width: gridSize * pixel,
-              height: gridSize * pixel,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: CustomPaint(
-                painter: _SnakePainter(
-                  snake: snake,
-                  food: food,
+      color: Colors.transparent,
+      child: Stack(
+        children: [
+          // Glass Backdrop
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(color: Colors.black.withValues(alpha: 0.1)),
+          ),
+          
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Ultra-mini pixel grid container (~48x48)
+                Container(
+                  width: 52,
+                  height: 52,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.85), // Almost Solid White
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: CustomPaint(
+                    painter: _PixelSnakePainter(
+                      snake: snake,
+                      food: food,
+                      gridSize: gridSize,
+                    ),
+                  ),
                 ),
-              ),
+                
+                const SizedBox(height: 20),
+                
+                // Muted letter-spaced message
+                Text(
+                  widget.message.toUpperCase(),
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 2.0,
+                    color: Colors.white.withValues(alpha: 0.75),
+                  ),
+                ),
+              ],
             ),
-
-            const SizedBox(height: 18),
-
-            Text(
-              widget.message,
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFFEAFDFC),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// ===============================
-/// 🎨 PAINTER
-/// ===============================
-class _SnakePainter extends CustomPainter {
+class _PixelSnakePainter extends CustomPainter {
   final List<Point<int>> snake;
   final Point<int> food;
+  final int gridSize;
 
-  static const pixel = 8.0;
-
-  _SnakePainter({required this.snake, required this.food});
+  _PixelSnakePainter({
+    required this.snake,
+    required this.food,
+    required this.gridSize,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..isAntiAlias = false;
+    final cellW = size.width / gridSize;
+    final cellH = size.height / gridSize;
+    final paint = Paint();
 
-    /// 🐍 draw snake
+    // 1. Draw empty pixel grid slots
+    paint.color = Colors.black.withValues(alpha: 0.04);
+    paint.style = PaintingStyle.fill;
+    for (int x = 0; x < gridSize; x++) {
+      for (int y = 0; y < gridSize; y++) {
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(x * cellW + 1, y * cellH + 1, cellW - 2, cellH - 2),
+            const Radius.circular(2),
+          ),
+          paint,
+        );
+      }
+    }
+
+    // 2. Draw Food Pixel
+    paint.color = const Color(0xFF6EC6B3).withValues(alpha: 0.6);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(food.x * cellW + 1.5, food.y * cellH + 1.5, cellW - 3, cellH - 3),
+        const Radius.circular(2),
+      ),
+      paint,
+    );
+
+    // 3. Draw Snake Pixels (Green)
     for (int i = 0; i < snake.length; i++) {
-      final segment = snake[i];
-
-      final color = Color.lerp(
-        const Color(0xFF5CB6A5),
-        const Color(0xFF2D726B),
-        i / snake.length,
-      )!;
-
-      paint.color = color;
-
-      canvas.drawRect(
-        Rect.fromLTWH(
-          segment.x * pixel,
-          segment.y * pixel,
-          pixel,
-          pixel,
+      final p = snake[i];
+      final isHead = i == 0;
+      
+      paint.color = const Color(0xFF2FB07E).withValues(alpha: isHead ? 1.0 : 0.7 - (i * 0.2));
+      
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(p.x * cellW + 1, p.y * cellH + 1, cellW - 2, cellH - 2),
+          const Radius.circular(2), // Subtle rounded corners for 'cute' factor
         ),
         paint,
       );
     }
-
-    /// 🍏 food
-    paint.color = const Color(0xFF8BE3C8);
-
-    canvas.drawRect(
-      Rect.fromLTWH(
-        food.x * pixel,
-        food.y * pixel,
-        pixel,
-        pixel,
-      ),
-      paint,
-    );
   }
 
   @override
-  bool shouldRepaint(covariant _SnakePainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(covariant _PixelSnakePainter oldDelegate) => true;
 }

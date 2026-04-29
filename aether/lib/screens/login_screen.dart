@@ -1868,11 +1868,11 @@ class _AnimatedPetState extends State<AnimatedPet>
               )
             : null,
         child: Image.asset(
-                  'assets/imgs/new-cov.png',
-                  height: widget.petSize,
-                  width: widget.petSize,
+          'assets/imgs/new-cov.png',
+          height: widget.petSize,
+          width: widget.petSize,
           fit: BoxFit.contain,
-          filterQuality: FilterQuality.none,
+          alignment: Alignment.center,
           gaplessPlayback: true,
         ),
       ),
