@@ -103,7 +103,9 @@ def predict(payload: KeystrokeInput) -> PredictionResponse:
     except FileNotFoundError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Prediction failed: {exc}") from exc
+        import traceback
+        traceback.print_exc()
+        raise exc
 
 
 @app.post("/predict/text", response_model=PredictionResponse)
@@ -115,4 +117,6 @@ def predict_text(payload: TextInput) -> PredictionResponse:
             confidence=float(result.get("confidence", 0.0)),
         )
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Text prediction failed: {exc}") from exc
+        import traceback
+        traceback.print_exc()
+        raise exc

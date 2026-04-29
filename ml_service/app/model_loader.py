@@ -1,3 +1,28 @@
+import re
+from pathlib import Path
+from threading import Lock
+
+import numpy as np
+import joblib
+import torch
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+# 🔥 GLOBAL STATE (REQUIRED)
+_model = None
+_text_model_components = None
+
+_keystroke_model_lock = Lock()
+_text_model_lock = Lock()
+
+_whitespace_re = re.compile(r"\s+")
+
+# Force CPU (since Docker is CPU-only)
+TEXT_MODEL_DEVICE = torch.device("cpu")
+
+# Optional: reduce CPU contention
+torch.set_num_threads(1)
+DEFAULT_TEXT_MODEL_NAME = "j-hartmann/emotion-english-distilroberta-base"
+
 def get_model():
     global _model
     if _model is None:
