@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FBFA),
+      backgroundColor: _HomePalette.backgroundTop,
       body: Stack(
         children: [
           const Positioned.fill(
@@ -91,9 +91,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xFFF9FBFA),
-                    Color(0xFFF3F7F5),
-                    Color(0xFFEAF3EF),
+                    _HomePalette.backgroundTop,
+                    _HomePalette.backgroundMid,
+                    _HomePalette.backgroundBottom,
                   ],
                 ),
               ),
@@ -229,6 +229,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 }
 
+class _HomePalette {
+  static const backgroundTop = Color(0xFFF7FBF9);
+  static const backgroundMid = Color(0xFFF0F7F4);
+  static const backgroundBottom = Color(0xFFE6F1EC);
+  static const textPrimary = Color(0xFF1E3C44);
+  static const textMuted = Color(0xFF5F7380);
+  static const accent = Color(0xFF2FB07E);
+  static const accentDark = Color(0xFF1D8968);
+  static const accentSoft = Color(0xFFD7EFE5);
+  static const accentSurface = Color(0xFFF2FBF7);
+  static const accentBorder = Color(0xFF8BBDA8);
+  static const tealShadow = Color(0xFF2B7B62);
+}
+
 class _HeaderSection extends StatelessWidget {
   const _HeaderSection({required this.userName, required this.onSignOut});
 
@@ -254,7 +268,7 @@ class _HeaderSection extends StatelessWidget {
                     FontWeight.w900,
                     0.4,
                   ),
-                  color: const Color(0xFF1E3A45),
+                  color: _HomePalette.textPrimary,
                   height: 1.12,
                 ),
               ),
@@ -264,7 +278,7 @@ class _HeaderSection extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF5F7380).withValues(alpha: 0.78),
+                  color: _HomePalette.textMuted.withValues(alpha: 0.78),
                 ),
               ),
             ],
@@ -312,22 +326,22 @@ class _OptionsMenuButton extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withValues(alpha: 0.82),
-                    Colors.white.withValues(alpha: 0.46),
+                    Colors.white.withValues(alpha: 0.9),
+                    _HomePalette.accentSurface.withValues(alpha: 0.7),
                   ],
                 ),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.68),
+                  color: _HomePalette.accentSoft.withValues(alpha: 0.9),
                   width: 1.0,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF1C333B).withValues(alpha: 0.10),
+                    color: _HomePalette.textPrimary.withValues(alpha: 0.08),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: const Color(0xFF4FB894).withValues(alpha: 0.08),
+                    color: _HomePalette.accent.withValues(alpha: 0.12),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -342,11 +356,33 @@ class _OptionsMenuButton extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Center(
-                  child: Icon(
-                    Icons.person_rounded,
-                    color: Color(0xFF2FB07E),
-                    size: 22,
+                child: Center(
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _HomePalette.accent,
+                          _HomePalette.accentDark,
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _HomePalette.accent.withValues(alpha: 0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
@@ -386,22 +422,22 @@ class _RoundActionIcon extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withValues(alpha: 0.82),
-                    Colors.white.withValues(alpha: 0.46),
+                    Colors.white.withValues(alpha: 0.9),
+                    _HomePalette.accentSurface.withValues(alpha: 0.7),
                   ],
                 ),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.68),
+                  color: _HomePalette.accentSoft.withValues(alpha: 0.9),
                   width: 1.0,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF1C333B).withValues(alpha: 0.10),
+                    color: _HomePalette.textPrimary.withValues(alpha: 0.08),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: const Color(0xFF4FB894).withValues(alpha: 0.08),
+                    color: _HomePalette.accent.withValues(alpha: 0.12),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -431,7 +467,7 @@ class _RoundActionIcon extends StatelessWidget {
                     Center(
                       child: Icon(
                         icon,
-                        color: const Color(0xFF2FB07E),
+                        color: _HomePalette.accent,
                         size: 22,
                       ),
                     ),
@@ -491,21 +527,25 @@ class _TodayVibeCard extends StatelessWidget {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFEAF7F1), Color(0xFFD2EBDD), Color(0xFFC4E3D3)],
+              colors: [
+                Color(0xFFEDF8F3),
+                Color(0xFFD5EDE2),
+                Color(0xFFC1E3D3),
+              ],
             ),
             border: Border.all(
-              color: const Color(0xFF8CBFA8).withValues(alpha: 0.55),
+              color: _HomePalette.accentBorder.withValues(alpha: 0.6),
               width: 1.1,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF2B7B62).withValues(alpha: 0.24),
+                color: _HomePalette.tealShadow.withValues(alpha: 0.2),
                 blurRadius: 28,
                 spreadRadius: 1,
                 offset: const Offset(0, 14),
               ),
               BoxShadow(
-                color: const Color(0xFF77B49E).withValues(alpha: 0.30),
+                color: _HomePalette.accent.withValues(alpha: 0.22),
                 blurRadius: 12,
                 offset: const Offset(0, 3),
               ),
@@ -597,7 +637,7 @@ class _TodayVibeCard extends StatelessWidget {
                                   FontWeight.w900,
                                   0.4,
                                 ),
-                                color: const Color(0xFF2F9E6F),
+                                color: _HomePalette.accent,
                               ),
                             ),
                             const SizedBox(height: 3),
@@ -609,7 +649,8 @@ class _TodayVibeCard extends StatelessWidget {
                                 fontSize: 12.4,
                                 height: 1.25,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.white.withValues(alpha: 0.9),
+                                color: _HomePalette.textPrimary
+                                    .withValues(alpha: 0.78),
                               ),
                             ),
                             const Spacer(),
@@ -648,7 +689,7 @@ class _TodayVibeCard extends StatelessWidget {
                                   width: 210,
                                   height: 210,
                                   child: Image.asset(
-                                    'assets/imgs/new-pet.png',
+                                    'assets/imgs/new-cov.png',
                                     fit: BoxFit.contain,
                                     errorBuilder:
                                         (context, error, stackTrace) =>
@@ -805,11 +846,11 @@ class _HeroCheckInButton extends StatelessWidget {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF36B37E), Color(0xFF2F9E6F)],
+                colors: [Color(0xFF38B787), Color(0xFF239A71)],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF2F9E6F).withValues(alpha: 0.24),
+                  color: _HomePalette.accent.withValues(alpha: 0.22),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -910,8 +951,8 @@ class _ProgressSection extends StatelessWidget {
               subtitle: 'Entries',
               progress: 0.80,
               icon: Icons.track_changes_rounded,
-              ringColor: const Color(0xFF3AA9DE),
-              iconBg: const Color(0xFFD9EEFA),
+              ringColor: const Color(0xFF2FA57B),
+              iconBg: const Color(0xFFDDF3EA),
             );
 
             if (isNarrow) {
@@ -1030,7 +1071,7 @@ class _ProgressStatCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF4D6A72),
+                        color: _HomePalette.textPrimary.withValues(alpha: 0.78),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -1081,7 +1122,7 @@ class _ProgressStatCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF6A7E86),
+                        color: _HomePalette.textMuted.withValues(alpha: 0.85),
                       ),
                     ),
                   ],
@@ -1136,12 +1177,12 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Connect • Anonymous',
               icon: Icons.favorite_rounded,
               gradient: const [
-                Color(0xFFE5989B),
-                Color(0xFFFFB5A7),
+                Color(0xFFE2F4ED),
+                Color(0xFFCBE7DB),
               ], // Soft pink/coral
               buttonText: 'Open',
               buttonIcon: Icons.people_alt_rounded,
-              buttonTextColor: const Color(0xFF8F4145),
+              buttonTextColor: const Color(0xFF2F7C66),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const SupportWallScreen()),
@@ -1155,12 +1196,12 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Mind in moments • 1–2 min',
               icon: Icons.psychology_rounded,
               gradient: const [
-                Color(0xFF80CBC4),
-                Color(0xFFB2DFDB),
+                Color(0xFFDDF1E7),
+                Color(0xFFBFE4D5),
               ], // Prescribed exact gradient
               buttonText: 'Open',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF26665D),
+              buttonTextColor: const Color(0xFF246B5C),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const FactReelsScreen()),
@@ -1173,10 +1214,10 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Anxiety Test',
               subtitle: 'Story-driven • 2–3 min',
               icon: Icons.blur_on_rounded,
-              gradient: const [Color(0xFF7CB6DE), Color(0xFFA1CBE8)],
+              gradient: const [Color(0xFFD7EEF0), Color(0xFFBFE3E6)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF3569A5),
+              buttonTextColor: const Color(0xFF2C6C6E),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -1192,10 +1233,10 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Stress Test',
               subtitle: 'Warm • 2–3 min',
               icon: Icons.local_fire_department_rounded,
-              gradient: const [Color(0xFFE88A58), Color(0xFFF0AA82)],
+              gradient: const [Color(0xFFE8F4ED), Color(0xFFD0E9DD)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFFC1662F),
+              buttonTextColor: const Color(0xFF2F7C66),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -1211,10 +1252,10 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Self-esteem Test',
               subtitle: 'Uplifting • 2–3 min',
               icon: Icons.self_improvement_rounded,
-              gradient: const [Color(0xFF81C784), Color(0xFFA5D6A7)],
+              gradient: const [Color(0xFFE1F2EA), Color(0xFFC7E4D8)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF2B8C43),
+              buttonTextColor: const Color(0xFF2F7C66),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -1231,10 +1272,10 @@ class _QuickActionsRow extends StatelessWidget {
               title: 'Depression Test',
               subtitle: 'Muted • 2–3 min',
               icon: Icons.cloud_queue_rounded,
-              gradient: const [Color(0xFFB1BCCF), Color(0xFFC7D0E0)],
+              gradient: const [Color(0xFFE3F0EC), Color(0xFFCADFD8)],
               buttonText: 'Start',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF4B566E),
+              buttonTextColor: const Color(0xFF3C6A62),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -1483,10 +1524,10 @@ class _DailyJournalCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        color: Colors.white.withValues(alpha: 0.86),
+        color: _HomePalette.accentSurface.withValues(alpha: 0.9),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF203D48).withValues(alpha: 0.09),
+            color: _HomePalette.textPrimary.withValues(alpha: 0.08),
             blurRadius: 22,
             offset: const Offset(0, 9),
           ),
@@ -1500,12 +1541,12 @@ class _DailyJournalCard extends StatelessWidget {
               width: 56,
               height: 56,
               decoration: const BoxDecoration(
-                color: Color(0xFFD1EFE4),
+                color: Color(0xFFDFF2E9),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.menu_book_rounded,
-                color: Color(0xFF1D8968),
+                color: Color(0xFF1D8A68),
                 size: 31,
               ),
             ),
@@ -1520,7 +1561,7 @@ class _DailyJournalCard extends StatelessWidget {
                       fontFamily: 'Doto',
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF223F4A),
+                      color: Color(0xFF1F4046),
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -1529,7 +1570,7 @@ class _DailyJournalCard extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 12.6,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF6C808C),
+                      color: _HomePalette.textMuted.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1547,7 +1588,7 @@ class _DailyJournalCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: const Color(0xFFC8DDD5),
+                      color: _HomePalette.accentBorder.withValues(alpha: 0.6),
                       width: 1.8,
                     ),
                   ),
@@ -1557,7 +1598,7 @@ class _DailyJournalCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1F9873),
+                        color: _HomePalette.accent,
                       ),
                     ),
                   ),
@@ -1580,23 +1621,23 @@ class _SuggestedRow extends StatelessWidget {
       children: [
         _SuggestedCard(
           icon: Icons.headphones_rounded,
-          iconBg: const Color(0xFFD5EDE4),
-          iconColor: const Color(0xFF217F66),
+          iconBg: const Color(0xFFDFF1E8),
+          iconColor: const Color(0xFF1E7A64),
           title: 'Morning Peace',
           subtitle: '8 min • Audio',
         ),
         const SizedBox(height: 14),
         _SuggestedCard(
           icon: Icons.nightlight_round,
-          iconBg: const Color(0xFFE1D8F7),
-          iconColor: const Color(0xFF6750C7),
+          iconBg: const Color(0xFFD6EEE4),
+          iconColor: const Color(0xFF257B6B),
           title: 'Gratitude',
           subtitle: '3 min • Guide',
         ),
         const SizedBox(height: 14),
         _SuggestedCard(
           icon: Icons.bedtime_rounded,
-          iconBg: const Color(0xFFEFF6FB),
+          iconBg: const Color(0xFFE3F3EC),
           iconColor: const Color(0xFF2F9E6F),
           title: 'Dream Recorder',
           subtitle: 'Log a dream • Journal',
@@ -1694,7 +1735,7 @@ class _SuggestedCard extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF6E818D),
+                            color: _HomePalette.textMuted.withValues(alpha: 0.85),
                           ),
                         ),
                       ],
@@ -1752,7 +1793,7 @@ class _MoodInputBar extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontSize: 14.5,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF5F7380),
+                    color: _HomePalette.textMuted,
                   ),
                 ),
               ),
@@ -1769,7 +1810,7 @@ class _MoodInputBar extends StatelessWidget {
                 ),
                 child: const Icon(
                   Icons.mic_rounded,
-                  color: Color(0xFF22A178),
+                  color: Color(0xFF2AA77D),
                   size: 20,
                 ),
               ),
@@ -1794,7 +1835,7 @@ class _SectionTitle extends StatelessWidget {
         fontFamily: 'Doto',
         fontSize: 19,
         fontWeight: FontWeight.lerp(FontWeight.w800, FontWeight.w900, 0.4),
-        color: const Color(0xFF1E3A46),
+        color: _HomePalette.textPrimary,
       ),
     );
   }
