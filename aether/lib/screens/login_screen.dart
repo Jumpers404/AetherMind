@@ -410,10 +410,10 @@ class _LoginScreenState extends State<LoginScreen>
                 final petSize = lerpDouble(mainSize, formSize, transitionFactor) ?? mainSize;
 
                 final opacity = lerpDouble(1.0, 0.96, transitionFactor) ?? 1.0;
-                final petScale = 1.12;
+                final petScale = 1.38;
                 final basePetContainerHeight = height * 0.75;
                 final rawPetSize = petSize * petScale;
-                final maxVisiblePetSize = basePetContainerHeight * 1.15;
+                final maxVisiblePetSize = basePetContainerHeight * 1.5;
                 final resolvedPetSize = math.min(rawPetSize, maxVisiblePetSize);
                 final petContainerHeight = math.max(basePetContainerHeight, resolvedPetSize);
 
@@ -624,8 +624,8 @@ class _PixelMosaicBackgroundPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final time = progress.value;
     final t = time * 2 * math.pi;
-    final cols = gridColumns?.clamp(26, 48) ??
-      ((size.width / 24).round().clamp(26, 48));
+    final cols = gridColumns?.clamp(42, 80) ??
+      ((size.width / 14).round().clamp(42, 80));
     final cellW = size.width / cols;
     final cellH = cellW;
     final rows = (size.height / cellH).ceil() + 1;
@@ -2143,8 +2143,9 @@ class _AnimatedPetState extends State<AnimatedPet>
               )
             : null,
         child: Image.asset(
-          'assets/imgs/new-pet.png',
-          height: widget.petSize,
+                  'assets/imgs/new-cov.png',
+                  height: widget.petSize,
+                  width: widget.petSize,
           fit: BoxFit.contain,
           filterQuality: FilterQuality.none,
           gaplessPlayback: true,
