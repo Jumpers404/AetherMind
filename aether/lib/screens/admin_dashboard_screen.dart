@@ -820,9 +820,9 @@ class _JournalListCard extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final journal = journals[index];
-        final userId = journal['userId'] as String? ?? '';
+        final userId = journal['user_id'] as String? ?? '';
         final userName = userMap[userId]?['name'] as String? ?? 'Unknown';
-        final content = journal['content'] as String? ?? '';
+        final text = journal['text'] as String? ?? '';
         final emotion = journal['emotion'] as String? ?? '';
         
         return Container(
@@ -858,7 +858,7 @@ class _JournalListCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                content,
+                text,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.poppins(fontSize: 12, color: const Color(0xFF5F7380), height: 1.5),
@@ -886,8 +886,8 @@ class _RelationshipListCard extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final rel = patients[index];
-        final patientId = rel['patientId'] as String? ?? '';
-        final psychId = rel['psychiatristId'] as String? ?? '';
+        final patientId = rel['user_id'] as String? ?? '';
+        final psychId = rel['psychiatrist_id'] as String? ?? '';
         final pName = userMap[patientId]?['name'] as String? ?? 'Unknown';
         final psName = userMap[psychId]?['name'] as String? ?? 'Unknown';
 
@@ -931,8 +931,8 @@ class _RequestListCard extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final req = requests[index];
-        final senderId = req['senderId'] as String? ?? '';
-        final receiverId = req['receiverId'] as String? ?? '';
+        final senderId = req['user_id'] as String? ?? '';
+        final receiverId = req['psychiatrist_id'] as String? ?? '';
         final status = req['status'] as String? ?? '';
         final sName = userMap[senderId]?['name'] as String? ?? 'Unknown';
         final rName = userMap[receiverId]?['name'] as String? ?? 'Unknown';
