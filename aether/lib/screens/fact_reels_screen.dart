@@ -150,37 +150,71 @@ class _FactReelsScreenState extends State<FactReelsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            color: AppColors.textPrimary,
+        leading: Container(
+          margin: const EdgeInsets.only(left: 12),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
       ),
-      body: PageView.builder(
-        controller: _pageController,
-        scrollDirection: Axis.vertical,
-        physics: const BouncingScrollPhysics(),
-        itemCount: sampleFacts.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          return FactCard(
-            fact: sampleFacts[index],
-            onSave: () => _saveFact(sampleFacts[index]),
-            onReflect: () => _openReflectDialog(sampleFacts[index]),
-            onNext: _nextFact,
-          );
-        },
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            physics: const BouncingScrollPhysics(),
+            itemCount: sampleFacts.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              return FactCard(
+                fact: sampleFacts[index],
+                onSave: () => _saveFact(sampleFacts[index]),
+                onReflect: () => _openReflectDialog(sampleFacts[index]),
+                onNext: _nextFact,
+              );
+            },
+          ),
+          // Top progress indicator like Instagram
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 20,
+            right: 20,
+            child: Row(
+              children: List.generate(
+                sampleFacts.length,
+                (index) => Expanded(
+                  child: Container(
+                    height: 2.5,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: index <= _currentIndex
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
