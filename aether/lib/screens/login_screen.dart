@@ -16,6 +16,7 @@ import '../widgets/animated_mosaic_background.dart';
 import 'home_screen.dart';
 import 'onboarding_flow_screen.dart';
 import 'psychiatrist_screen.dart';
+import 'admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
@@ -413,10 +414,10 @@ class _LoginScreenState extends State<LoginScreen>
                 final petSize = lerpDouble(mainSize, formSize, transitionFactor) ?? mainSize;
 
                 final opacity = lerpDouble(1.0, 0.96, transitionFactor) ?? 1.0;
-                final petScale = 1.12;
+                final petScale = 1.38;
                 final basePetContainerHeight = height * 0.75;
                 final rawPetSize = petSize * petScale;
-                final maxVisiblePetSize = basePetContainerHeight * 1.15;
+                final maxVisiblePetSize = basePetContainerHeight * 1.5;
                 final resolvedPetSize = math.min(rawPetSize, maxVisiblePetSize);
                 final petContainerHeight = math.max(basePetContainerHeight, resolvedPetSize);
 
@@ -1517,8 +1518,14 @@ class _LoginFormState extends State<_LoginForm> {
                 return;
               }
 
-              if (result.role == 'psychiatrist') {
-                await _routeAfterLogin(result.role);
+              if (result.role == 'admin') {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+                );
+              } else if (result.role == 'psychiatrist') {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const PsychiatristScreen()),
+                );
               } else {
                 await _routeAfterLogin(result.role);
               }
@@ -1861,8 +1868,9 @@ class _AnimatedPetState extends State<AnimatedPet>
               )
             : null,
         child: Image.asset(
-          'assets/imgs/new-pet.png',
-          height: widget.petSize,
+                  'assets/imgs/new-cov.png',
+                  height: widget.petSize,
+                  width: widget.petSize,
           fit: BoxFit.contain,
           filterQuality: FilterQuality.none,
           gaplessPlayback: true,

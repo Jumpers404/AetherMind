@@ -1,3 +1,19 @@
+"""Model loader and prediction helpers.
+
+Responsibilities:
+- Load and cache the keystroke scikit-learn model (joblib) in a thread-safe
+  manner using a lock. If the model file is missing a FileNotFoundError is
+  raised and propagated as a 500 from the API.
+- Load and cache the transformer tokenizer+model used for text emotion
+  prediction. The model is loaded into CPU and run with `torch.no_grad()`.
+- Normalize some text labels (e.g., 'sad' -> 'sadness') to keep a stable
+  emotion vocabulary for clients.
+
+Performance note: The module sets Torch to single-threaded operation to
+reduce CPU contention on small host instances. Adjust `torch.set_num_threads`
+if you deploy to machines with more cores.
+"""
+
 import re
 from pathlib import Path
 from threading import Lock
@@ -7,7 +23,6 @@ import joblib
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-# 🔥 GLOBAL STATE (REQUIRED)
 _model = None
 _text_model_components = None
 
@@ -16,12 +31,22 @@ _text_model_lock = Lock()
 
 _whitespace_re = re.compile(r"\s+")
 
-# Force CPU (since Docker is CPU-only)
 TEXT_MODEL_DEVICE = torch.device("cpu")
 
 # Optional: reduce CPU contention
 torch.set_num_threads(1)
 DEFAULT_TEXT_MODEL_NAME = "j-hartmann/emotion-english-distilroberta-base"
+
+LABEL_NORMALIZATION_MAP = {
+    "sad": "sadness",
+    "joy": "happy",
+    "anger": "angry",
+    "fear": "anxious",
+    "surprise": "surprised",
+    "love": "love",
+    "neutral": "neutral",
+}
+
 
 def get_model():
     global _model
@@ -102,19 +127,3 @@ def predict_text_emotion(raw_text: str) -> dict[str, str | float]:
     confidence = float(probs[best_idx])
 
     return {"emotion": emotion, "confidence": confidence}
-"""
-Model loader and prediction helpers.
-
-Responsibilities:
-- Load and cache the keystroke scikit-learn model (joblib) in a thread-safe
-    manner using a lock. If the model file is missing a FileNotFoundError is
-    raised and propagated as a 500 from the API.
-- Load and cache the transformer tokenizer+model used for text emotion
-    prediction. The model is loaded into CPU and run with `torch.no_grad()`.
-- Normalize some text labels (e.g., 'sad' -> 'sadness') to keep a stable
-    emotion vocabulary for clients.
-
-Performance note: The module sets Torch to single-threaded operation to
-reduce CPU contention on small host instances. Adjust `torch.set_num_threads`
-if you deploy to machines with more cores.
-"""

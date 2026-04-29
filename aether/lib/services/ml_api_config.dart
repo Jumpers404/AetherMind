@@ -4,7 +4,7 @@ class MlApiConfig {
   MlApiConfig._();
 
   // 🔥 SINGLE SWITCH (change this only)
-  static const bool useLocal = true;
+  static const bool useLocal = false;
 
   static const String _localBaseUrl = 'http://127.0.0.1:8010';
   static const String _prodBaseUrl = 'https://aethermind-ml.onrender.com';
