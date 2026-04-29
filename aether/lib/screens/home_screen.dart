@@ -18,6 +18,7 @@ import 'login_screen.dart';
 import 'profile_screen.dart';
 import 'notification_screen.dart';
 import 'emotional_analytics_screen.dart';
+import 'psychiatrist_directory_screen.dart';
 
 import '../services/report_controller.dart';
 import '../widgets/auth_flow_loader.dart';
@@ -1108,6 +1109,27 @@ class _QuickActionsRow extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           children: [
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Psychiatrists',
+              subtitle: 'Browse • Send request',
+              icon: Icons.folder_shared_rounded,
+              gradient: const [
+                Color(0xFF8FD3C9),
+                Color(0xFFCFEDE8),
+              ],
+              buttonText: 'Browse',
+              buttonIcon: Icons.search_rounded,
+              buttonTextColor: const Color(0xFF2D726B),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const PsychiatristDirectoryScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 14),
             _QuickActionCard(
               size: cardSize,
               title: 'Safe Space',

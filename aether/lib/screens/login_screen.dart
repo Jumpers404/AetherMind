@@ -13,6 +13,7 @@ import '../services/auth_service.dart';
 import '../widgets/auth_flow_loader.dart';
 import 'home_screen.dart';
 import 'psychiatrist_screen.dart';
+import 'admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
@@ -1795,7 +1796,11 @@ class _LoginFormState extends State<_LoginForm> {
                 return;
               }
 
-              if (result.role == 'psychiatrist') {
+              if (result.role == 'admin') {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+                );
+              } else if (result.role == 'psychiatrist') {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (_) => const PsychiatristScreen()),
                 );

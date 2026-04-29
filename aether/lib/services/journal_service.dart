@@ -92,6 +92,27 @@ class JournalService {
     }
   }
 
+  Future<List<JournalEntry>> getJournalsForUser(String userId) async {
+    try {
+      if (userId.trim().isEmpty) {
+        return <JournalEntry>[];
+      }
+
+      final snapshot = await _collection
+          .where('user_id', isEqualTo: userId)
+          .orderBy('timestamp', descending: true)
+          .limit(100)
+          .get();
+
+      return snapshot.docs
+          .map((doc) => JournalEntry.fromMap(doc.data()))
+          .toList();
+    } catch (error) {
+      print('JournalService.getJournalsForUser error: $error');
+      return <JournalEntry>[];
+    }
+  }
+
   Future<void> deleteJournal(String id) async {
     try {
       await _collection.doc(id).delete();

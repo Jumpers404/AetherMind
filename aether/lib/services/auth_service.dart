@@ -61,6 +61,7 @@ class AuthService {
       }
 
       await _firestore.collection('users').doc(uid).set({
+        'uid': uid,
         'name': name,
         'email': email,
         'role': 'user',
@@ -93,10 +94,12 @@ class AuthService {
       }
 
       await _firestore.collection('users').doc(uid).set({
+        'uid': uid,
         'name': name,
         'email': email,
         'role': 'psychiatrist',
         'license_number': licenseNumber,
+        'is_verified': false,
         'created_at': FieldValue.serverTimestamp(),
       });
       return null;
