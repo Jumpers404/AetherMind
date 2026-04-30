@@ -108,27 +108,33 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Stack(
         children: [
-          IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+            ),
           ),
-          Expanded(
+          Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Emotional Analytics',
-                  style: GoogleFonts.poppins(
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Doto',
                     fontSize: 22,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: const Color(0xFF2E2E2E),
                   ),
                 ),
                 Text(
                   'A reflection of how you’ve been feeling',
+                  textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     fontSize: 13,
                     color: const Color(0xFF7A7A7A).withOpacity(0.8),
