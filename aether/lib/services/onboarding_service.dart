@@ -31,9 +31,6 @@ class OnboardingService {
           'activities': preferences['activities'] ?? <String>[],
         },
         'relief_methods': reliefMethods,
-        'followers': 0,
-        'following': 0,
-        'hearts': 0,
         'created_at': FieldValue.serverTimestamp(),
       },
       'onboarding_completed': completed,
@@ -97,19 +94,5 @@ class OnboardingService {
     await _firestore.collection('users').doc(user.uid).update({
       'onboarding_profile.bio': bio,
     });
-  }
-
-  Future<void> updateSocialStats({int? followers, int? following, int? hearts}) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
-    final updates = <String, dynamic>{};
-    if (followers != null) updates['onboarding_profile.followers'] = followers;
-    if (following != null) updates['onboarding_profile.following'] = following;
-    if (hearts != null) updates['onboarding_profile.hearts'] = hearts;
-
-    if (updates.isNotEmpty) {
-      await _firestore.collection('users').doc(user.uid).update(updates);
-    }
   }
 }

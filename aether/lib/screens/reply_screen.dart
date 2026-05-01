@@ -2,7 +2,6 @@
 // selecting empathy chips and composing anonymous replies.
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:aether/widgets/auth_flow_loader.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../app_theme.dart';
@@ -367,7 +366,7 @@ class _ReplyScreenState extends State<ReplyScreen> {
                                 ? const SizedBox(
                                     width: 20,
                                     height: 20,
-                                    child: const SnakeLoadingIndicator(),
+                                    child: const CircularProgressIndicator(strokeWidth: 2),
                                   )
                                 : const Icon(
                                     Icons.send_rounded,

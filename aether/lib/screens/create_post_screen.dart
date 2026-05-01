@@ -2,7 +2,6 @@
 // local moderation check before forwarding the post to the caller.
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:aether/widgets/auth_flow_loader.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../app_theme.dart';
@@ -293,7 +292,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: const SnakeLoadingIndicator(),
+                          child: const CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Text(
                           'Post Anonymously',

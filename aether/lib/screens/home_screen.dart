@@ -174,10 +174,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       const SizedBox(height: _sectionSpacing),
                       _DailyJournalCard(
                         onTapWrite: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => const JournalTestScreen(),
-                            ),
+                          pushWithSnakeLoader(
+                            context,
+                            const JournalTestScreen(),
                           );
                         },
                       ),
@@ -229,9 +228,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return;
       }
 
-      Navigator.push(
+      pushWithSnakeLoader(
         context,
-        MaterialPageRoute(builder: (_) => ReportScreen(report: report)),
+        ReportScreen(report: report),
       );
     } catch (_) {
       if (!mounted) {
@@ -342,8 +341,9 @@ class _HeaderSection extends StatelessWidget {
               icon: Icons.notifications_none_rounded,
               showDot: true,
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                pushWithSnakeLoader(
+                  context,
+                  const NotificationScreen(),
                 );
               },
             ),
@@ -402,10 +402,9 @@ class _OptionsMenuButton extends StatelessWidget {
               child: InkWell(
                 customBorder: const CircleBorder(),
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ProfileScreen(onSignOut: onSignOut),
-                    ),
+                  pushWithSnakeLoader(
+                    context,
+                    ProfileScreen(onSignOut: onSignOut),
                   );
                 },
                 child: const Center(
@@ -886,11 +885,11 @@ class _HeroCheckInButton extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 18),
               child: Center(
                 child: isLoading
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: const SnakeLoadingIndicator(),
-                      )
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(),
+                          )
                     : Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -933,8 +932,9 @@ class _ProgressSection extends StatelessWidget {
             const _SectionTitle(text: 'Your Progress'),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const EmotionalAnalyticsScreen()),
+                pushWithSnakeLoader(
+                  context,
+                  const EmotionalAnalyticsScreen(),
                 );
               },
               child: Row(
@@ -957,36 +957,40 @@ class _ProgressSection extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final isNarrow = constraints.maxWidth < 360;
+
             final card1 = GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const EmotionalAnalyticsScreen()),
+                pushWithSnakeLoader(
+                  context,
+                  const EmotionalAnalyticsScreen(),
                 );
               },
               child: _ProgressStatCard(
                 title: 'Current Streak',
-                valueText: '12 days',
+                valueText: '0 days',
                 subtitle: 'Consistency',
-                progress: 0.76,
-                icon: Icons.local_fire_department_rounded,
+                progress: 0.0,
                 ringColor: _HomePalette.accent,
                 iconBg: const Color(0xFFE4F5EE),
+                icon: Icons.local_fire_department, // 🔥 streak icon
               ),
             );
+
             final card2 = GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const EmotionalAnalyticsScreen()),
+                pushWithSnakeLoader(
+                  context,
+                  const EmotionalAnalyticsScreen(),
                 );
               },
               child: _ProgressStatCard(
                 title: 'Weekly Goals',
-                valueText: '4 / 5',
+                valueText: '0 / 5',
                 subtitle: 'Entries',
-                progress: 0.80,
-                icon: Icons.track_changes_rounded,
+                progress: 0.0,
                 ringColor: const Color(0xFF3AA9DE),
                 iconBg: const Color(0xFFD9EEFA),
+                icon: Icons.track_changes, // 🎯 goals icon
               ),
             );
 
@@ -1016,18 +1020,18 @@ class _ProgressStatCard extends StatelessWidget {
     required this.valueText,
     required this.subtitle,
     required this.progress,
-    required this.icon,
     required this.ringColor,
     required this.iconBg,
+    required this.icon, // ✅ NEW
   });
 
   final String title;
   final String valueText;
   final String subtitle;
   final double progress;
-  final IconData icon;
   final Color ringColor;
   final Color iconBg;
+  final IconData icon; // ✅ NEW
 
   @override
   Widget build(BuildContext context) {
@@ -1074,7 +1078,12 @@ class _ProgressStatCard extends StatelessWidget {
                     SizedBox(
                       width: 54,
                       height: 54,
-                      child: const SnakeLoadingIndicator(),
+                      child: CircularProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        strokeWidth: 3,
+                        backgroundColor: ringColor.withValues(alpha: 0.18),
+                        valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+                      ),
                     ),
                     Container(
                       width: 34,
@@ -1083,7 +1092,13 @@ class _ProgressStatCard extends StatelessWidget {
                         color: iconBg,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(icon, color: ringColor, size: 18),
+                      child: Center(
+                        child: Icon(
+                          icon,
+                          size: 18,
+                          color: ringColor,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -1193,10 +1208,9 @@ class _QuickActionsRow extends StatelessWidget {
               buttonIcon: Icons.search_rounded,
               buttonTextColor: const Color(0xFF9E4E2C),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const PsychiatristDirectoryScreen(),
-                  ),
+                pushWithSnakeLoader(
+                  context,
+                  const PsychiatristDirectoryScreen(),
                 );
               },
             ),
@@ -1214,8 +1228,9 @@ class _QuickActionsRow extends StatelessWidget {
               buttonIcon: Icons.play_arrow_rounded,
               buttonTextColor: const Color(0xFF1D7A58),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const FactReelsScreen()),
+                pushWithSnakeLoader(
+                  context,
+                  const FactReelsScreen(),
                 );
               },
             ),
@@ -1233,8 +1248,9 @@ class _QuickActionsRow extends StatelessWidget {
               buttonIcon: Icons.people_alt_rounded,
               buttonTextColor: const Color(0xFF0277BD),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SupportWallScreen()),
+                pushWithSnakeLoader(
+                  context,
+                  const SupportWallScreen(),
                 );
               },
             ),
@@ -1252,11 +1268,9 @@ class _QuickActionsRow extends StatelessWidget {
               buttonIcon: Icons.play_arrow_rounded,
               buttonTextColor: const Color(0xFF6A1B9A),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        TestExperienceScreen(testData: TestData.stressTest()),
-                  ),
+                pushWithSnakeLoader(
+                  context,
+                  TestExperienceScreen(testData: TestData.stressTest()),
                 );
               },
             ),
@@ -1274,11 +1288,9 @@ class _QuickActionsRow extends StatelessWidget {
               buttonIcon: Icons.play_arrow_rounded,
               buttonTextColor: const Color(0xFF455A64),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        TestExperienceScreen(testData: TestData.anxietyTest()),
-                  ),
+                pushWithSnakeLoader(
+                  context,
+                  TestExperienceScreen(testData: TestData.anxietyTest()),
                 );
               },
             ),
@@ -1296,12 +1308,9 @@ class _QuickActionsRow extends StatelessWidget {
               buttonIcon: Icons.play_arrow_rounded,
               buttonTextColor: const Color(0xFF263238),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => TestExperienceScreen(
-                      testData: TestData.depressionTest(),
-                    ),
-                  ),
+                pushWithSnakeLoader(
+                  context,
+                  TestExperienceScreen(testData: TestData.depressionTest()),
                 );
               },
             ),
@@ -1319,12 +1328,9 @@ class _QuickActionsRow extends StatelessWidget {
               buttonIcon: Icons.play_arrow_rounded,
               buttonTextColor: const Color(0xFF1565C0),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => TestExperienceScreen(
-                      testData: TestData.selfEsteemTest(),
-                    ),
-                  ),
+                pushWithSnakeLoader(
+                  context,
+                  TestExperienceScreen(testData: TestData.selfEsteemTest()),
                 );
               },
             ),

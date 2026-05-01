@@ -40,6 +40,134 @@ Future<T> runWithAuthFlowLoader<T>({
   }
 }
 
+Future<void> pushWithSnakeLoader(
+  BuildContext context,
+  Widget page, {
+  Duration displayDuration = const Duration(milliseconds: 450),
+}) async {
+  if (!context.mounted) {
+    return;
+  }
+
+  final navigator = Navigator.of(context);
+  BuildContext? dialogContext;
+
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black.withValues(alpha: 0.08),
+    pageBuilder: (ctx, _, __) {
+      dialogContext = ctx;
+      return const _SnakeLoader(message: 'Loading');
+    },
+  );
+
+  await Future.delayed(displayDuration);
+
+  if (dialogContext != null) {
+    final rootNavigator = Navigator.of(dialogContext!, rootNavigator: true);
+    if (rootNavigator.canPop()) {
+      rootNavigator.pop();
+    }
+  }
+
+  if (!context.mounted) {
+    return;
+  }
+
+  await navigator.push(
+    MaterialPageRoute<void>(builder: (_) => page),
+  );
+}
+
+class SnakeLoadingIndicator extends StatefulWidget {
+  const SnakeLoadingIndicator({super.key});
+
+  @override
+  State<SnakeLoadingIndicator> createState() => _SnakeLoadingIndicatorState();
+}
+
+class _SnakeLoadingIndicatorState extends State<SnakeLoadingIndicator> {
+  static const int gridSize = 5;
+  late Point<int> food;
+  late List<Point<int>> snake;
+  late Timer timer;
+  final random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    snake = [const Point(2, 2)];
+    food = _generateFood();
+
+    timer = Timer.periodic(const Duration(milliseconds: 350), (_) {
+      setState(_moveSnake);
+    });
+  }
+
+  Point<int> _generateFood() {
+    while (true) {
+      final p = Point(random.nextInt(gridSize), random.nextInt(gridSize));
+      bool onSnake = false;
+      for (var s in snake) {
+        if (s.x == p.x && s.y == p.y) onSnake = true;
+      }
+      if (!onSnake) return p;
+    }
+  }
+
+  void _moveSnake() {
+    final head = snake.first;
+    int dx = 0;
+    int dy = 0;
+
+    if (food.x > head.x) dx = 1;
+    else if (food.x < head.x) dx = -1;
+    else if (food.y > head.y) dy = 1;
+    else if (food.y < head.y) dy = -1;
+
+    if (dx != 0 && dy != 0) {
+      if (random.nextBool()) dx = 0; else dy = 0;
+    }
+
+    final newHead = Point(
+      (head.x + dx).clamp(0, gridSize - 1),
+      (head.y + dy).clamp(0, gridSize - 1),
+    );
+
+    bool collision = false;
+    for (var s in snake) {
+      if (s.x == newHead.x && s.y == newHead.y) collision = true;
+    }
+    if (collision) return;
+
+    snake.insert(0, newHead);
+    if (newHead.x == food.x && newHead.y == food.y) {
+      food = _generateFood();
+      if (snake.length > 3) snake.removeLast();
+    } else {
+      snake.removeLast();
+    }
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _PixelSnakePainter(
+        snake: snake,
+        food: food,
+        gridSize: gridSize,
+      ),
+    );
+  }
+}
+
 /// ===============================
 /// 🐍 ULTRA-MINI PIXEL LOADER
 /// ===============================
@@ -141,119 +269,34 @@ class _SnakeLoaderState extends State<_SnakeLoader> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Ultra-mini pixel grid container (~48x48)
-                const SnakeLoadingIndicator(),
+                Container(
+                  width: 52,
+                  height: 52,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.85), // Almost Solid White
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: CustomPaint(
+                    painter: _PixelSnakePainter(
+                      snake: snake,
+                      food: food,
+                      gridSize: gridSize,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// A standalone generic indicator replacing CircularProgressIndicator
-class SnakeLoadingIndicator extends StatefulWidget {
-  const SnakeLoadingIndicator({Key? key}) : super(key: key);
-
-  @override
-  State<SnakeLoadingIndicator> createState() => _SnakeLoadingIndicatorState();
-}
-
-class _SnakeLoadingIndicatorState extends State<SnakeLoadingIndicator> {
-  static const int gridSize = 5;
-  late Point<int> food;
-  late List<Point<int>> snake;
-  late Timer timer;
-  final random = Random();
-
-  @override
-  void initState() {
-    super.initState();
-    snake = [const Point(2, 2)];
-    food = _generateFood();
-
-    timer = Timer.periodic(const Duration(milliseconds: 350), (_) {
-      if (mounted) {
-        setState(_moveSnake);
-      }
-    });
-  }
-
-  Point<int> _generateFood() {
-    while (true) {
-      final p = Point(random.nextInt(gridSize), random.nextInt(gridSize));
-      bool onSnake = false;
-      for (var s in snake) {
-        if (s.x == p.x && s.y == p.y) onSnake = true;
-      }
-      if (!onSnake) return p;
-    }
-  }
-
-  void _moveSnake() {
-    final head = snake.first;
-    int dx = 0;
-    int dy = 0;
-
-    if (food.x > head.x) dx = 1;
-    else if (food.x < head.x) dx = -1;
-    else if (food.y > head.y) dy = 1;
-    else if (food.y < head.y) dy = -1;
-
-    if (dx != 0 && dy != 0) {
-      if (random.nextBool()) dx = 0; else dy = 0;
-    }
-
-    final newHead = Point(
-      (head.x + dx).clamp(0, gridSize - 1),
-      (head.y + dy).clamp(0, gridSize - 1),
-    );
-
-    bool collision = false;
-    for (var s in snake) {
-      if (s.x == newHead.x && s.y == newHead.y) collision = true;
-    }
-    if (collision) return;
-
-    snake.insert(0, newHead);
-    if (newHead.x == food.x && newHead.y == food.y) {
-      food = _generateFood();
-      if (snake.length > 3) snake.removeLast();
-    } else {
-      snake.removeLast();
-    }
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 52,
-      height: 52,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: CustomPaint(
-        painter: _PixelSnakePainter(
-          snake: snake,
-          food: food,
-          gridSize: gridSize,
-        ),
       ),
     );
   }

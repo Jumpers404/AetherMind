@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:aether/widgets/auth_flow_loader.dart';
 
 import '../app_theme.dart';
 import '../models/journal_entry.dart';
@@ -56,7 +55,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
         future: _journalsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: const SnakeLoadingIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           final journals = snapshot.data ?? <JournalEntry>[];

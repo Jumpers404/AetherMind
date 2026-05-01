@@ -13,7 +13,6 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
-import 'package:aether/widgets/auth_flow_loader.dart';
 
 import '../services/journal_controller.dart';
 import '../services/report_service.dart';
@@ -366,7 +365,7 @@ class _SubmitButton extends StatelessWidget {
         ),
       ),
       child: isLoading
-          ? SnakeLoadingIndicator()
+          ? const CircularProgressIndicator(strokeWidth: 2)
           : const Text(
               'Submit Entry',
               style: TextStyle(

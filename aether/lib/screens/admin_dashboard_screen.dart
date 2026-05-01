@@ -31,7 +31,7 @@ class AdminDashboardScreen extends StatelessWidget {
         stream: adminService.getAllUsers(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: const SnakeLoadingIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           final users = snapshot.data ?? <Map<String, dynamic>>[];
