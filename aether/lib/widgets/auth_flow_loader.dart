@@ -141,47 +141,119 @@ class _SnakeLoaderState extends State<_SnakeLoader> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Ultra-mini pixel grid container (~48x48)
-                Container(
-                  width: 52,
-                  height: 52,
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.85), // Almost Solid White
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: CustomPaint(
-                    painter: _PixelSnakePainter(
-                      snake: snake,
-                      food: food,
-                      gridSize: gridSize,
-                    ),
-                  ),
-                ),
-                
-                const SizedBox(height: 20),
-                
-                // Muted letter-spaced message
-                Text(
-                  widget.message.toUpperCase(),
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 2.0,
-                    color: Colors.white.withValues(alpha: 0.75),
-                  ),
-                ),
+                const SnakeLoadingIndicator(),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A standalone generic indicator replacing CircularProgressIndicator
+class SnakeLoadingIndicator extends StatefulWidget {
+  const SnakeLoadingIndicator({Key? key}) : super(key: key);
+
+  @override
+  State<SnakeLoadingIndicator> createState() => _SnakeLoadingIndicatorState();
+}
+
+class _SnakeLoadingIndicatorState extends State<SnakeLoadingIndicator> {
+  static const int gridSize = 5;
+  late Point<int> food;
+  late List<Point<int>> snake;
+  late Timer timer;
+  final random = Random();
+
+  @override
+  void initState() {
+    super.initState();
+    snake = [const Point(2, 2)];
+    food = _generateFood();
+
+    timer = Timer.periodic(const Duration(milliseconds: 350), (_) {
+      if (mounted) {
+        setState(_moveSnake);
+      }
+    });
+  }
+
+  Point<int> _generateFood() {
+    while (true) {
+      final p = Point(random.nextInt(gridSize), random.nextInt(gridSize));
+      bool onSnake = false;
+      for (var s in snake) {
+        if (s.x == p.x && s.y == p.y) onSnake = true;
+      }
+      if (!onSnake) return p;
+    }
+  }
+
+  void _moveSnake() {
+    final head = snake.first;
+    int dx = 0;
+    int dy = 0;
+
+    if (food.x > head.x) dx = 1;
+    else if (food.x < head.x) dx = -1;
+    else if (food.y > head.y) dy = 1;
+    else if (food.y < head.y) dy = -1;
+
+    if (dx != 0 && dy != 0) {
+      if (random.nextBool()) dx = 0; else dy = 0;
+    }
+
+    final newHead = Point(
+      (head.x + dx).clamp(0, gridSize - 1),
+      (head.y + dy).clamp(0, gridSize - 1),
+    );
+
+    bool collision = false;
+    for (var s in snake) {
+      if (s.x == newHead.x && s.y == newHead.y) collision = true;
+    }
+    if (collision) return;
+
+    snake.insert(0, newHead);
+    if (newHead.x == food.x && newHead.y == food.y) {
+      food = _generateFood();
+      if (snake.length > 3) snake.removeLast();
+    } else {
+      snake.removeLast();
+    }
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 52,
+      height: 52,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: CustomPaint(
+        painter: _PixelSnakePainter(
+          snake: snake,
+          food: food,
+          gridSize: gridSize,
+        ),
       ),
     );
   }
@@ -220,7 +292,7 @@ class _PixelSnakePainter extends CustomPainter {
     }
 
     // 2. Draw Food Pixel
-    paint.color = const Color(0xFF6EC6B3).withValues(alpha: 0.6);
+    paint.color = const Color(0xFFB2DFDB); // Very Light Teal
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(food.x * cellW + 1.5, food.y * cellH + 1.5, cellW - 3, cellH - 3),
@@ -234,7 +306,7 @@ class _PixelSnakePainter extends CustomPainter {
       final p = snake[i];
       final isHead = i == 0;
       
-      paint.color = const Color(0xFF2FB07E).withValues(alpha: isHead ? 1.0 : 0.7 - (i * 0.2));
+      paint.color = const Color(0xFF4DB6AC); // Lighter Teal
       
       canvas.drawRRect(
         RRect.fromRectAndRadius(

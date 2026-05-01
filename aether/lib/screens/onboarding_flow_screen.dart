@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
+import 'package:aether/widgets/auth_flow_loader.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/onboarding_service.dart';
@@ -843,10 +844,7 @@ class _PrimaryButton extends StatelessWidget {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
+                    child: const SnakeLoadingIndicator(),
                   )
                 : Text(
                     label,

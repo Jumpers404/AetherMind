@@ -889,12 +889,7 @@ class _HeroCheckInButton extends StatelessWidget {
                     ? const SizedBox(
                         width: 16,
                         height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
+                        child: const SnakeLoadingIndicator(),
                       )
                     : Row(
                         mainAxisSize: MainAxisSize.min,
@@ -1079,12 +1074,7 @@ class _ProgressStatCard extends StatelessWidget {
                     SizedBox(
                       width: 54,
                       height: 54,
-                      child: CircularProgressIndicator(
-                        value: progress,
-                        strokeWidth: 5,
-                        backgroundColor: const Color(0xFFF1F7F5),
-                        valueColor: AlwaysStoppedAnimation<Color>(ringColor),
-                      ),
+                      child: const SnakeLoadingIndicator(),
                     ),
                     Container(
                       width: 34,

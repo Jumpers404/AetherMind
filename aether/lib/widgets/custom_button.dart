@@ -1,6 +1,7 @@
 // Reusable styled button used across the app. Provides a gradient background
 // and optional loading state.
 import 'package:flutter/material.dart';
+import 'package:aether/widgets/auth_flow_loader.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomButton extends StatelessWidget {
@@ -56,10 +57,7 @@ class CustomButton extends StatelessWidget {
                 ? const SizedBox(
                     width: 24,
                     height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
+                    child: const SnakeLoadingIndicator(),
                   )
                 : Text(
                     text,

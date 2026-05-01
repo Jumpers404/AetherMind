@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:aether/widgets/auth_flow_loader.dart';
 
 import '../app_theme.dart';
 import '../services/psychiatrist_service.dart';
@@ -101,7 +102,7 @@ class _PsychiatristDirectoryScreenState
           stream: _service.getVerifiedPsychiatrists(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: const SnakeLoadingIndicator());
             }
 
             final psychiatrists = snapshot.data ?? <Map<String, dynamic>>[];
@@ -163,7 +164,7 @@ class _PsychiatristDirectoryScreenState
       return const SizedBox(
         width: 24,
         height: 24,
-        child: CircularProgressIndicator(strokeWidth: 2),
+        child: const SnakeLoadingIndicator(),
       );
     }
 

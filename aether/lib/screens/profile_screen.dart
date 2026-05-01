@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
+import 'package:aether/widgets/auth_flow_loader.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/onboarding_service.dart';
@@ -140,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFF7FBF9),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF2FB07E), strokeWidth: 2)),
+        body: Center(child: const SnakeLoadingIndicator()),
       );
     }
 

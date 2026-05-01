@@ -2,6 +2,7 @@
 // and listing user-submitted dream descriptions. This screen is a
 // small playground feature separate from the core journaling flow.
 import 'package:flutter/material.dart';
+import 'package:aether/widgets/auth_flow_loader.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../app_theme.dart';
 import '../widgets/app_card.dart';
@@ -435,7 +436,7 @@ class _DreamEntryScreenState extends State<DreamEntryScreen> {
                 elevation: 0,
               ),
               child: _isSaving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  ? const SizedBox(width: 20, height: 20, child: const SnakeLoadingIndicator())
                   : const Text(
                       'Save Dream',
                       style: TextStyle(

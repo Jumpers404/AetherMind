@@ -211,7 +211,7 @@ class _PsychiatristScreenState extends State<PsychiatristScreen>
             stream: _service.getPatients(psychiatristId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: const SnakeLoadingIndicator());
               }
 
               final patients = snapshot.data ?? <PatientLink>[];
@@ -345,7 +345,7 @@ class _PsychiatristScreenState extends State<PsychiatristScreen>
       stream: _service.getPendingRequests(psychiatristId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: const SnakeLoadingIndicator());
         }
 
         final requests = snapshot.data ?? <PatientRequest>[];
