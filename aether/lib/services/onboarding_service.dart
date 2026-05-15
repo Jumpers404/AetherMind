@@ -95,4 +95,23 @@ class OnboardingService {
       'onboarding_profile.bio': bio,
     });
   }
+
+  Future<void> updateAvatarParams(String seed, String gender) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    
+    await _firestore.collection('users').doc(user.uid).update({
+      'onboarding_profile.avatar_seed': seed,
+      'onboarding_profile.gender': gender,
+    });
+  }
+
+  Future<void> updatePreferences(Map<String, dynamic> preferences) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    await _firestore.collection('users').doc(user.uid).update({
+      'onboarding_profile.preferences': preferences,
+    });
+  }
 }

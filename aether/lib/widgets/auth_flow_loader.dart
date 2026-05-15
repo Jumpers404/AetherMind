@@ -260,8 +260,8 @@ class _SnakeLoaderState extends State<_SnakeLoader> {
         children: [
           // Glass Backdrop
           BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Container(color: Colors.black.withValues(alpha: 0.1)),
+            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: Container(color: Colors.black.withValues(alpha: 0.05)),
           ),
           
           Center(
@@ -272,24 +272,47 @@ class _SnakeLoaderState extends State<_SnakeLoader> {
                 Container(
                   width: 52,
                   height: 52,
-                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.85), // Almost Solid White
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
+                        blurRadius: 16,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
-                  child: CustomPaint(
-                    painter: _PixelSnakePainter(
-                      snake: snake,
-                      food: food,
-                      gridSize: gridSize,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.25),
+                              Colors.white.withValues(alpha: 0.05),
+                            ],
+                            stops: const [0.0, 1.0],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            width: 1.0,
+                          ),
+                        ),
+                        child: CustomPaint(
+                          painter: _PixelSnakePainter(
+                            snake: snake,
+                            food: food,
+                            gridSize: gridSize,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -320,7 +343,7 @@ class _PixelSnakePainter extends CustomPainter {
     final paint = Paint();
 
     // 1. Draw empty pixel grid slots
-    paint.color = Colors.black.withValues(alpha: 0.04);
+    paint.color = Colors.white.withValues(alpha: 0.06);
     paint.style = PaintingStyle.fill;
     for (int x = 0; x < gridSize; x++) {
       for (int y = 0; y < gridSize; y++) {
@@ -335,7 +358,7 @@ class _PixelSnakePainter extends CustomPainter {
     }
 
     // 2. Draw Food Pixel
-    paint.color = const Color(0xFFB2DFDB); // Very Light Teal
+    paint.color = const Color(0xFFB2DFDB).withValues(alpha: 0.75);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromLTWH(food.x * cellW + 1.5, food.y * cellH + 1.5, cellW - 3, cellH - 3),
@@ -349,7 +372,7 @@ class _PixelSnakePainter extends CustomPainter {
       final p = snake[i];
       final isHead = i == 0;
       
-      paint.color = const Color(0xFF4DB6AC); // Lighter Teal
+      paint.color = const Color(0xFF4DB6AC).withValues(alpha: 0.88);
       
       canvas.drawRRect(
         RRect.fromRectAndRadius(

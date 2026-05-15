@@ -57,7 +57,15 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
     _screenTransitionController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 980),
@@ -186,16 +194,22 @@ class _LoginScreenState extends State<LoginScreen>
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final screenHeight = mediaQuery.size.height;
+    final keyboardFactor = (mediaQuery.viewInsets.bottom / (screenHeight * 0.35))
+        .clamp(0.0, 1.0);
     final screenTransition = CurvedAnimation(
       parent: _screenTransitionController,
       curve: Curves.easeOutCubic,
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           const Positioned.fill(
-            child: AnimatedMosaicBackground(animationSpeed: 3.4),
+            child: AnimatedMosaicBackground(
+              animationSpeed: 3.4,
+              gridColumns: 44,
+            ),
           ),
           Stack(
           children: [
@@ -204,6 +218,7 @@ class _LoginScreenState extends State<LoginScreen>
 
             if (_currentScreen == 'main')
               SafeArea(
+                bottom: false,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     final width = constraints.maxWidth;
@@ -346,9 +361,13 @@ class _LoginScreenState extends State<LoginScreen>
                   clampDouble(screenHeight * 0.035, 18, 30))
                 .clamp(mediaQuery.padding.top + 8, screenHeight * 0.42);
 
+                final keyboardLift = lerpDouble(0, -46, keyboardFactor) ?? 0.0;
                 final animatedTop =
-                    lerpDouble(mainBrandTop, formBrandTop, transitionFactor) ?? mainBrandTop;
-                final subtitleOpacity = (1.0 - easedT).clamp(0.0, 1.0);
+                    (lerpDouble(mainBrandTop, formBrandTop, transitionFactor) ?? mainBrandTop) +
+                        keyboardLift;
+                final keyboardFade = (1.0 - (0.9 * keyboardFactor)).clamp(0.0, 1.0);
+                final subtitleOpacity =
+                    (1.0 - easedT).clamp(0.0, 1.0) * keyboardFade;
                 final subtitleLift = lerpDouble(0, -22, easedT) ?? 0.0;
 
                 return Positioned(
@@ -356,42 +375,45 @@ class _LoginScreenState extends State<LoginScreen>
                   left: 20,
                   right: 20,
                   child: IgnorePointer(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'AETHER',
-                          textAlign: TextAlign.center,
-                          style: _buildBrandTitleStyle(brandSize),
-                        ),
-                        Transform.translate(
-                          offset: Offset(0, subtitleLift),
-                          child: Opacity(
-                            opacity: subtitleOpacity,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 18),
-                              child: Text(
-                                'Aether grows with you\nthrough every small step',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: subtitleSize,
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.38,
-                                  color: const Color.fromARGB(255, 69, 123, 113),
-                                  shadows: const [
-                                    Shadow(
-                                      color: Color(0x66121816),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 0,
-                                    ),
-                                  ],
+                    child: Opacity(
+                      opacity: keyboardFade,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'AETHER',
+                            textAlign: TextAlign.center,
+                            style: _buildBrandTitleStyle(brandSize),
+                          ),
+                          Transform.translate(
+                            offset: Offset(0, subtitleLift),
+                            child: Opacity(
+                              opacity: subtitleOpacity,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 18),
+                                child: Text(
+                                  'Aether grows with you\nthrough every small step',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: subtitleSize,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.38,
+                                    color: const Color.fromARGB(255, 69, 123, 113),
+                                    shadows: const [
+                                      Shadow(
+                                        color: Color(0x66121816),
+                                        offset: Offset(0, 1),
+                                        blurRadius: 0,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -413,7 +435,9 @@ class _LoginScreenState extends State<LoginScreen>
                 final formSize = clampDouble(mediaQuery.size.width * 1.2, 390, 560);
                 final petSize = lerpDouble(mainSize, formSize, transitionFactor) ?? mainSize;
 
-                final opacity = lerpDouble(1.0, 0.96, transitionFactor) ?? 1.0;
+                final keyboardFade = (1.0 - (0.9 * keyboardFactor)).clamp(0.0, 1.0);
+                final opacity =
+                  (lerpDouble(1.0, 0.96, transitionFactor) ?? 1.0) * keyboardFade;
                 final petScale = 1.38;
                 final basePetContainerHeight = height * 0.75;
                 final rawPetSize = petSize * petScale;
@@ -474,7 +498,11 @@ class _LoginScreenState extends State<LoginScreen>
                 animation: screenTransition,
                 builder: (context, child) {
                   final t = screenTransition.value;
-                  final top = (screenHeight * 0.72) - ((screenHeight * 0.22) * t);
+                  final baseTop = (screenHeight * 0.72) - ((screenHeight * 0.22) * t);
+                  final keyboardTop = 0.0;
+                  final top = lerpDouble(baseTop, keyboardTop, keyboardFactor) ?? baseTop;
+                  final cornerRadius =
+                      lerpDouble(30, 0, keyboardFactor) ?? 30;
 
                   return Positioned(
                     top: top,
@@ -484,9 +512,9 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Opacity(
                       opacity: 0.84 + (t * 0.16),
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(cornerRadius),
+                          topRight: Radius.circular(cornerRadius),
                         ),
                         child: _BottomAttachedAuthForm(
                           currentScreen: _currentScreen,
@@ -567,13 +595,22 @@ class _BottomAttachedAuthForm extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final safeBottom = mediaQuery.padding.bottom;
+          final keyboardInset = mediaQuery.viewInsets.bottom;
+          
+          // constraints.maxHeight is the remaining height AFTER AnimatedPadding.
+          // The form content height is fixed by _estimatedContentHeight().
           final availableHeight = constraints.maxHeight - safeBottom;
           final estimatedContentHeight = _estimatedContentHeight();
+          
+          final minInset = keyboardInset > 0 ? 12.0 : 20.0;
+          final maxInset = keyboardInset > 0 ? 1000.0 : 36.0;
+          
           final balancedInset = ((availableHeight - estimatedContentHeight) / 2)
-              .clamp(20.0, 36.0)
+              .clamp(minInset, maxInset)
               .toDouble();
 
           return Container(
+            clipBehavior: Clip.hardEdge,
             decoration: BoxDecoration(
               color: const Color(0xFFDDE7E1),
               gradient: LinearGradient(
@@ -588,6 +625,18 @@ class _BottomAttachedAuthForm extends StatelessWidget {
             ),
             child: Stack(
               children: [
+                if (keyboardInset > 0)
+                  Positioned(
+                    bottom: -30,
+                    right: -20,
+                    child: Opacity(
+                      opacity: 0.08,
+                      child: Image.asset(
+                        'assets/imgs/intro-page-pet.png',
+                        width: 250,
+                      ),
+                    ),
+                  ),
                 SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
                   child: ConstrainedBox(

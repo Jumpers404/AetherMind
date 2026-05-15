@@ -7,6 +7,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'journal_test_screen.dart';
 import 'report_screen.dart';
@@ -21,6 +22,7 @@ import 'emotional_analytics_screen.dart';
 import 'psychiatrist_directory_screen.dart';
 
 import '../services/report_controller.dart';
+import '../services/onboarding_service.dart';
 import '../widgets/auth_flow_loader.dart';
 import '../app_theme.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -89,23 +91,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final user = FirebaseAuth.instance.currentUser;
     final displayName = user?.displayName?.trim();
     if (displayName != null && displayName.isNotEmpty) {
-      return displayName;
+      return displayName.split(' ').first;
     }
-
-    final email = user?.email?.trim();
-    if (email != null && email.isNotEmpty) {
-      final localPart = email.split('@').first.trim();
-      if (localPart.isNotEmpty) {
-        final normalized = localPart.replaceAll(RegExp(r'[._-]+'), ' ');
-        return normalized
-            .split(' ')
-            .where((part) => part.isNotEmpty)
-            .map((part) => part[0].toUpperCase() + part.substring(1))
-            .join(' ');
-      }
-    }
-
-    return 'there';
+    
+    // In case no display name is defined yet, return fallback Name
+    return 'Name';
   }
 
   @override
@@ -356,10 +346,48 @@ class _HeaderSection extends StatelessWidget {
   }
 }
 
-class _OptionsMenuButton extends StatelessWidget {
+class _OptionsMenuButton extends StatefulWidget {
   const _OptionsMenuButton({required this.onSignOut});
-
   final VoidCallback onSignOut;
+
+  @override
+  State<_OptionsMenuButton> createState() => _OptionsMenuButtonState();
+}
+
+class _OptionsMenuButtonState extends State<_OptionsMenuButton> {
+  final _onboardingService = OnboardingService();
+  String? _avatarUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvatar();
+  }
+
+  Future<void> _loadAvatar() async {
+    try {
+      final data = await _onboardingService.getOnboardingProfile();
+      if (data != null && mounted) {
+        final user = FirebaseAuth.instance.currentUser;
+        final username = "@${(user?.email ?? 'user').split('@').first.toLowerCase()}";
+        final savedSeed = data['avatar_seed'] ?? username;
+        final seed = Uri.encodeComponent(savedSeed);
+        final gender = data['gender'];
+        
+        String genderParams = "";
+        if (gender == 'Male') {
+          genderParams = "&hair=variant02,variant03,variant05,variant07,variant08,variant23,variant24,variant26";
+        } else if (gender == 'Female') {
+          genderParams = "&hair=variant01,variant04,variant09,variant10,variant11,variant12,variant13,variant14,variant15,variant16";
+        }
+
+        final url = "https://api.dicebear.com/7.x/lorelei/svg?seed=$seed&backgroundColor=eaf7f2&baseColor=f3fbf8&hairColor=3b7f75&eyesColor=3b7f75&eyebrowsColor=3b7f75&mouthColor=3b7f75&accessoriesColor=3b7f75&skinColor=faf4ee&clothingColor=3b7f75&eyes=variant01,variant02&mouth=happy01,happy02$genderParams";
+        setState(() {
+          _avatarUrl = url;
+        });
+      }
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -404,15 +432,25 @@ class _OptionsMenuButton extends StatelessWidget {
                 onTap: () {
                   pushWithSnakeLoader(
                     context,
-                    ProfileScreen(onSignOut: onSignOut),
-                  );
+                    ProfileScreen(onSignOut: widget.onSignOut),
+                  ).then((_) {
+                    if (mounted) _loadAvatar();
+                  });
                 },
-                child: const Center(
-                  child: Icon(
-                    Icons.person_rounded,
-                    color: Color(0xFF2FB07E),
-                    size: 22,
-                  ),
+                child: Center(
+                  child: _avatarUrl != null
+                    ? SvgPicture.network(
+                        _avatarUrl!,
+                        width: 46,
+                        height: 46,
+                        fit: BoxFit.cover,
+                        placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF2FB07E)),
+                      )
+                    : const Icon(
+                        Icons.person_rounded,
+                        color: Color(0xFF2FB07E),
+                        size: 22,
+                      ),
                 ),
               ),
             ),
