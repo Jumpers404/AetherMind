@@ -132,14 +132,6 @@ class _Header extends StatelessWidget {
                     color: const Color(0xFF2E2E2E),
                   ),
                 ),
-                Text(
-                  'A reflection of how you’ve been feeling',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: const Color(0xFF7A7A7A).withOpacity(0.8),
-                  ),
-                ),
               ],
             ),
           ),

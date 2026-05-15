@@ -688,11 +688,10 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
           Text(
             'PROFILE',
             style: TextStyle(
-              fontFamily: 'Doto',
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 2.2,
-              color: const Color(0xFF244A44),
+            fontFamily: 'Doto',
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+          color: const Color(0xFF244A44),
             ),
           ),
           const SizedBox(width: 48),

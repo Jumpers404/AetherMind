@@ -45,10 +45,11 @@ class NotificationScreen extends StatelessWidget {
         ),
         title: Text(
           'Notifications',
-          style: GoogleFonts.doto(
-            color: kPrimaryTeal,
-            fontWeight: FontWeight.w700,
+          style: TextStyle(
+            fontFamily: 'Doto',
+            fontWeight: FontWeight.w800,
             fontSize: 22,
+             color: const Color(0xFF244A44),
           ),
         ),
         centerTitle: true,
