@@ -96,6 +96,15 @@ class OnboardingService {
     });
   }
 
+  Future<void> updateUsername(String username) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    await _firestore.collection('users').doc(user.uid).update({
+      'onboarding_profile.username': username,
+    });
+  }
+
   Future<void> updateAvatarParams(String seed, String gender) async {
     final user = _auth.currentUser;
     if (user == null) return;
