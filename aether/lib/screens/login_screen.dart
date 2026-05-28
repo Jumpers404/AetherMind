@@ -46,6 +46,79 @@ class _LoginScreenState extends State<LoginScreen>
   static const _buttonStart = Color(0xFF2D726B);
   static const _buttonEnd = Color(0xFF184F4B);
   static const _softWhite = Color(0xFFF7FFFB);
+  static const _privacyPolicyBody = '''Effective date: May 28, 2026
+
+We care about your privacy. This Privacy Policy explains what we collect, how we use it, and the choices you have when you use Aether.
+
+Information we collect
+- Account details you provide (name, email, profile preferences).
+- Journal entries, mood check-ins, and wellness metrics you choose to save.
+- Device and usage data (app version, device model, crashes, and diagnostics).
+- Optional analytics to improve features and stability.
+
+How we use your information
+- To provide, maintain, and improve the app and its features.
+- To personalize your experience and recommendations.
+- To communicate updates, support messages, and important notices.
+- To protect against fraud, abuse, and security threats.
+
+Sharing and disclosure
+- We do not sell your personal data.
+- We may share data with trusted service providers that help run the app (hosting, analytics, support), under strict confidentiality obligations.
+- We may disclose information to comply with legal obligations or enforce our policies.
+
+Data retention
+- We keep your data for as long as your account is active or as needed to provide services.
+- You can request deletion of your account and data at any time.
+
+Your choices
+- You can access, update, or delete your data from your account settings.
+- You can opt out of optional analytics in the app settings.
+
+Security
+- We use reasonable technical and organizational safeguards to protect your data.
+- No system is 100% secure, but we continuously improve our protections.
+
+Children's privacy
+- Aether is not intended for children under 13, and we do not knowingly collect their data.
+
+Contact us
+If you have questions or requests, contact us at support@aether.app.''';
+  static const _termsOfServiceBody = '''Effective date: May 28, 2026
+
+These Terms of Service govern your use of Aether. By creating an account or using the app, you agree to these terms.
+
+Use of the service
+- You must be at least 13 years old to use Aether.
+- You are responsible for maintaining the security of your account.
+- Do not misuse the service, interfere with its operation, or attempt unauthorized access.
+
+Your content
+- You retain ownership of your journal entries and data.
+- You grant Aether a limited license to store and process your content solely to provide the service.
+
+Acceptable use
+- No harassment, abusive content, or illegal activity.
+- No reverse engineering, scraping, or automated misuse.
+
+Subscriptions and purchases
+- Some features may require a paid plan.
+- Payments are handled by the app store, and refunds follow store policies.
+
+Disclaimers
+- Aether provides wellness tools but is not a substitute for professional medical advice.
+- We do not guarantee uninterrupted or error-free service.
+
+Termination
+- You can stop using the service at any time.
+- We may suspend or terminate accounts for violations of these terms.
+
+Changes to these terms
+- We may update these terms from time to time.
+- We will notify you of material changes within the app.
+
+Contact us
+Questions about these terms? Reach out at support@aether.app.''';
 
   late final AnimationController _screenTransitionController;
   late final TapGestureRecognizer _privacyRecognizer;
@@ -138,9 +211,9 @@ class _LoginScreenState extends State<LoginScreen>
     if (widget.onPrivacyPolicy != null) {
       widget.onPrivacyPolicy!.call();
     } else {
-      _showPlaceholderDialog(
+      _showPolicyDialog(
         'Privacy Policy',
-        'This is our Privacy Policy placeholder text.\n\nYour privacy is important to us. We collect and process personal data in accordance with applicable regulations.',
+        _privacyPolicyBody,
       );
     }
   }
@@ -149,34 +222,164 @@ class _LoginScreenState extends State<LoginScreen>
     if (widget.onTermsOfService != null) {
       widget.onTermsOfService!.call();
     } else {
-      _showPlaceholderDialog(
+      _showPolicyDialog(
         'Terms of Service',
-        'This is our Terms of Service placeholder text.\n\nBy using our service, you agree to comply with these terms and conditions.',
+        _termsOfServiceBody,
       );
     }
   }
 
-  void _showPlaceholderDialog(String title, String content) {
+  void _showPolicyDialog(String title, String content) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        content: SingleChildScrollView(
-          child: Text(content, style: GoogleFonts.inter()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        bool isAgreed = false;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              backgroundColor: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x2B2D2D),
+                      blurRadius: 24,
+                      offset: Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontFamily: 'Doto',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E3C44),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 280),
+                      child: SingleChildScrollView(
+                        child: Text(
+                          content,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12.5,
+                            height: 1.5,
+                            color: const Color(0xFF4B5E5A),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                          value: isAgreed,
+                          activeColor: const Color(0xFF3B7F75),
+                          onChanged: (value) {
+                            setDialogState(() => isAgreed = value ?? false);
+                          },
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'I have read and agree to the $title.',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12.2,
+                                height: 1.4,
+                                color: const Color(0xFF4B5E5A),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 46,
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(dialogContext),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFFCFE3D9), width: 1.2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: Text(
+                                'Decline',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  color: const Color(0xFF5F7380),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: SizedBox(
+                            height: 46,
+                            child: ElevatedButton(
+                              onPressed: isAgreed
+                                  ? () => Navigator.pop(dialogContext)
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                              ),
+                              child: Ink(
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [Color(0xFF4D9489), Color(0xFF3B7F75)],
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Agree',
+                                    style: TextStyle(
+                                      fontFamily: 'Doto',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFFE8F4F1),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

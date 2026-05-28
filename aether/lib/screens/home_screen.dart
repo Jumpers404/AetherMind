@@ -41,32 +41,8 @@ class _HomePalette {
   static const cardSurface = Colors.white;
   static const cardBorder = Color(0xFFE0EBE6);
   static const accent = Color(0xFF2FB07E);
-  static const accentDark = Color(0xFF1D8968);
-  static const accentSoft = Color(0xFFD7EFE5);
-  static const accentSurface = Color(0xFFF2FBF7);
-  static const accentBorder = Color(0xFF8BBDA8);
-  static const tealShadow = Color(0xFF2B7B62);
   static const textPrimary = Color(0xFF1E3C44);
   static const textMuted = Color(0xFF5F7380);
-
-  // Quick Action Gradients from Reference
-  static const orangeG1 = Color(0xFFFBAA75);
-  static const orangeG2 = Color(0xFFF38D64);
-  
-  static const tealG1 = Color(0xFF4DAA9B);
-  static const tealG2 = Color(0xFF2D726B);
-  
-  static const blueG1 = Color(0xFF5CB6E5);
-  static const blueG2 = Color(0xFF3B8DC2);
-  
-  static const greyG1 = Color(0xFFB0BEC5);
-  static const greyG2 = Color(0xFF78909C);
-  
-  static const violetG1 = Color(0xFF9575CD);
-  static const violetG2 = Color(0xFF673AB7);
-  
-  static const glassWhiteG1 = Color(0xFFFFFFFF);
-  static const glassWhiteG2 = Color(0xFFF0F4F2);
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
@@ -93,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (displayName != null && displayName.isNotEmpty) {
       return displayName.split(' ').first;
     }
-    
+
     // In case no display name is defined yet, return fallback Name
     return 'Name';
   }
@@ -106,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 6200),
     )..repeat();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,39 +105,57 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: _horizontalPadding,
-              ),
-              child: ScrollConfiguration(
-                behavior: const _NoScrollbarBehavior(),
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics(),
-                  ),
-                  padding: const EdgeInsets.only(top: 12, bottom: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _HeaderSection(
+            child: ScrollConfiguration(
+              behavior: const _NoScrollbarBehavior(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: const EdgeInsets.only(top: 12, bottom: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: _HeaderSection(
                         userName: _greetingName,
                         onSignOut: _handleSignOut,
                       ),
-                      const SizedBox(height: 14),
-                      const _MoodInputBar(),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: _TodayVibeCard(
-                          shimmer: _shimmerController,
-                          isLoading: _isLoading,
-                          onTapCheckIn: _handleCheckInNow,
-                        ),
+                    ),
+                    const SizedBox(height: 14),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
                       ),
-                      const SizedBox(height: _sectionSpacing),
-                      const _ProgressSection(),
-                      const SizedBox(height: _sectionSpacing),
-                      _DailyJournalCard(
+                      child: _MoodInputBar(),
+                    ),
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                        vertical: 8,
+                      ),
+                      child: _TodayVibeCard(
+                        shimmer: _shimmerController,
+                        isLoading: _isLoading,
+                        onTapCheckIn: _handleCheckInNow,
+                      ),
+                    ),
+                    const SizedBox(height: _sectionSpacing),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: _ProgressSection(),
+                    ),
+                    const SizedBox(height: _sectionSpacing),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: _DailyJournalCard(
                         onTapWrite: () {
                           pushWithSnakeLoader(
                             context,
@@ -170,19 +163,34 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           );
                         },
                       ),
-                      const SizedBox(height: _sectionSpacing),
-                      const _SectionTitle(text: 'Quick Actions'),
-                      const SizedBox(height: _internalSpacing),
-                      _QuickActionsRow(),
-                      const SizedBox(height: _sectionSpacing),
-                      const _SectionTitle(text: 'Suggested for You'),
-                      const SizedBox(height: _internalSpacing),
-                      _SuggestedRow(
+                    ),
+                    const SizedBox(height: _sectionSpacing),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: _SectionTitle(text: 'Quick Actions'),
+                    ),
+                    const SizedBox(height: _internalSpacing),
+                    const _QuickActionsRow(),
+                    const SizedBox(height: _sectionSpacing),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: _SectionTitle(text: 'Suggested for You'),
+                    ),
+                    const SizedBox(height: _internalSpacing),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: _horizontalPadding,
+                      ),
+                      child: _SuggestedRow(
                         isPlayingNature: _isPlayingNature,
                         onToggleNature: _toggleNatureSounds,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -282,8 +290,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 }
 
-
-
 class _HeaderSection extends StatelessWidget {
   const _HeaderSection({required this.userName, required this.onSignOut});
 
@@ -373,7 +379,7 @@ class _OptionsMenuButtonState extends State<_OptionsMenuButton> {
         final savedSeed = data['avatar_seed'] ?? username;
         final seed = Uri.encodeComponent(savedSeed);
         final gender = data['gender'];
-        
+
         String genderParams = "";
         if (gender == 'Male') {
           genderParams = "&hair=variant02,variant03,variant05,variant07,variant08,variant23,variant24,variant26";
@@ -439,18 +445,22 @@ class _OptionsMenuButtonState extends State<_OptionsMenuButton> {
                 },
                 child: Center(
                   child: _avatarUrl != null
-                    ? SvgPicture.network(
-                        _avatarUrl!,
-                        width: 46,
-                        height: 46,
-                        fit: BoxFit.cover,
-                        placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF2FB07E)),
-                      )
-                    : const Icon(
-                        Icons.person_rounded,
-                        color: Color(0xFF2FB07E),
-                        size: 22,
-                      ),
+                      ? SvgPicture.network(
+                          _avatarUrl!,
+                          width: 46,
+                          height: 46,
+                          fit: BoxFit.cover,
+                          placeholderBuilder: (BuildContext context) =>
+                              const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFF2FB07E),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.person_rounded,
+                          color: Color(0xFF2FB07E),
+                          size: 22,
+                        ),
                 ),
               ),
             ),
@@ -586,7 +596,7 @@ class _TodayVibeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 156,
+      height: 170,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: DecoratedBox(
@@ -684,37 +694,42 @@ class _TodayVibeCard extends StatelessWidget {
                     Expanded(
                       flex: 58,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                        padding: const EdgeInsets.fromLTRB(18, 18, 12, 18),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
                             Text(
-                              'Happy to see you...',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              'Stay consistent.',
+                              style: const TextStyle(
                                 fontFamily: 'Doto',
-                                fontSize: 17,
-                                fontWeight: FontWeight.lerp(
-                                  FontWeight.w800,
-                                  FontWeight.w900,
-                                  0.4,
-                                ),
-                                color: const Color(0xFF2F9E6F),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color.fromARGB(255, 247, 247, 247),
+                                height: 1.1,
                               ),
                             ),
-                            const SizedBox(height: 3),
+                        
+                            const SizedBox(height: 6),
+                        
                             Text(
-                              'Be calm - Stay consistent -\nYou\'re doing great',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.poppins(
-                                fontSize: 12.4,
-                                height: 1.25,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xFF1E3C44).withValues(alpha: 0.78),
+                              'You’re doing great.',
+                              style: const TextStyle(
+                                fontFamily: 'Doto',
+                                fontSize: 19,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF2F9E6F),
+                                height: 1.1,
                               ),
                             ),
+                        
+                            const SizedBox(height: 14),
+
+                          ],
+                        ),  
                             const Spacer(),
                             _HeroCheckInButton(
                               isLoading: isLoading,
@@ -754,9 +769,8 @@ class _TodayVibeCard extends StatelessWidget {
                                     'assets/imgs/new-cov.png',
                                     fit: BoxFit.contain,
                                     alignment: Alignment.bottomCenter,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            const SizedBox.shrink(),
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const SizedBox.shrink(),
                                   ),
                                 ),
                               ),
@@ -784,7 +798,7 @@ class _CardPixelPanelPainter extends CustomPainter {
   double _hash01(int x, int y, [int salt = 0]) {
     final n =
         math.sin((x * 127.1 + y * 311.7 + salt * 74.7).toDouble()) *
-        43758.5453123;
+            43758.5453123;
     return n - n.floorToDouble();
   }
 
@@ -843,7 +857,8 @@ class _CardPixelPanelPainter extends CustomPainter {
           const Color(0xFF7CB8A1),
           const Color(0xFF45947C),
           blend,
-        )!.withValues(alpha: alpha);
+        )!
+            .withValues(alpha: alpha);
 
         canvas.drawRect(Rect.fromLTRB(left, top, right, bottom), paint);
 
@@ -897,7 +912,7 @@ class _HeroCheckInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 38,
+      height: 36,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -907,48 +922,59 @@ class _HeroCheckInButton extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF36B37E), Color(0xFF2F9E6F)],
+                colors: [
+                  Color(0xFF6ED3AD),
+                  Color(0xFF33B286),
+                ],
               ),
               boxShadow: [
                 BoxShadow(
                   color: _HomePalette.accent.withValues(alpha: 0.22),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Center(
-                child: isLoading
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(),
-                          )
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.play_arrow_rounded,
+            child: isLoading
+                ? const Center(
+                    child: SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned(
+                        left: 6,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
                             color: Colors.white,
-                            size: 20,
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Check In Now',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Color(0xFF3AAE73),
+                            size: 16,
                           ),
-                        ],
+                        ),
                       ),
-              ),
-            ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 34),
+                        child: Text(
+                          'Check In Now',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12.2,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -1010,7 +1036,7 @@ class _ProgressSection extends StatelessWidget {
                 progress: 0.0,
                 ringColor: _HomePalette.accent,
                 iconBg: const Color(0xFFE4F5EE),
-                icon: Icons.local_fire_department, // 🔥 streak icon
+                icon: Icons.local_fire_department,
               ),
             );
 
@@ -1028,7 +1054,7 @@ class _ProgressSection extends StatelessWidget {
                 progress: 0.0,
                 ringColor: const Color(0xFF3AA9DE),
                 iconBg: const Color(0xFFD9EEFA),
-                icon: Icons.track_changes, // 🎯 goals icon
+                icon: Icons.track_changes,
               ),
             );
 
@@ -1060,7 +1086,7 @@ class _ProgressStatCard extends StatelessWidget {
     required this.progress,
     required this.ringColor,
     required this.iconBg,
-    required this.icon, // ✅ NEW
+    required this.icon,
   });
 
   final String title;
@@ -1069,7 +1095,7 @@ class _ProgressStatCard extends StatelessWidget {
   final double progress;
   final Color ringColor;
   final Color iconBg;
-  final IconData icon; // ✅ NEW
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -1078,140 +1104,148 @@ class _ProgressStatCard extends StatelessWidget {
     final valueMain = valueParts.first;
     final valueSuffix = hasSuffix ? valueParts.sublist(1).join(' ') : '';
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withValues(alpha: 0.95),
-            _HomePalette.cardSurface.withValues(alpha: 0.9),
-          ],
-        ),
-        border: Border.all(
-          color: _HomePalette.cardBorder.withValues(alpha: 0.75),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: _HomePalette.textPrimary.withValues(alpha: 0.08),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 54,
-                height: 54,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 54,
-                      height: 54,
-                      child: CircularProgressIndicator(
-                        value: progress.clamp(0.0, 1.0),
-                        strokeWidth: 3,
-                        backgroundColor: ringColor.withValues(alpha: 0.18),
-                        valueColor: AlwaysStoppedAnimation<Color>(ringColor),
-                      ),
-                    ),
-                    Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: iconBg,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          icon,
-                          size: 18,
-                          color: ringColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.72),
+                const Color(0xFFE8F3EF).withValues(alpha: 0.45),
+              ],
+            ),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.7),
+              width: 1.1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _HomePalette.textPrimary.withValues(alpha: 0.08),
+                blurRadius: 18,
+                offset: const Offset(0, 10),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: _HomePalette.textPrimary.withValues(alpha: 0.78),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    if (hasSuffix)
-                      RichText(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        text: TextSpan(
-                          style: GoogleFonts.poppins(
-                            color: ringColor,
-                            height: 1.0,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: valueMain,
-                              style: const TextStyle(
-                                fontSize: 19,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' $valueSuffix',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+              BoxShadow(
+                color: Colors.white.withValues(alpha: 0.22),
+                blurRadius: 8,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: CircularProgressIndicator(
+                          value: progress.clamp(0.0, 1.0),
+                          strokeWidth: 3,
+                          backgroundColor: ringColor.withValues(alpha: 0.18),
+                          valueColor: AlwaysStoppedAnimation<Color>(ringColor),
                         ),
-                      )
-                    else
+                      ),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: iconBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            icon,
+                            size: 18,
+                            color: ringColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        valueText,
+                        title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.poppins(
-                          fontSize: 19,
-                          fontWeight: FontWeight.w800,
-                          color: ringColor,
-                          height: 1.0,
+                          fontSize: 11.2,
+                          fontWeight: FontWeight.w600,
+                          color: _HomePalette.textPrimary.withValues(alpha: 0.78),
                         ),
                       ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w500,
-                        color: _HomePalette.textMuted.withValues(alpha: 0.85),
+                      const SizedBox(height: 4),
+                      if (hasSuffix)
+                        RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            style: GoogleFonts.poppins(
+                              color: ringColor,
+                              height: 1.0,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: valueMain,
+                                style: const TextStyle(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' $valueSuffix',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Text(
+                          valueText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w800,
+                            color: ringColor,
+                            height: 1.0,
+                          ),
+                        ),
+                      const SizedBox(height: 6),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 10.6,
+                          fontWeight: FontWeight.w500,
+                          color: _HomePalette.textMuted.withValues(alpha: 0.85),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1224,7 +1258,7 @@ class _QuickActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const cardSize = 168.0;
+    const cardSize = 143.0;
     return SizedBox(
       height: cardSize,
       child: ScrollConfiguration(
@@ -1232,6 +1266,7 @@ class _QuickActionsRow extends StatelessWidget {
         child: ListView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(left: 20),
           children: [
             _QuickActionCard(
               size: cardSize,
@@ -1239,7 +1274,7 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Browse • Send request',
               icon: Icons.folder_shared_rounded,
               gradient: const [
-                Color(0xFFFFB382), // Modern Orange
+                Color(0xFFFFB382),
                 Color(0xFFF98F5B),
               ],
               buttonText: 'Browse',
@@ -1259,7 +1294,7 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Mind in moments • 1–2 min',
               icon: Icons.psychology_rounded,
               gradient: const [
-                Color(0xFF6ED3AD), // Modern Green
+                Color(0xFF6ED3AD),
                 Color(0xFF33B286),
               ],
               buttonText: 'Open',
@@ -1279,7 +1314,7 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Connect • Anonymous',
               icon: Icons.favorite_rounded,
               gradient: const [
-                Color(0xFF81D4FA), // Modern Blue
+                Color(0xFF81D4FA),
                 Color(0xFF4FC3F7),
               ],
               buttonText: 'Open',
@@ -1299,7 +1334,7 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Warm • 2–3 min',
               icon: Icons.local_fire_department_rounded,
               gradient: const [
-                Color(0xFFBA68C8), // Modern Purple
+                Color(0xFFBA68C8),
                 Color(0xFF9C27B0),
               ],
               buttonText: 'Start',
@@ -1319,7 +1354,7 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Story-driven • 2–3 min',
               icon: Icons.blur_on_rounded,
               gradient: const [
-                Color(0xFFCFD8DC), // Modern Grey
+                Color(0xFFCFD8DC),
                 Color(0xFFB0BEC5),
               ],
               buttonText: 'Start',
@@ -1339,7 +1374,7 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Muted • 2–3 min',
               icon: Icons.cloud_queue_rounded,
               gradient: const [
-                Color(0xFF78909C), // Dark Grey
+                Color(0xFF78909C),
                 Color(0xFF546E7A),
               ],
               buttonText: 'Start',
@@ -1359,7 +1394,7 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Uplifting • 2–3 min',
               icon: Icons.self_improvement_rounded,
               gradient: const [
-                Color(0xFF90CAF9), // Soft Blue
+                Color(0xFF90CAF9),
                 Color(0xFF64B5F6),
               ],
               buttonText: 'Start',
@@ -1415,17 +1450,17 @@ class _QuickActionCard extends StatelessWidget {
             final cardW = constraints.maxWidth;
             final cardH = constraints.maxHeight;
 
-            final pad = (cardW * 0.075).clamp(12.0, 16.0);
-            final iconBox = (cardW * 0.25).clamp(42.0, 52.0);
-            final iconGlyph = (iconBox * 0.58).clamp(24.0, 30.0);
-            final sparkleSize = (cardW * 0.075).clamp(12.0, 16.0);
-            final titleSize = (cardW * 0.078).clamp(13.0, 15.0);
-            final subtitleSize = (cardW * 0.072).clamp(12.0, 14.0);
-            final buttonHeight = (cardH * 0.235).clamp(40.0, 48.0);
+            final pad = (cardW * 0.065).clamp(8.0, 12.0);
+            final iconBox = (cardW * 0.235).clamp(30.0, 40.0);
+            final iconGlyph = (iconBox * 0.56).clamp(18.0, 24.0);
+            final sparkleSize = (cardW * 0.065).clamp(9.0, 12.0);
+            final titleSize = (cardW * 0.074).clamp(10.5, 12.5);
+            final subtitleSize = (cardW * 0.062).clamp(9.0, 10.5);
+            final buttonHeight = (cardH * 0.205).clamp(30.0, 36.0);
             final buttonRadius = buttonHeight / 2;
-            final buttonIconSize = (buttonHeight * 0.5).clamp(20.0, 24.0);
-            final buttonTextSize = (cardW * 0.082).clamp(13.0, 15.5);
-            final topIconOffset = (cardH * 0.04).clamp(4.0, 8.0);
+            final buttonIconSize = (buttonHeight * 0.48).clamp(14.0, 18.0);
+            final buttonTextSize = (cardW * 0.075).clamp(10.0, 12.0);
+            final topIconOffset = (cardH * 0.03).clamp(2.0, 5.0);
 
             return Container(
               padding: EdgeInsets.all(pad),
@@ -1470,32 +1505,42 @@ class _QuickActionCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           color: Colors.white.withValues(alpha: 0.2),
                         ),
-                        child: Icon(icon, color: Colors.white, size: iconGlyph),
-                      ),
-                      const Spacer(),
-                      Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.poppins(
-                          fontSize: titleSize,
-                          fontWeight: FontWeight.w700,
+                        child: Icon(
+                          icon,
                           color: Colors.white,
-                          height: 1.12,
+                          size: iconGlyph,
                         ),
                       ),
-                      SizedBox(height: (cardH * 0.02).clamp(2.0, 4.0)),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.poppins(
-                          fontSize: subtitleSize,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.86),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: titleSize,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                height: 1.1,
+                              ),
+                            ),
+                            SizedBox(height: (cardH * 0.01).clamp(1.0, 2.0)),
+                            Text(
+                              subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: subtitleSize,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withValues(alpha: 0.86),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: (cardH * 0.06).clamp(8.0, 12.0)),
                       Container(
                         height: buttonHeight,
                         decoration: BoxDecoration(
@@ -1563,8 +1608,8 @@ class _InteractiveScaleCardState extends State<_InteractiveScaleCard> {
     final scale = _isPressed
         ? 0.97
         : _isHovered
-        ? 1.01
-        : 1.0;
+            ? 1.01
+            : 1.0;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -1607,91 +1652,108 @@ class _DailyJournalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        color: Colors.white.withValues(alpha: 0.86),
-        boxShadow: [
-          BoxShadow(
-            color: _HomePalette.textPrimary.withValues(alpha: 0.08),
-            blurRadius: 22,
-            offset: const Offset(0, 9),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.75),
+                const Color(0xFFE8F3EF).withValues(alpha: 0.42),
+              ],
+            ),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.7),
+              width: 1.1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _HomePalette.textPrimary.withValues(alpha: 0.08),
+                blurRadius: 22,
+                offset: const Offset(0, 9),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Row(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: const BoxDecoration(
-                color: Color(0xFFD1EFE4),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.menu_book_rounded,
-                color: Color(0xFF1D8968),
-                size: 31,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Daily Journal',
-                    style: const TextStyle(
-                      fontFamily: 'Doto',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF223F4A),
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFD1EFE4),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Reflect & grow peace',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12.6,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF6C808C),
-                    ),
+                  child: const Icon(
+                    Icons.menu_book_rounded,
+                    color: Color(0xFF1D8968),
+                    size: 31,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(24),
-                onTap: onTapWrite,
-                child: Ink(
-                  height: 46,
-                  width: 88,
-                  decoration: BoxDecoration(
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Daily Journal',
+                        style: const TextStyle(
+                          fontFamily: 'Doto',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF223F4A),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        'Reflect & grow peace',
+                        style: GoogleFonts.poppins(
+                          fontSize: 12.6,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF6C808C),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: const Color(0xFFC8DDD5),
-                      width: 1.8,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Write',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1F9873),
+                    onTap: onTapWrite,
+                    child: Ink(
+                      height: 46,
+                      width: 88,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: const Color(0xFFC8DDD5),
+                          width: 1.8,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Write',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1F9873),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -1725,14 +1787,18 @@ class _SuggestedRow extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         _SuggestedCard(
-          icon: isPlayingNature ? Icons.pause_circle_filled_rounded : Icons.play_circle_filled_rounded,
+          icon: isPlayingNature
+              ? Icons.pause_circle_filled_rounded
+              : Icons.play_circle_filled_rounded,
           iconBg: const Color(0xFFD5EDE4),
           iconColor: const Color(0xFF217F66),
           title: 'Morning Peace',
           subtitle: 'Nature sounds • Relaxing',
           onTap: onToggleNature,
           trailing: Icon(
-            isPlayingNature ? Icons.equalizer_rounded : Icons.chevron_right_rounded,
+            isPlayingNature
+                ? Icons.equalizer_rounded
+                : Icons.chevron_right_rounded,
             color: const Color(0xFF217F66).withValues(alpha: 0.6),
             size: 20,
           ),
@@ -1778,81 +1844,98 @@ class _SuggestedCard extends StatelessWidget {
 
         return GestureDetector(
           onTap: onTap,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: iconColor.withValues(alpha: 0.09),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                dense ? 8 : 12,
-                dense ? 10 : 12,
-                dense ? 8 : 12,
-                dense ? 10 : 12,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: dense ? 40 : (compact ? 44 : 52),
-                    height: dense ? 40 : (compact ? 44 : 52),
-                    decoration: BoxDecoration(
-                      color: iconBg,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      icon,
-                      size: dense ? 23 : (compact ? 25 : 30),
-                      color: iconColor,
-                    ),
-                  ),
-                  SizedBox(width: dense ? 7 : 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.poppins(
-                              fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF223F4A),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.poppins(
-                              fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
-                              fontWeight: FontWeight.w500,
-                              color: _HomePalette.textMuted.withValues(alpha: 0.85),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (trailing != null) ...[
-                      const SizedBox(width: 8),
-                      trailing!,
-                    ] else ...[
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: Colors.black.withValues(alpha: 0.2),
-                        size: 20,
-                      ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(22),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.72),
+                      const Color(0xFFE8F3EF).withValues(alpha: 0.4),
                     ],
-                ],
+                  ),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    width: 1.1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: iconColor.withValues(alpha: 0.09),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    dense ? 8 : 12,
+                    dense ? 10 : 12,
+                    dense ? 8 : 12,
+                    dense ? 10 : 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: dense ? 40 : (compact ? 44 : 52),
+                        height: dense ? 40 : (compact ? 44 : 52),
+                        decoration: BoxDecoration(
+                          color: iconBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          icon,
+                          size: dense ? 23 : (compact ? 25 : 30),
+                          color: iconColor,
+                        ),
+                      ),
+                      SizedBox(width: dense ? 7 : 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF223F4A),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
+                                fontWeight: FontWeight.w500,
+                                color: _HomePalette.textMuted.withValues(alpha: 0.85),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (trailing != null) ...[
+                        const SizedBox(width: 8),
+                        trailing!,
+                      ] else ...[
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: Colors.black.withValues(alpha: 0.2),
+                          size: 20,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -1919,7 +2002,7 @@ class _MoodInputBar extends StatelessWidget {
                     width: 0.9,
                   ),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.mic_rounded,
                   color: Color(0xFF22A178),
                   size: 20,
@@ -1957,11 +2040,11 @@ class _NoScrollbarBehavior extends MaterialScrollBehavior {
 
   @override
   Set<PointerDeviceKind> get dragDevices => const {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-    PointerDeviceKind.trackpad,
-    PointerDeviceKind.stylus,
-  };
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+      };
 
   @override
   Widget buildScrollbar(

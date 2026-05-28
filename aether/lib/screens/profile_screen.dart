@@ -1345,37 +1345,32 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               color: Colors.transparent,
               child: InkWell(
                 onTap: widget.onSignOut,
-                borderRadius: BorderRadius.circular(16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            const Color(0xFF6EC6B3).withValues(alpha: 0.2),
-                            const Color(0xFF6EC6B3).withValues(alpha: 0.05),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: const Color(0xFF6EC6B3).withValues(alpha: 0.5),
-                          width: 1,
-                        ),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF4D9489), Color(0xFF3B7F75)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x243B7F75),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
                       ),
-                      child: Text(
-                        "Sign Out",
-                        style: GoogleFonts.poppins(
-                          color: const Color(0xFF3B7F75),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                    ],
+                  ),
+                  child: const Text(
+                    "Sign Out",
+                    style: TextStyle(
+                      fontFamily: 'Doto',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.2,
+                      color: Color(0xFFE8F4F1),
                     ),
                   ),
                 ),
