@@ -3,7 +3,7 @@ class SupportPost {
   final String anonymousId;
   final String text;
   final String mood;
-  final String? emoji;
+  final List<String> tags;
   final DateTime createdAt;
   final DateTime expiresAt;
 
@@ -12,7 +12,7 @@ class SupportPost {
     required this.anonymousId,
     required this.text,
     required this.mood,
-    this.emoji,
+    required this.tags,
     required this.createdAt,
     required this.expiresAt,
   });
@@ -23,7 +23,7 @@ class SupportPost {
       'anonymousId': anonymousId,
       'text': text,
       'mood': mood,
-      'emoji': emoji,
+      'tags': tags,
       'createdAt': createdAt.toIso8601String(),
       'expiresAt': expiresAt.toIso8601String(),
     };
@@ -35,7 +35,7 @@ class SupportPost {
       anonymousId: json['anonymousId'],
       text: json['text'],
       mood: json['mood'],
-      emoji: json['emoji'],
+      tags: List<String>.from(json['tags'] ?? const []),
       createdAt: DateTime.parse(json['createdAt']),
       expiresAt: DateTime.parse(json['expiresAt']),
     );

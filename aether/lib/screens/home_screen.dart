@@ -38,8 +38,6 @@ class _HomePalette {
   static const backgroundTop = Color(0xFFF7FBF9);
   static const backgroundMid = Color(0xFFF0F7F4);
   static const backgroundBottom = Color(0xFFE6F1EC);
-  static const cardSurface = Colors.white;
-  static const cardBorder = Color(0xFFE0EBE6);
   static const accent = Color(0xFF2FB07E);
   static const textPrimary = Color(0xFF1E3C44);
   static const textMuted = Color(0xFF5F7380);
@@ -137,10 +135,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         horizontal: _horizontalPadding,
                         vertical: 8,
                       ),
-                      child: _TodayVibeCard(
-                        shimmer: _shimmerController,
-                        isLoading: _isLoading,
-                        onTapCheckIn: _handleCheckInNow,
+                      child: RepaintBoundary(
+                        child: _TodayVibeCard(
+                          shimmer: _shimmerController,
+                          isLoading: _isLoading,
+                          onTapCheckIn: _handleCheckInNow,
+                        ),
                       ),
                     ),
                     const SizedBox(height: _sectionSpacing),
@@ -148,20 +148,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       padding: EdgeInsets.symmetric(
                         horizontal: _horizontalPadding,
                       ),
-                      child: _ProgressSection(),
+                      child: RepaintBoundary(child: _ProgressSection()),
                     ),
                     const SizedBox(height: _sectionSpacing),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: _horizontalPadding,
                       ),
-                      child: _DailyJournalCard(
-                        onTapWrite: () {
-                          pushWithSnakeLoader(
-                            context,
-                            const JournalTestScreen(),
-                          );
-                        },
+                      child: RepaintBoundary(
+                        child: _DailyJournalCard(
+                          onTapWrite: () {
+                            pushWithSnakeLoader(
+                              context,
+                              const JournalTestScreen(),
+                            );
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: _sectionSpacing),
@@ -185,9 +187,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       padding: const EdgeInsets.symmetric(
                         horizontal: _horizontalPadding,
                       ),
-                      child: _SuggestedRow(
-                        isPlayingNature: _isPlayingNature,
-                        onToggleNature: _toggleNatureSounds,
+                      child: RepaintBoundary(
+                        child: _SuggestedRow(
+                          isPlayingNature: _isPlayingNature,
+                          onToggleNature: _toggleNatureSounds,
+                        ),
                       ),
                     ),
                   ],
@@ -700,11 +704,11 @@ class _TodayVibeCard extends StatelessWidget {
                           children: [
                             Text(
                               'Stay consistent.',
-                              style: const TextStyle(
-                                fontFamily: 'Doto',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                color: Color.fromARGB(255, 144, 207, 144),
+                              style: GoogleFonts.poppins(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                fontStyle: FontStyle.italic,
+                                color: const Color(0xFF7A8791),
                                 height: 1.1,
                               ),
                             ),
@@ -717,7 +721,7 @@ class _TodayVibeCard extends StatelessWidget {
                                 fontFamily: 'Doto',
                                 fontSize: 19,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF2F9E6F),
+                                color: Color(0xFF4D9489),
                                 height: 1.1,
                               ),
                             ),
@@ -943,6 +947,7 @@ class _HeroCheckInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      width: 120,
       height: 36,
       child: Material(
         color: Colors.transparent,
@@ -953,9 +958,11 @@ class _HeroCheckInButton extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF6ED3AD),
-                  Color(0xFF33B286),
+                  Color(0xFF5DA79B),
+                  Color(0xFF4A857C),
                 ],
               ),
               boxShadow: [
@@ -969,8 +976,8 @@ class _HeroCheckInButton extends StatelessWidget {
             child: isLoading
                 ? const Center(
                     child: SizedBox(
-                      width: 14,
-                      height: 14,
+                      width: 10,
+                      height: 10,
                       child: CircularProgressIndicator(),
                     ),
                   )
@@ -978,10 +985,10 @@ class _HeroCheckInButton extends StatelessWidget {
                     alignment: Alignment.center,
                     children: [
                       Positioned(
-                        left: 6,
+                        left: 8,
                         child: Container(
-                          width: 24,
-                          height: 24,
+                          width: 18,
+                          height: 18,
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -993,14 +1000,18 @@ class _HeroCheckInButton extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 34),
-                        child: Text(
-                          'Check In Now',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12.2,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30),
+                          child: Text(
+                            'Check Now',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -1061,7 +1072,7 @@ class _ProgressSection extends StatelessWidget {
                 );
               },
               child: _ProgressStatCard(
-                title: 'Current Streak',
+                title: 'Streak',
                 valueText: '0 days',
                 subtitle: 'Consistency',
                 progress: 0.0,
@@ -1079,7 +1090,7 @@ class _ProgressSection extends StatelessWidget {
                 );
               },
               child: _ProgressStatCard(
-                title: 'Weekly Goals',
+                title: 'Weekly',
                 valueText: '0 / 5',
                 subtitle: 'Entries',
                 progress: 0.0,
@@ -1140,23 +1151,16 @@ class _ProgressStatCard extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF8FCFA),
-              Color(0xFFECF4F1),
-            ],
-          ),
+          color: Colors.white,
           border: Border.all(
-            color: Color(0xFFDCE7E1),
+            color: Color(0xFFE4ECE8),
             width: 1.1,
           ),
           boxShadow: [
             BoxShadow(
-              color: _HomePalette.textPrimary.withValues(alpha: 0.06),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: _HomePalette.textPrimary.withValues(alpha: 0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -1317,12 +1321,12 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Mind in moments • 1–2 min',
               icon: Icons.psychology_rounded,
               gradient: const [
-                Color(0xFF6ED3AD),
-                Color(0xFF33B286),
+                    Color(0xFF5DA79B),
+                    Color(0xFF4A857C),
               ],
               buttonText: 'Open',
               buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF1D7A58),
+                  buttonTextColor: const Color(0xFF47786F),
               onTap: () {
                 pushWithSnakeLoader(
                   context,
@@ -1680,23 +1684,16 @@ class _DailyJournalCard extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF8FCFA),
-              Color(0xFFECF4F1),
-            ],
-          ),
+          color: Colors.white,
           border: Border.all(
-            color: Color(0xFFDCE7E1),
+            color: Color(0xFFE4ECE8),
             width: 1.1,
           ),
           boxShadow: [
             BoxShadow(
-              color: _HomePalette.textPrimary.withValues(alpha: 0.06),
-              blurRadius: 22,
-              offset: const Offset(0, 9),
+              color: _HomePalette.textPrimary.withValues(alpha: 0.05),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -1704,18 +1701,12 @@ class _DailyJournalCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE3F1EC),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.menu_book_rounded,
-                    color: Color(0xFF1D8968),
-                    size: 31,
-                  ),
+                const _GradientCircleIcon(
+                  icon: Icons.menu_book_rounded,
+                  gradientColors: [Color(0xFFF7FFFD), Color(0xFFEAF7F2)],
+                  iconColor: Color(0xFF2A8D6D),
+                  size: 48,
+                  iconSize: 24,
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -1795,8 +1786,8 @@ class _SuggestedRow extends StatelessWidget {
       children: [
         _SuggestedCard(
           icon: Icons.bedtime_rounded,
-          iconBg: const Color(0xFFE7F2EF),
-          iconColor: const Color(0xFF2A8D6D),
+          iconColor: const Color(0xFF63AEEF),
+          iconGradient: const [Color(0xFFF2F9FF), Color(0xFFD8ECFF)],
           title: 'Dream Recorder',
           subtitle: 'Log a dream • Journal',
           onTap: () {
@@ -1810,8 +1801,8 @@ class _SuggestedRow extends StatelessWidget {
           icon: isPlayingNature
               ? Icons.pause_circle_filled_rounded
               : Icons.play_circle_filled_rounded,
-          iconBg: const Color(0xFFE0F0EA),
-          iconColor: const Color(0xFF2A8D6D),
+          iconColor: const Color(0xFF3DBB6C),
+          iconGradient: const [Color(0xFFF0FBF4), Color(0xFFD8F1E0)],
           title: 'Morning Peace',
           subtitle: 'Nature sounds • Relaxing',
           onTap: onToggleNature,
@@ -1826,8 +1817,8 @@ class _SuggestedRow extends StatelessWidget {
         const SizedBox(height: 14),
         _SuggestedCard(
           icon: Icons.volunteer_activism_rounded,
-          iconBg: const Color(0xFFE6EFEA),
-          iconColor: const Color(0xFF3B7F75),
+          iconColor: const Color(0xFFF39C37),
+          iconGradient: const [Color(0xFFFFF7EA), Color(0xFFFFE3B8)],
           title: 'Gratitude',
           subtitle: '3 min • Guide',
         ),
@@ -1839,8 +1830,8 @@ class _SuggestedRow extends StatelessWidget {
 class _SuggestedCard extends StatelessWidget {
   const _SuggestedCard({
     required this.icon,
-    required this.iconBg,
     required this.iconColor,
+    required this.iconGradient,
     required this.title,
     required this.subtitle,
     this.onTap,
@@ -1848,8 +1839,8 @@ class _SuggestedCard extends StatelessWidget {
   });
 
   final IconData icon;
-  final Color iconBg;
   final Color iconColor;
+  final List<Color> iconGradient;
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
@@ -1869,23 +1860,16 @@ class _SuggestedCard extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(22),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFF8FCFA),
-                    Color(0xFFECF4F1),
-                  ],
-                ),
+                color: Colors.white,
                 border: Border.all(
-                  color: Color(0xFFDCE7E1),
+                  color: Color(0xFFE4ECE8),
                   width: 1.1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _HomePalette.textPrimary.withValues(alpha: 0.06),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
+                    color: _HomePalette.textPrimary.withValues(alpha: 0.05),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
@@ -1898,18 +1882,12 @@ class _SuggestedCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                      Container(
-                        width: dense ? 40 : (compact ? 44 : 52),
-                        height: dense ? 40 : (compact ? 44 : 52),
-                        decoration: BoxDecoration(
-                          color: iconBg,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          icon,
-                          size: dense ? 23 : (compact ? 25 : 30),
-                          color: iconColor,
-                        ),
+                      _GradientCircleIcon(
+                        icon: icon,
+                        gradientColors: iconGradient,
+                        iconColor: iconColor,
+                        size: dense ? 36 : (compact ? 40 : 44),
+                        iconSize: dense ? 14 : (compact ? 15 : 16),
                       ),
                       SizedBox(width: dense ? 7 : 12),
                       Expanded(
@@ -1923,7 +1901,7 @@ class _SuggestedCard extends StatelessWidget {
                               style: GoogleFonts.poppins(
                                 fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF223F4A),
+                                color: iconColor,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -1958,6 +1936,54 @@ class _SuggestedCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _GradientCircleIcon extends StatelessWidget {
+  const _GradientCircleIcon({
+    required this.icon,
+    required this.gradientColors,
+    required this.iconColor,
+    this.size = 56,
+    this.iconSize = 30,
+  });
+
+  final IconData icon;
+  final List<Color> gradientColors;
+  final Color iconColor;
+  final double size;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.92),
+          width: 1.1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: iconColor.withValues(alpha: 0.16),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Icon(
+        icon,
+        color: iconColor,
+        size: iconSize,
+      ),
     );
   }
 }

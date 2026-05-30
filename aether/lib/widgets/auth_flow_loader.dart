@@ -6,7 +6,6 @@ import 'dart:math';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// ===============================
 /// 🔥 WRAPPER
@@ -372,7 +371,10 @@ class _PixelSnakePainter extends CustomPainter {
       final p = snake[i];
       final isHead = i == 0;
       
-      paint.color = const Color(0xFF4DB6AC).withValues(alpha: 0.88);
+      paint.color = const Color(0xFF4D9489).withValues(alpha: 0.92);
+      if (isHead) {
+        paint.color = const Color(0xFF3B7F75).withValues(alpha: 0.96);
+      }
       
       canvas.drawRRect(
         RRect.fromRectAndRadius(

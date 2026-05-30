@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../models/fact_model.dart';
 import '../services/onboarding_service.dart';
 import '../services/journal_service.dart';
 import '../models/journal_entry.dart';
 import '../services/insight_service.dart';
+import '../services/fact_reels_service.dart';
 import '../widgets/auth_flow_loader.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateMixin {
   final OnboardingService _onboardingService = OnboardingService();
+  final FactReelsService _factReelsService = FactReelsService();
   Map<String, dynamic>? _profileData;
   bool _isLoading = true;
   late AnimationController _revealController;
@@ -115,6 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
       streak = 1;
       for (int i = 1; i < dates.length; i++) {
         if (dates[i] == today.subtract(Duration(days: i))) {
+
           streak++;
         } else {
           break;
@@ -666,6 +670,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                               _buildHeroGlassCard(),
                               const SizedBox(height: 24),
                               _buildStatsRow(),
+                              const SizedBox(height: 24),
+                              _buildGlassSection(
+                                title: "SAVED REELS",
+                                child: _buildSavedFacts(),
+                              ),
                               const SizedBox(height: 32),
                               _buildGlassSection(
                                 title: "CORE INTERESTS",
@@ -787,6 +796,47 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     }
 
     return innerContainer;
+  }
+
+  Widget _buildSavedFacts() {
+    return StreamBuilder<List<Fact>>(
+      stream: _factReelsService.watchSavedFacts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        }
+
+        final facts = snapshot.data ?? [];
+        if (facts.isEmpty) {
+          return Text(
+            'No saved reels yet. Tap Save on any fact to pin it here.',
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              color: const Color(0xFF6C808C),
+              fontWeight: FontWeight.w500,
+            ),
+          );
+        }
+
+        return SizedBox(
+          height: 140,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: facts.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              return _SavedFactCard(fact: facts[index]);
+            },
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildHeroGlassCard() {
@@ -1391,6 +1441,160 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         fontWeight: FontWeight.w900,
         letterSpacing: 1.3,
         color: const Color(0xFF244A44).withValues(alpha: 0.6),
+      ),
+    );
+  }
+}
+
+class _SavedFactCard extends StatelessWidget {
+  const _SavedFactCard({required this.fact});
+
+  final Fact fact;
+
+  void _showDetail(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          backgroundColor: Colors.transparent,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Saved Reel',
+                      style: TextStyle(
+                        fontFamily: 'Doto',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF1E3C44),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      fact.text,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14.5,
+                        height: 1.45,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF223F4A),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        _FactMetaPill(label: fact.category),
+                        const SizedBox(width: 8),
+                        _FactMetaPill(label: fact.tone),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: const Text('Close'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showDetail(context),
+      child: Container(
+        width: 220,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white.withValues(alpha: 0.9),
+          border: Border.all(color: const Color(0xFFDDE7E1)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1E3C44).withValues(alpha: 0.06),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              height: 8,
+              decoration: BoxDecoration(
+                color: fact.background,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              fact.text,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(
+                fontSize: 12.5,
+                height: 1.4,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF223F4A),
+              ),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                _FactMetaPill(label: fact.category),
+                const SizedBox(width: 8),
+                _FactMetaPill(label: fact.tone),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FactMetaPill extends StatelessWidget {
+  const _FactMetaPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF3EF),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF3B7F75),
+        ),
       ),
     );
   }
