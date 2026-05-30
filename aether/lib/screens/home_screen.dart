@@ -601,11 +601,7 @@ class _TodayVibeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFFEAF7F1), Color(0xFFD2EBDD), Color(0xFFC4E3D3)],
-            ),
+            color: Colors.white,
             border: Border.all(
               color: const Color(0xFF8CBFA8).withValues(alpha: 0.55),
               width: 1.1,
@@ -708,7 +704,7 @@ class _TodayVibeCard extends StatelessWidget {
                                 fontFamily: 'Doto',
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
-                                color: Color.fromARGB(255, 247, 247, 247),
+                                color: Color.fromARGB(255, 144, 207, 144),
                                 height: 1.1,
                               ),
                             ),
@@ -802,13 +798,33 @@ class _CardPixelPanelPainter extends CustomPainter {
     return n - n.floorToDouble();
   }
 
+  double _pixelSplitX(
+    double y,
+    double height,
+    double topSplitX,
+    double midSplitX,
+    double bottomSplitX,
+    double cell,
+  ) {
+    final t = (y / height).clamp(0.0, 1.0);
+    final curve = math.sin(t * math.pi);
+    final rawX =
+        (topSplitX * (1 - t)) + (bottomSplitX * t) + (curve * (midSplitX - topSplitX));
+    return (rawX / cell).roundToDouble() * cell;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
-    const intensityBoost = 1.8;
-    final cols = (size.width / 8.4).round().clamp(16, 34);
+    const intensityBoost = 1.55;
+    final cols = (size.width / 4.0).round().clamp(28, 72);
     final cell = size.width / cols;
     final rows = (size.height / cell).ceil() + 1;
     final paint = Paint()..isAntiAlias = false;
+
+    final topSplitX = size.width * 0.47;
+    final midSplitX = size.width * 0.54;
+    final bottomSplitX = size.width * 0.47;
+    final fadeWidth = cell * 2.2;
 
     final t = progress.value * 2 * math.pi;
     final focusX = size.width * (0.22 + (0.58 * (0.5 + (0.5 * math.sin(t)))));
@@ -827,6 +843,21 @@ class _CardPixelPanelPainter extends CustomPainter {
         final cy = (top + bottom) * 0.5;
         final nx = col / cols;
         final ny = row / rows;
+
+        final boundaryX = _pixelSplitX(
+          cy,
+          size.height,
+          topSplitX,
+          midSplitX,
+          bottomSplitX,
+          cell,
+        );
+        final edgeDistance = cx - boundaryX;
+        final edgeFade = ((edgeDistance + fadeWidth) / fadeWidth)
+            .clamp(0.0, 1.0);
+        if (edgeFade <= 0) {
+          continue;
+        }
 
         final phase = _hash01(col, row, 1) * 2 * math.pi;
         final phase2 = _hash01(col, row, 2) * 2 * math.pi;
@@ -850,12 +881,12 @@ class _CardPixelPanelPainter extends CustomPainter {
 
         final depth = (0.72 + (0.28 * ny)).clamp(0.0, 1.0);
         final alpha =
-            (((0.045 + (0.18 * blend)) * visibility * depth) * intensityBoost)
-                .clamp(0.0, 0.45);
+          (((0.05 + (0.18 * blend)) * visibility * depth) * intensityBoost)
+            .clamp(0.0, 0.45) * edgeFade;
 
         paint.color = Color.lerp(
-          const Color(0xFF7CB8A1),
-          const Color(0xFF45947C),
+          const Color(0xFFBFDAD3),
+          const Color(0xFF7FAE9F),
           blend,
         )!
             .withValues(alpha: alpha);
@@ -875,9 +906,9 @@ class _CardPixelPanelPainter extends CustomPainter {
               )
               .toDouble();
 
-          final starStrength =
+            final starStrength =
               (starPulse * (0.55 + (0.45 * _hash01(col, row, 5))) * visibility)
-                  .clamp(0.0, 1.0);
+                .clamp(0.0, 1.0) * edgeFade;
           if (starStrength > 0.07) {
             final starTint = Color.lerp(
               const Color(0xFFA1E0C6),
@@ -885,9 +916,9 @@ class _CardPixelPanelPainter extends CustomPainter {
               starStrength,
             )!;
             paint.color = starTint.withValues(
-              alpha: ((0.03 + (0.16 * starStrength)) * intensityBoost).clamp(
+              alpha: ((0.04 + (0.14 * starStrength)) * intensityBoost).clamp(
                 0.0,
-                0.225,
+                0.24,
               ),
             );
             canvas.drawRect(Rect.fromLTRB(left, top, right, bottom), paint);
@@ -1106,40 +1137,33 @@ class _ProgressStatCard extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.72),
-                const Color(0xFFE8F3EF).withValues(alpha: 0.45),
-              ],
-            ),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.7),
-              width: 1.1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _HomePalette.textPrimary.withValues(alpha: 0.08),
-                blurRadius: 18,
-                offset: const Offset(0, 10),
-              ),
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.22),
-                blurRadius: 8,
-                offset: const Offset(0, -4),
-              ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFF8FCFA),
+              Color(0xFFECF4F1),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: Row(
-              children: [
+          border: Border.all(
+            color: Color(0xFFDCE7E1),
+            width: 1.1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _HomePalette.textPrimary.withValues(alpha: 0.06),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: Row(
+            children: [
                 SizedBox(
                   width: 56,
                   height: 56,
@@ -1160,7 +1184,7 @@ class _ProgressStatCard extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: iconBg,
+                          color: iconBg.withValues(alpha: 0.8),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -1244,8 +1268,7 @@ class _ProgressStatCard extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
@@ -1258,7 +1281,7 @@ class _QuickActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const cardSize = 143.0;
+    const cardSize = 157.0;
     return SizedBox(
       height: cardSize,
       child: ScrollConfiguration(
@@ -1654,40 +1677,38 @@ class _DailyJournalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.75),
-                const Color(0xFFE8F3EF).withValues(alpha: 0.42),
-              ],
-            ),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.7),
-              width: 1.1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _HomePalette.textPrimary.withValues(alpha: 0.08),
-                blurRadius: 22,
-                offset: const Offset(0, 9),
-              ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFF8FCFA),
+              Color(0xFFECF4F1),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Row(
-              children: [
+          border: Border.all(
+            color: Color(0xFFDCE7E1),
+            width: 1.1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _HomePalette.textPrimary.withValues(alpha: 0.06),
+              blurRadius: 22,
+              offset: const Offset(0, 9),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            children: [
                 Container(
                   width: 56,
                   height: 56,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFD1EFE4),
+                    color: Color(0xFFE3F1EC),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -1751,8 +1772,7 @@ class _DailyJournalCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),
@@ -1775,8 +1795,8 @@ class _SuggestedRow extends StatelessWidget {
       children: [
         _SuggestedCard(
           icon: Icons.bedtime_rounded,
-          iconBg: const Color(0xFFEFF6FB),
-          iconColor: const Color(0xFF2F9E6F),
+          iconBg: const Color(0xFFE7F2EF),
+          iconColor: const Color(0xFF2A8D6D),
           title: 'Dream Recorder',
           subtitle: 'Log a dream • Journal',
           onTap: () {
@@ -1790,8 +1810,8 @@ class _SuggestedRow extends StatelessWidget {
           icon: isPlayingNature
               ? Icons.pause_circle_filled_rounded
               : Icons.play_circle_filled_rounded,
-          iconBg: const Color(0xFFD5EDE4),
-          iconColor: const Color(0xFF217F66),
+          iconBg: const Color(0xFFE0F0EA),
+          iconColor: const Color(0xFF2A8D6D),
           title: 'Morning Peace',
           subtitle: 'Nature sounds • Relaxing',
           onTap: onToggleNature,
@@ -1806,8 +1826,8 @@ class _SuggestedRow extends StatelessWidget {
         const SizedBox(height: 14),
         _SuggestedCard(
           icon: Icons.volunteer_activism_rounded,
-          iconBg: const Color(0xFFE1D8F7),
-          iconColor: const Color(0xFF6750C7),
+          iconBg: const Color(0xFFE6EFEA),
+          iconColor: const Color(0xFF3B7F75),
           title: 'Gratitude',
           subtitle: '3 min • Guide',
         ),
@@ -1846,40 +1866,38 @@ class _SuggestedCard extends StatelessWidget {
           onTap: onTap,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(22),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.72),
-                      const Color(0xFFE8F3EF).withValues(alpha: 0.4),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    width: 1.1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: iconColor.withValues(alpha: 0.09),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                    ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(22),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFF8FCFA),
+                    Color(0xFFECF4F1),
                   ],
                 ),
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    dense ? 8 : 12,
-                    dense ? 10 : 12,
-                    dense ? 8 : 12,
-                    dense ? 10 : 12,
+                border: Border.all(
+                  color: Color(0xFFDCE7E1),
+                  width: 1.1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _HomePalette.textPrimary.withValues(alpha: 0.06),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
                   ),
-                  child: Row(
-                    children: [
+                ],
+              ),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  dense ? 8 : 12,
+                  dense ? 10 : 12,
+                  dense ? 8 : 12,
+                  dense ? 10 : 12,
+                ),
+                child: Row(
+                  children: [
                       Container(
                         width: dense ? 40 : (compact ? 44 : 52),
                         height: dense ? 40 : (compact ? 44 : 52),
@@ -1933,8 +1951,7 @@ class _SuggestedCard extends StatelessWidget {
                           size: 20,
                         ),
                       ],
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
