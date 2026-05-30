@@ -599,190 +599,34 @@ class _TodayVibeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 170,
-      child: ClipRRect(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              color: const Color(0xFF8CBFA8).withValues(alpha: 0.55),
-              width: 1.1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF2B7B62).withValues(alpha: 0.24),
-                blurRadius: 28,
-                spreadRadius: 1,
-                offset: const Offset(0, 14),
-              ),
-              BoxShadow(
-                color: _HomePalette.accent.withValues(alpha: 0.22),
-                blurRadius: 12,
-                offset: const Offset(0, 3),
-              ),
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.45),
-                blurRadius: 12,
-                offset: const Offset(0, -3),
-              ),
-            ],
+        border: Border.all(
+          color: _HomePalette.accent.withValues(alpha: 0.28),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _HomePalette.accent.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
-          child: Stack(
-            children: [
-              const Positioned.fill(
-                child: IgnorePointer(
-                  child: Padding(
-                    padding: EdgeInsets.all(0.8),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(23.2)),
-                        border: Border.fromBorderSide(
-                          BorderSide(color: Color(0xFF79B299), width: 1.15),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: RadialGradient(
-                        center: const Alignment(-0.35, -0.6),
-                        radius: 1.15,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.34),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.14),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: RepaintBoundary(
-                    child: CustomPaint(
-                      painter: _CardPixelPanelPainter(progress: shimmer),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 58,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 18, 12, 18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Stay consistent.',
-                              style: GoogleFonts.poppins(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w400,
-                                fontStyle: FontStyle.italic,
-                                color: const Color(0xFF7A8791),
-                                height: 1.1,
-                              ),
-                            ),
-                        
-                            const SizedBox(height: 6),
-                        
-                            Text(
-                              'You’re doing great.',
-                              style: const TextStyle(
-                                fontFamily: 'Doto',
-                                fontSize: 19,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF4D9489),
-                                height: 1.1,
-                              ),
-                            ),
-                        
-                            const SizedBox(height: 14),
-
-                          ],
-                        ),  
-                            const Spacer(),
-                            _HeroCheckInButton(
-                              isLoading: isLoading,
-                              onTap: onTapCheckIn,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 42,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        fit: StackFit.expand,
-                        children: [
-                          AnimatedBuilder(
-                            animation: shimmer,
-                            builder: (context, child) {
-                              final y =
-                                  math.sin(shimmer.value * 2 * math.pi) * 2.8;
-                              return Transform.translate(
-                                offset: Offset(0, y),
-                                child: Transform.scale(
-                                  scale: 1.34,
-                                  child: child,
-                                ),
-                              );
-                            },
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Opacity(
-                                opacity: 1.0,
-                                child: SizedBox(
-                                  width: 180,
-                                  height: 180,
-                                  child: Image.asset(
-                                    'assets/imgs/new-cov.png',
-                                    fit: BoxFit.contain,
-                                    alignment: Alignment.bottomCenter,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        const SizedBox.shrink(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(23),
+        child: ColorFiltered(
+          colorFilter: ColorFilter.mode(
+            _HomePalette.accent.withValues(alpha: 0.04),
+            BlendMode.multiply,
+          ),
+          child: Image.asset(
+            'imgs/hero-card-env.png',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
           ),
         ),
       ),
@@ -1169,24 +1013,24 @@ class _ProgressStatCard extends StatelessWidget {
           child: Row(
             children: [
                 SizedBox(
-                  width: 56,
-                  height: 56,
+                  width: 48,
+                  height: 48,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       SizedBox(
-                        width: 56,
-                        height: 56,
+                        width: 48,
+                        height: 48,
                         child: CircularProgressIndicator(
                           value: progress.clamp(0.0, 1.0),
-                          strokeWidth: 3,
+                          strokeWidth: 2.8,
                           backgroundColor: ringColor.withValues(alpha: 0.18),
                           valueColor: AlwaysStoppedAnimation<Color>(ringColor),
                         ),
                       ),
                       Container(
-                        width: 36,
-                        height: 36,
+                        width: 30,
+                        height: 30,
                         decoration: BoxDecoration(
                           color: iconBg.withValues(alpha: 0.8),
                           shape: BoxShape.circle,
@@ -1194,7 +1038,7 @@ class _ProgressStatCard extends StatelessWidget {
                         child: Center(
                           child: Icon(
                             icon,
-                            size: 18,
+                            size: 16,
                             color: ringColor,
                           ),
                         ),
@@ -1218,7 +1062,7 @@ class _ProgressStatCard extends StatelessWidget {
                           color: _HomePalette.textPrimary.withValues(alpha: 0.78),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       if (hasSuffix)
                         RichText(
                           maxLines: 1,
@@ -1258,7 +1102,7 @@ class _ProgressStatCard extends StatelessWidget {
                             height: 1.0,
                           ),
                         ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 3),
                       Text(
                         subtitle,
                         maxLines: 1,
@@ -1321,12 +1165,12 @@ class _QuickActionsRow extends StatelessWidget {
               subtitle: 'Mind in moments • 1–2 min',
               icon: Icons.psychology_rounded,
               gradient: const [
-                    Color(0xFF5DA79B),
-                    Color(0xFF4A857C),
+                Color(0xFF32C88F),
+                Color(0xFF2FB08E),
               ],
               buttonText: 'Open',
               buttonIcon: Icons.play_arrow_rounded,
-                  buttonTextColor: const Color(0xFF47786F),
+              buttonTextColor: const Color(0xFF1E5D4A),
               onTap: () {
                 pushWithSnakeLoader(
                   context,
@@ -1900,7 +1744,7 @@ class _SuggestedCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.poppins(
                                 fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: iconColor,
                               ),
                             ),
@@ -1910,9 +1754,9 @@ class _SuggestedCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: GoogleFonts.poppins(
-                                fontSize: dense ? 10.4 : (compact ? 11.3 : 14.5),
+                                fontSize: dense ? 9.0 : (compact ? 10.0 : 11.4),
                                 fontWeight: FontWeight.w500,
-                                color: _HomePalette.textMuted.withValues(alpha: 0.85),
+                                color: _HomePalette.textMuted.withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -2028,7 +1872,7 @@ class _MoodInputBar extends StatelessWidget {
                 child: Text(
                   'How are you feeling today?',
                   style: GoogleFonts.poppins(
-                    fontSize: 14.5,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: _HomePalette.textMuted,
                   ),

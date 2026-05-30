@@ -577,7 +577,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     if (_isLoading) {
       return Scaffold(
         extendBodyBehindAppBar: true,
-        backgroundColor: const Color(0xFFDDE7E1),
+        backgroundColor: const Color(0xFFF7FBF9),
         body: Stack(
           children: [
             Positioned.fill(
@@ -585,8 +585,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFFDDE7E1),
-                      const Color(0xFFC5D7D1).withValues(alpha: 0.5),
+                      const Color(0xFFF7FBF9),
+                      const Color(0xFFE6F1EC).withValues(alpha: 0.5),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -632,20 +632,19 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: const Color(0xFFDDE7E1),
+      backgroundColor: const Color(0xFFF7FBF9),
       body: Stack(
         children: [
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.white.withValues(alpha: 0.24),
-                    const Color(0xFFDDE7E1),
+                    Color(0xFFF7FBF9),
+                    Color(0xFFE6F1EC),
                   ],
-                  stops: const [0.0, 0.24],
                 ),
               ),
             ),
@@ -672,7 +671,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                               _buildStatsRow(),
                               const SizedBox(height: 24),
                               _buildGlassSection(
-                                title: "SAVED REELS",
+                                title: "LIKED REELS",
                                 child: _buildSavedFacts(),
                               ),
                               const SizedBox(height: 32),
@@ -723,7 +722,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             fontFamily: 'Doto',
             fontSize: 22,
             fontWeight: FontWeight.w800,
-          color: const Color(0xFF244A44),
+            color: const Color(0xFF1E3C44),
             ),
           ),
           const SizedBox(width: 48),
@@ -775,7 +774,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               if (onEdit != null)
                 GestureDetector(
                   onTap: onEdit,
-                  child: const Icon(Icons.edit_rounded, size: 16, color: Color(0xFF4DA692)),
+                  child: const Icon(Icons.edit_rounded, size: 16, color: Color(0xFF2FB07E)),
                 ),
             ],
           ),
@@ -815,7 +814,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         final facts = snapshot.data ?? [];
         if (facts.isEmpty) {
           return Text(
-            'No saved reels yet. Tap Save on any fact to pin it here.',
+            'No liked reels yet. Tap Save on any fact to pin it here.',
             style: GoogleFonts.poppins(
               fontSize: 13,
               color: const Color(0xFF6C808C),
@@ -825,13 +824,13 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         }
 
         return SizedBox(
-          height: 140,
+          height: 170,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: facts.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            separatorBuilder: (_, __) => const SizedBox(width: 14),
             itemBuilder: (context, index) {
-              return _SavedFactCard(fact: facts[index]);
+              return _SavedReelCard(fact: facts[index], index: index);
             },
           ),
         );
@@ -1323,7 +1322,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
               style: GoogleFonts.poppins(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF38887A),
+                color: const Color(0xFF2FB07E),
                 letterSpacing: 0.5,
               ),
             ),
@@ -1440,16 +1439,25 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         fontSize: 13,
         fontWeight: FontWeight.w900,
         letterSpacing: 1.3,
-        color: const Color(0xFF244A44).withValues(alpha: 0.6),
+        color: const Color(0xFF2FB07E).withValues(alpha: 0.6),
       ),
     );
   }
 }
 
-class _SavedFactCard extends StatelessWidget {
-  const _SavedFactCard({required this.fact});
+class _SavedReelCard extends StatelessWidget {
+  const _SavedReelCard({required this.fact, required this.index});
 
   final Fact fact;
+  final int index;
+
+  static const _categoryIcons = {
+    'Mind': Icons.psychology_rounded,
+    'Emotions': Icons.favorite_rounded,
+    'Anxiety': Icons.air_rounded,
+    'Self-growth': Icons.eco_rounded,
+    'Habits': Icons.loop_rounded,
+  };
 
   void _showDetail(BuildContext context) {
     showDialog(
@@ -1463,31 +1471,49 @@ class _SavedFactCard extends StatelessWidget {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color: Colors.white.withValues(alpha: 0.92),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
+                  border: Border.all(color: const Color(0xFFE4ECE8)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Saved Reel',
-                      style: TextStyle(
-                        fontFamily: 'Doto',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1E3C44),
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEAF7F2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            _categoryIcons[fact.category] ?? Icons.auto_awesome_rounded,
+                            size: 16,
+                            color: const Color(0xFF2FB07E),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Liked Reel',
+                          style: TextStyle(
+                            fontFamily: 'Doto',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF1E3C44),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Text(
                       fact.text,
                       style: GoogleFonts.poppins(
                         fontSize: 14.5,
-                        height: 1.45,
+                        height: 1.5,
                         fontWeight: FontWeight.w600,
                         color: const Color(0xFF223F4A),
                       ),
@@ -1505,7 +1531,13 @@ class _SavedFactCard extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () => Navigator.of(ctx).pop(),
-                        child: const Text('Close'),
+                        child: Text(
+                          'Close',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF2FB07E),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -1520,55 +1552,135 @@ class _SavedFactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final catIcon = _categoryIcons[fact.category] ?? Icons.auto_awesome_rounded;
+
     return GestureDetector(
       onTap: () => _showDetail(context),
-      child: Container(
-        width: 220,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.white.withValues(alpha: 0.9),
-          border: Border.all(color: const Color(0xFFDDE7E1)),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF1E3C44).withValues(alpha: 0.06),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              height: 8,
-              decoration: BoxDecoration(
-                color: fact.background,
-                borderRadius: BorderRadius.circular(8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            width: 230,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              color: Colors.white.withValues(alpha: 0.55),
+              border: Border.all(
+                color: const Color(0xFF2FB07E).withValues(alpha: 0.15),
+                width: 1.2,
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              fact.text,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(
-                fontSize: 12.5,
-                height: 1.4,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF223F4A),
-              ),
-            ),
-            const Spacer(),
-            Row(
-              children: [
-                _FactMetaPill(label: fact.category),
-                const SizedBox(width: 8),
-                _FactMetaPill(label: fact.tone),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2FB07E).withValues(alpha: 0.06),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
               ],
             ),
-          ],
+            child: Stack(
+              children: [
+                // Large quote watermark
+                Positioned(
+                  top: -6,
+                  right: 8,
+                  child: Text(
+                    '\u201C',
+                    style: TextStyle(
+                      fontFamily: 'Georgia',
+                      fontSize: 90,
+                      height: 1.0,
+                      color: const Color(0xFF2FB07E).withValues(alpha: 0.07),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                // Left accent strip
+                Positioned(
+                  left: 0,
+                  top: 18,
+                  bottom: 18,
+                  child: Container(
+                    width: 3.5,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFF2FB07E), Color(0xFF6EC6B3)],
+                      ),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                // Content
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 14, 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Category icon + label row
+                      Row(
+                        children: [
+                          Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEAF7F2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(catIcon, size: 14, color: const Color(0xFF2FB07E)),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            fact.category.toUpperCase(),
+                            style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF2FB07E).withValues(alpha: 0.7),
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      // Quote text
+                      Expanded(
+                        child: Text(
+                          fact.text,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12.5,
+                            height: 1.45,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1E3C44),
+                          ),
+                        ),
+                      ),
+                      // Bottom tone pill
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEAF7F2),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: const Color(0xFF2FB07E).withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Text(
+                          fact.tone,
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF2FB07E),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -1593,7 +1705,7 @@ class _FactMetaPill extends StatelessWidget {
         style: GoogleFonts.poppins(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFF3B7F75),
+          color: const Color(0xFF2FB07E),
         ),
       ),
     );
@@ -1624,7 +1736,7 @@ class _InterestPill extends StatelessWidget {
                 width: 6,
                 height: 6,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF38887A),
+                  color: Color(0xFF2FB07E),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -1634,7 +1746,7 @@ class _InterestPill extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF244A44),
+                  color: const Color(0xFF1E3C44),
                   letterSpacing: 0.2,
                 ),
               ),
@@ -1663,13 +1775,13 @@ class _AddInterestButton extends StatelessWidget {
           border: Border.all(color: Colors.white, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF2D726B).withValues(alpha: 0.05),
+              color: const Color(0xFF2FB07E).withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
           ],
         ),
-        child: const Icon(Icons.add_rounded, color: Color(0xFF38887A), size: 24),
+        child: const Icon(Icons.add_rounded, color: Color(0xFF2FB07E), size: 24),
       ),
     );
   }
@@ -1697,11 +1809,11 @@ class _PreferenceSection extends StatelessWidget {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: filled ? const Color(0xFF2D726B).withValues(alpha: 0.1) : Colors.transparent,
+            color: filled ? const Color(0xFF2FB07E).withValues(alpha: 0.1) : Colors.transparent,
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF6EC6B3).withValues(alpha: 0.5)),
+            border: Border.all(color: const Color(0xFF2FB07E).withValues(alpha: 0.5)),
           ),
-          child: Icon(icon, size: 16, color: const Color(0xFF2D726B)),
+          child: Icon(icon, size: 16, color: const Color(0xFF2FB07E)),
         ),
         const SizedBox(width: 14),
         Expanded(

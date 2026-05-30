@@ -65,5 +65,9 @@ AetherMind/
 └── docker/               
 ```
 
+## Developers:
+<a href="https://github.com/alurubalakarthikeya">@Aluru Bala Karthikeya</a><br>
+<a href="https://github.com/ArjiJethin">@Arji Jethin Naga Sai Eswar</a><br> 
+
 ## License
 Refer to the `LICENSE` file for full terms and conditions.
