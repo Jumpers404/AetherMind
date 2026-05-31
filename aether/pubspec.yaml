@@ -71,6 +71,7 @@ flutter:
         - assets/imgs/
         - assets/imgs/new-cov.png
         - assets/imgs/cat-container.png
+        - assets/imgs/hero-card-env.png
 
     fonts:
         - family: Doto

@@ -1,18 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-import '../app_theme.dart';
 import '../services/admin_service.dart';
-import '../widgets/app_card.dart';
 import '../widgets/auth_flow_loader.dart';
 import 'login_screen.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
+
+  @override
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  _AdminSection _selectedSection = _AdminSection.userManagement;
 
   @override
   Widget build(BuildContext context) {
@@ -24,57 +30,98 @@ class AdminDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        centerTitle: true,
-        title: const Text(''),
-      ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: adminService.getAllUsers(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final users = snapshot.data ?? <Map<String, dynamic>>[];
-          final userMap = <String, Map<String, dynamic>>{
-            for (final user in users)
-              if ((user['id'] as String?) != null) user['id'] as String: user,
-          };
-          final psychiatristCount = users
-              .where((user) => user['role'] == 'psychiatrist')
-              .length;
-          final verifiedCount = users
-              .where((user) =>
-                  user['role'] == 'psychiatrist' && user['is_verified'] == true)
-              .length;
-
-          void handleSignOut() async {
-            await runWithAuthFlowLoader<void>(
-              context: context,
-              message: 'Signing you out...',
-              action: () => FirebaseAuth.instance.signOut(),
-            );
-            if (!context.mounted) return;
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
-              (route) => false,
-            );
-          }
-
-          return Stack(
-            children: [
-              const _SoftBackground(),
-              SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 12,
+        centerTitle: false,
+        titleSpacing: 18,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Admin Center',
+              style: const TextStyle(
+                fontFamily: 'Doto',
+                fontSize: 26,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1E3C44),
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 18),
+            child: InkWell(
+              onTap: () async {
+                await runWithAuthFlowLoader<void>(
+                  context: context,
+                  message: 'Signing you out...',
+                  action: () => FirebaseAuth.instance.signOut(),
+                );
+                if (!context.mounted) return;
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.95), width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1E3C44).withValues(alpha: 0.06),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.82),
+                      const Color(0xFFDFF5F1).withValues(alpha: 0.85),
+                    ],
                   ),
-                  child: Column(
+                ),
+                child: const Icon(
+                  Icons.power_settings_new_rounded,
+                  color: Color(0xFF2FB07E),
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          const _SoftBackground(),
+          SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 12,
+              ),
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: adminService.getAllUsers(),
+                builder: (context, snapshot) {
+                  final users = snapshot.data ?? <Map<String, dynamic>>[];
+                  final userMap = <String, Map<String, dynamic>>{
+                    for (final user in users)
+                      if ((user['id'] as String?) != null) user['id'] as String: user,
+                  };
+                  final psychiatristCount = users
+                      .where((user) => user['role'] == 'psychiatrist')
+                      .length;
+                  return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _AdminHeader(onSignOut: handleSignOut),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 12),
                       _SectionBlock(
                         title: 'SYSTEM OVERVIEW',
                         subtitle: 'Live stats across the platform',
@@ -89,7 +136,6 @@ class AdminDashboardScreen extends StatelessWidget {
                                 return _StatsGrid(
                                   totalUsers: users.length,
                                   totalPsychiatrists: psychiatristCount,
-                                  verifiedPsychiatrists: verifiedCount,
                                   totalJournals: journals.length,
                                   activePatients: patients.length,
                                 );
@@ -98,112 +144,29 @@ class AdminDashboardScreen extends StatelessWidget {
                           },
                         ),
                       ),
-                      const SizedBox(height: 32),
-                      _SectionBlock(
-                        title: 'USER MANAGEMENT',
-                        subtitle: 'Roles, verification, and access control',
-                        child: users.isEmpty
-                            ? const _EmptySectionCard(message: 'No users found.')
-                            : ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: users.length,
-                                separatorBuilder: (_, __) => const SizedBox(height: 14),
-                                itemBuilder: (context, index) {
-                                  final user = users[index];
-                                  final userId = user['id'] as String? ?? '';
-                                  final name = user['name'] as String? ?? 'Unknown';
-                                  final email = user['email'] as String? ?? '';
-                                  final role = user['role'] as String? ?? 'user';
-                                  final isVerified = user['is_verified'] == true;
-
-                                  return _UserManagementCard(
-                                    userId: userId,
-                                    name: name,
-                                    email: email,
-                                    role: role,
-                                    isVerified: isVerified,
-                                    onRoleChanged: (value) {
-                                      if (value != null && value != role) {
-                                        adminService.updateUserRole(userId, value);
-                                      }
-                                    },
-                                    onVerificationChanged: (value) {
-                                      adminService.toggleVerification(userId, value);
-                                    },
-                                    onDelete: () => _confirmDelete(context, () async {
-                                      await adminService.deleteUser(userId);
-                                    }),
-                                  );
-                                },
-                              ),
+                      const SizedBox(height: 18),
+                      _SectionPillBar(
+                        selectedSection: _selectedSection,
+                        onSelected: (section) {
+                          setState(() => _selectedSection = section);
+                        },
                       ),
-                      const SizedBox(height: 32),
-                      _SectionBlock(
-                        title: 'ALL JOURNALS',
-                        subtitle: 'Latest user reflections with emotion tags',
-                        child: StreamBuilder<List<Map<String, dynamic>>>(
-                          stream: adminService.getAllJournals(),
-                          builder: (context, journalSnapshot) {
-                            final journals = journalSnapshot.data ?? <Map<String, dynamic>>[];
-                            if (journals.isEmpty) {
-                              return const _EmptySectionCard(
-                                message: 'No journal entries found.',
-                              );
-                            }
-                            return _JournalListCard(
-                              journals: journals.take(10).toList(),
-                              userMap: userMap,
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      _SectionBlock(
-                        title: 'PATIENT RELATIONSHIPS',
-                        subtitle: 'User to psychiatrist mappings',
-                        child: StreamBuilder<List<Map<String, dynamic>>>(
-                          stream: adminService.getAllPatientLinks(),
-                          builder: (context, patientSnapshot) {
-                            final patients = patientSnapshot.data ?? <Map<String, dynamic>>[];
-                            if (patients.isEmpty) {
-                              return const _EmptySectionCard(
-                                message: 'No patient relationships yet.',
-                              );
-                            }
-                            return _RelationshipListCard(
-                              patients: patients.take(10).toList(),
-                              userMap: userMap,
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      _SectionBlock(
-                        title: 'ALL REQUESTS',
-                        subtitle: 'Pending, accepted, and rejected requests',
-                        child: StreamBuilder<List<Map<String, dynamic>>>(
-                          stream: adminService.getAllRequests(),
-                          builder: (context, requestSnapshot) {
-                            final requests = requestSnapshot.data ?? <Map<String, dynamic>>[];
-                            if (requests.isEmpty) {
-                              return const _EmptySectionCard(message: 'No requests found.');
-                            }
-                            return _RequestListCard(
-                              requests: requests.take(12).toList(),
-                              userMap: userMap,
-                            );
-                          },
-                        ),
+                      const SizedBox(height: 18),
+                      _buildSelectedSection(
+                        context,
+                        adminService,
+                        snapshot,
+                        users,
+                        userMap,
                       ),
                       const SizedBox(height: 48),
                     ],
-                  ),
-                ),
+                  );
+                },
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -221,7 +184,7 @@ class AdminDashboardScreen extends StatelessWidget {
           'DELETE USER?',
           style: TextStyle(
             fontFamily: 'Doto',
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             fontSize: 14,
             letterSpacing: 1.2,
             color: const Color(0xFF1E3C44),
@@ -253,47 +216,149 @@ class AdminDashboardScreen extends StatelessWidget {
       await onConfirm();
     }
   }
-}
 
-class _AdminHeader extends StatelessWidget {
-  const _AdminHeader({required this.onSignOut});
+  Widget _buildUserManagementSection(
+    BuildContext context,
+    AdminService adminService,
+    AsyncSnapshot<List<Map<String, dynamic>>> snapshot,
+    List<Map<String, dynamic>> users,
+  ) {
+    if (snapshot.connectionState == ConnectionState.waiting && users.isEmpty) {
+      return const _EmptySectionCard(message: 'Loading users...');
+    }
+    if (users.isEmpty) {
+      return const _EmptySectionCard(message: 'No users found.');
+    }
 
-  final VoidCallback onSignOut;
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: users.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 14),
+      itemBuilder: (context, index) {
+        final user = users[index];
+        final userId = user['id'] as String? ?? '';
+        final name = user['name'] as String? ?? 'Unknown';
+        final email = user['email'] as String? ?? '';
+        final role = user['role'] as String? ?? 'user';
+        final isVerified = user['is_verified'] == true;
+        final uid = user['uid'] as String? ?? userId;
+        final licenseNumber = user['license_number'] as String? ?? '';
+        final createdAt = user['created_at'];
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Admin Center',
-                style: TextStyle(
-                  fontFamily: 'Doto',
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  color: const Color(0xFF1E3C44),
-                  height: 1.1,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Identity & System Orchestration',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF5F7380).withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-          ),
-        ),
-        _ProfileMenuButton(onSignOut: onSignOut),
-      ],
+        return _UserManagementCard(
+          userId: userId,
+          name: name,
+          email: email,
+          role: role,
+          isVerified: isVerified,
+          uid: uid,
+          createdAt: createdAt,
+          licenseNumber: licenseNumber,
+          onRoleChanged: (value) {
+            if (value != null && value != role) {
+              adminService.updateUserRole(userId, value);
+            }
+          },
+          onVerificationChanged: (value) {
+            adminService.toggleVerification(userId, value);
+          },
+          onDelete: () => _confirmDelete(context, () async {
+            await adminService.deleteUser(userId);
+          }),
+        );
+      },
     );
+  }
+
+  Widget _buildJournalSection(
+    AdminService adminService,
+    Map<String, Map<String, dynamic>> userMap,
+  ) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: adminService.getAllJournals(),
+      builder: (context, journalSnapshot) {
+        final journals = journalSnapshot.data ?? <Map<String, dynamic>>[];
+        if (journalSnapshot.connectionState == ConnectionState.waiting && journals.isEmpty) {
+          return const _EmptySectionCard(message: 'Loading journals...');
+        }
+        if (journals.isEmpty) {
+          return const _EmptySectionCard(message: 'No journal entries found.');
+        }
+        return _JournalListCard(
+          journals: journals.take(10).toList(),
+          userMap: userMap,
+        );
+      },
+    );
+  }
+
+  Widget _buildRelationshipSection(
+    AdminService adminService,
+    Map<String, Map<String, dynamic>> userMap,
+  ) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: adminService.getAllPatientLinks(),
+      builder: (context, patientSnapshot) {
+        final patients = patientSnapshot.data ?? <Map<String, dynamic>>[];
+        if (patientSnapshot.connectionState == ConnectionState.waiting && patients.isEmpty) {
+          return const _EmptySectionCard(message: 'Loading patient relationships...');
+        }
+        if (patients.isEmpty) {
+          return const _EmptySectionCard(message: 'No patient relationships yet.');
+        }
+        return _RelationshipListCard(
+          patients: patients.take(10).toList(),
+          userMap: userMap,
+        );
+      },
+    );
+  }
+
+  Widget _buildRequestSection(
+    AdminService adminService,
+    Map<String, Map<String, dynamic>> userMap,
+  ) {
+    return StreamBuilder<List<Map<String, dynamic>>>(
+      stream: adminService.getAllRequests(),
+      builder: (context, requestSnapshot) {
+        final requests = requestSnapshot.data ?? <Map<String, dynamic>>[];
+        if (requestSnapshot.connectionState == ConnectionState.waiting && requests.isEmpty) {
+          return const _EmptySectionCard(message: 'Loading requests...');
+        }
+        if (requests.isEmpty) {
+          return const _EmptySectionCard(message: 'No requests found.');
+        }
+        return _RequestListCard(
+          requests: requests.take(12).toList(),
+          userMap: userMap,
+        );
+      },
+    );
+  }
+
+  Widget _buildSelectedSection(
+    BuildContext context,
+    AdminService adminService,
+    AsyncSnapshot<List<Map<String, dynamic>>> snapshot,
+    List<Map<String, dynamic>> users,
+    Map<String, Map<String, dynamic>> userMap,
+  ) {
+    switch (_selectedSection) {
+      case _AdminSection.userManagement:
+        return _buildUserManagementSection(
+          context,
+          adminService,
+          snapshot,
+          users,
+        );
+      case _AdminSection.journals:
+        return _buildJournalSection(adminService, userMap);
+      case _AdminSection.patientRelationships:
+        return _buildRelationshipSection(adminService, userMap);
+      case _AdminSection.requests:
+        return _buildRequestSection(adminService, userMap);
+    }
   }
 }
 
@@ -352,14 +417,12 @@ class _StatsGrid extends StatelessWidget {
   const _StatsGrid({
     required this.totalUsers,
     required this.totalPsychiatrists,
-    required this.verifiedPsychiatrists,
     required this.totalJournals,
     required this.activePatients,
   });
 
   final int totalUsers;
   final int totalPsychiatrists;
-  final int verifiedPsychiatrists;
   final int totalJournals;
   final int activePatients;
 
@@ -377,19 +440,13 @@ class _StatsGrid extends StatelessWidget {
           title: 'Total Users',
           value: totalUsers,
           icon: Icons.people_alt_rounded,
-          gradient: const [Color(0xFF6EC6B3), Color(0xFF4DA692)],
+          gradient: const [Color(0xFF8FD3FF), Color(0xFF63B8F3)],
         ),
         _StatCard(
           title: 'Psychiatrists',
           value: totalPsychiatrists,
           icon: Icons.medical_services_rounded,
           gradient: const [Color(0xFF2FB07E), Color(0xFF269E70)],
-        ),
-        _StatCard(
-          title: 'Verified Docs',
-          value: verifiedPsychiatrists,
-          icon: Icons.verified_user_rounded,
-          gradient: const [Color(0xFF4DB6AC), Color(0xFF009688)],
         ),
         _StatCard(
           title: 'Journal Reflections',
@@ -404,51 +461,6 @@ class _StatsGrid extends StatelessWidget {
           gradient: const [Color(0xFFFF8A65), Color(0xFFE64A19)],
         ),
       ],
-    );
-  }
-}
-
-class _SectionBlock extends StatelessWidget {
-  const _SectionBlock({
-    required this.title,
-    required this.subtitle,
-    required this.child,
-  });
-
-  final String title;
-  final String subtitle;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          )
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _SectionHeader(title: title, subtitle: subtitle),
-              const SizedBox(height: 18),
-              child,
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -469,9 +481,9 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -479,34 +491,50 @@ class _StatCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: gradient.last.withValues(alpha: 0.3),
+            color: gradient.first.withValues(alpha: 0.3),
+            blurRadius: 18,
+            offset: const Offset(0, 9),
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.18),
             blurRadius: 12,
-            offset: const Offset(0, 6),
+            offset: const Offset(0, -3),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Stack(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+          Positioned(
+            right: 0,
+            top: 2,
+            child: Icon(
+              Icons.auto_awesome,
+              size: 11,
+              color: Colors.white.withValues(alpha: 0.28),
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
+              const Spacer(),
               Text(
                 '$value',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
-                  height: 1.1,
+                  height: 1.0,
                 ),
               ),
               const SizedBox(height: 4),
@@ -514,11 +542,12 @@ class _StatCard extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(
+                style: const TextStyle(
+                  fontFamily: 'Doto',
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.8),
-                  letterSpacing: 0.2,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -529,11 +558,23 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, required this.subtitle});
+enum _AdminSection {
+  userManagement,
+  journals,
+  patientRelationships,
+  requests,
+}
+
+class _SectionBlock extends StatelessWidget {
+  const _SectionBlock({
+    required this.title,
+    required this.subtitle,
+    required this.child,
+  });
 
   final String title;
   final String subtitle;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -542,12 +583,12 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'Doto',
             fontSize: 14,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w600,
             letterSpacing: 1.2,
-            color: const Color(0xFF1E3C44),
+            color: Color(0xFF1E3C44),
           ),
         ),
         const SizedBox(height: 4),
@@ -559,7 +600,134 @@ class _SectionHeader extends StatelessWidget {
             color: const Color(0xFF5F7380).withValues(alpha: 0.8),
           ),
         ),
+        const SizedBox(height: 16),
+        child,
       ],
+    );
+  }
+}
+
+class _SectionPillBar extends StatelessWidget {
+  const _SectionPillBar({
+    required this.selectedSection,
+    required this.onSelected,
+  });
+
+  final _AdminSection selectedSection;
+  final ValueChanged<_AdminSection> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.54),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.92), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3C44).withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(999),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              children: [
+                _SectionPillButton(
+                  label: 'User Management',
+                  isSelected: selectedSection == _AdminSection.userManagement,
+                  onTap: () => onSelected(_AdminSection.userManagement),
+                ),
+                const SizedBox(width: 10),
+                _SectionPillButton(
+                  label: 'All Journals',
+                  isSelected: selectedSection == _AdminSection.journals,
+                  onTap: () => onSelected(_AdminSection.journals),
+                ),
+                const SizedBox(width: 10),
+                _SectionPillButton(
+                  label: 'Patient Relationships',
+                  isSelected: selectedSection == _AdminSection.patientRelationships,
+                  onTap: () => onSelected(_AdminSection.patientRelationships),
+                ),
+                const SizedBox(width: 10),
+                _SectionPillButton(
+                  label: 'All Requests',
+                  isSelected: selectedSection == _AdminSection.requests,
+                  onTap: () => onSelected(_AdminSection.requests),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionPillButton extends StatelessWidget {
+  const _SectionPillButton({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = isSelected
+        ? const Color(0xFF2FB07E).withValues(alpha: 0.14)
+        : Colors.white.withValues(alpha: 0.82);
+    final textColor = isSelected ? const Color(0xFF2FB07E) : const Color(0xFF2FB07E).withValues(alpha: 0.82);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFF2FB07E).withValues(alpha: 0.18)
+                  : const Color(0xFFE0EBE6),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -598,6 +766,9 @@ class _UserManagementCard extends StatelessWidget {
     required this.email,
     required this.role,
     required this.isVerified,
+    required this.uid,
+    required this.createdAt,
+    required this.licenseNumber,
     required this.onRoleChanged,
     required this.onVerificationChanged,
     required this.onDelete,
@@ -608,6 +779,9 @@ class _UserManagementCard extends StatelessWidget {
   final String email;
   final String role;
   final bool isVerified;
+  final String uid;
+  final dynamic createdAt;
+  final String licenseNumber;
   final ValueChanged<String?> onRoleChanged;
   final ValueChanged<bool> onVerificationChanged;
   final VoidCallback onDelete;
@@ -620,62 +794,149 @@ class _UserManagementCard extends StatelessWidget {
     }
   }
 
+  String _formatJoinedAt(dynamic value) {
+    if (value is Timestamp) {
+      final date = value.toDate();
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    }
+    return 'Unknown';
+  }
+
+  String _shortUid(String value) {
+    if (value.length <= 8) return value;
+    return '${value.substring(0, 4)}…${value.substring(value.length - 4)}';
+  }
+
+  String _initials(String value) {
+    final parts = value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty).toList();
+    if (parts.isEmpty) return '?';
+    if (parts.length == 1) {
+      final single = parts.first;
+      return single.length >= 2 ? single.substring(0, 2).toUpperCase() : single.toUpperCase();
+    }
+    return '${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}'.toUpperCase();
+  }
+
+  String _avatarUrlForUser(String uid, String name, String email, String licenseNumber) {
+    final seed = Uri.encodeComponent(
+      uid.isNotEmpty ? uid : (name.isNotEmpty ? name : (email.isNotEmpty ? email : licenseNumber)),
+    );
+    return 'https://api.dicebear.com/7.x/lorelei/svg?seed=$seed&backgroundColor=eaf7f2&baseColor=f3fbf8&hairColor=3b7f75&eyesColor=3b7f75&eyebrowsColor=3b7f75&mouthColor=3b7f75&accessoriesColor=3b7f75&skinColor=faf4ee&clothingColor=3b7f75&eyes=variant01,variant02&mouth=happy01,happy02';
+  }
+
   @override
   Widget build(BuildContext context) {
     final roleColor = _roleColor(role);
+    final avatarUrl = _avatarUrlForUser(uid, name, email, licenseNumber);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE4ECE8), width: 1.1),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3C44).withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: roleColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
+              SizedBox(
+                width: 42,
+                height: 42,
+                child: ClipOval(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          roleColor.withValues(alpha: 0.16),
+                          roleColor.withValues(alpha: 0.08),
+                        ],
+                      ),
+                    ),
+                    child: SvgPicture.network(
+                      avatarUrl,
+                      fit: BoxFit.cover,
+                      placeholderBuilder: (context) => Center(
+                        child: Text(
+                          _initials(name),
+                          style: TextStyle(
+                            fontFamily: 'Doto',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: roleColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Icon(Icons.person_rounded, color: roleColor, size: 24),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1E3C44),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Doto',
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF1E3C44),
+                              height: 1.0,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _RolePill(role: role, color: roleColor),
+                      ],
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       email,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.poppins(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF5F7380),
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _InfoChip(label: 'UID ${_shortUid(uid)}'),
+                        _InfoChip(label: _formatJoinedAt(createdAt)),
+                        if (licenseNumber.isNotEmpty)
+                          _InfoChip(label: 'License $licenseNumber'),
+                      ],
+                    ),
                   ],
                 ),
               ),
-              _RolePill(role: role, color: roleColor),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           Row(
             children: [
               _RoleSelector(currentRole: role, onChanged: onRoleChanged),
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
               if (role == 'psychiatrist')
                 _VerificationPill(isVerified: isVerified, onChanged: onVerificationChanged),
               const Spacer(),
@@ -683,6 +944,32 @@ class _UserManagementCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F7F5),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFE0EBE6)),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF5F7380),
+        ),
       ),
     );
   }
@@ -799,7 +1086,12 @@ class _RolePill extends StatelessWidget {
       ),
       child: Text(
         role.toUpperCase(),
-        style: GoogleFonts.poppins(fontSize: 9, fontWeight: FontWeight.w900, color: color, letterSpacing: 0.5),
+        style: GoogleFonts.poppins(
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          color: color,
+          letterSpacing: 0.5,
+        ),
       ),
     );
   }
@@ -971,34 +1263,3 @@ class _RequestListCard extends StatelessWidget {
   }
 }
 
-class _ProfileMenuButton extends StatelessWidget {
-  const _ProfileMenuButton({required this.onSignOut});
-
-  final VoidCallback onSignOut;
-
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      onSelected: (value) {
-        if (value == 'sign_out') {
-          onSignOut();
-        }
-      },
-      itemBuilder: (context) => [
-        const PopupMenuItem(
-          value: 'sign_out',
-          child: Text('Sign Out'),
-        ),
-      ],
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFE0EBE6)),
-        ),
-        child: const Icon(Icons.power_settings_new_rounded, color: Color(0xFFD36B6B), size: 20),
-      ),
-    );
-  }
-}

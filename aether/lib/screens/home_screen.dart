@@ -313,7 +313,7 @@ class _HeaderSection extends StatelessWidget {
                 'Hi, $userName ',
                 style: TextStyle(
                   fontFamily: 'Doto',
-                  fontSize: 27,
+                  fontSize: 25,
                   fontWeight: FontWeight.lerp(
                     FontWeight.w800,
                     FontWeight.w900,
@@ -623,7 +623,7 @@ class _TodayVibeCard extends StatelessWidget {
             BlendMode.multiply,
           ),
           child: Image.asset(
-            'imgs/hero-card-env.png',
+            'assets/imgs/hero-card-env.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) =>
                 const SizedBox.shrink(),
@@ -918,10 +918,8 @@ class _ProgressSection extends StatelessWidget {
               child: _ProgressStatCard(
                 title: 'Streak',
                 valueText: '0 days',
-                subtitle: 'Consistency',
                 progress: 0.0,
                 ringColor: _HomePalette.accent,
-                iconBg: const Color(0xFFE4F5EE),
                 icon: Icons.local_fire_department,
               ),
             );
@@ -934,12 +932,10 @@ class _ProgressSection extends StatelessWidget {
                 );
               },
               child: _ProgressStatCard(
-                title: 'Weekly',
-                valueText: '0 / 5',
-                subtitle: 'Entries',
+                title: 'Entries',
+                valueText: '0 journals',
                 progress: 0.0,
                 ringColor: const Color(0xFF3AA9DE),
-                iconBg: const Color(0xFFD9EEFA),
                 icon: Icons.track_changes,
               ),
             );
@@ -968,19 +964,15 @@ class _ProgressStatCard extends StatelessWidget {
   const _ProgressStatCard({
     required this.title,
     required this.valueText,
-    required this.subtitle,
     required this.progress,
     required this.ringColor,
-    required this.iconBg,
     required this.icon,
   });
 
   final String title;
   final String valueText;
-  final String subtitle;
   final double progress;
   final Color ringColor;
-  final Color iconBg;
   final IconData icon;
 
   @override
@@ -990,28 +982,30 @@ class _ProgressStatCard extends StatelessWidget {
     final valueMain = valueParts.first;
     final valueSuffix = hasSuffix ? valueParts.sublist(1).join(' ') : '';
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-          color: Colors.white,
-          border: Border.all(
-            color: Color(0xFFE4ECE8),
-            width: 1.1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: _HomePalette.textPrimary.withValues(alpha: 0.05),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+    return SizedBox(
+      height: 80,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            color: Colors.white,
+            border: Border.all(
+              color: const Color(0xFFE4ECE8),
+              width: 1.1,
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: Row(
-            children: [
+            boxShadow: [
+              BoxShadow(
+                color: _HomePalette.textPrimary.withValues(alpha: 0.05),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Row(
+              children: [
                 SizedBox(
                   width: 48,
                   height: 48,
@@ -1032,8 +1026,27 @@ class _ProgressStatCard extends StatelessWidget {
                         width: 30,
                         height: 30,
                         decoration: BoxDecoration(
-                          color: iconBg.withValues(alpha: 0.8),
                           shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.82),
+                              Colors.white.withValues(alpha: 0.46),
+                            ],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: ringColor.withValues(alpha: 0.16),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                            BoxShadow(
+                              color: _HomePalette.accent.withValues(alpha: 0.12),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Center(
                           child: Icon(
@@ -1102,21 +1115,11 @@ class _ProgressStatCard extends StatelessWidget {
                             height: 1.0,
                           ),
                         ),
-                      const SizedBox(height: 3),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.poppins(
-                          fontSize: 10.6,
-                          fontWeight: FontWeight.w500,
-                          color: _HomePalette.textMuted.withValues(alpha: 0.85),
-                        ),
-                      ),
                     ],
                   ),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1139,26 +1142,6 @@ class _QuickActionsRow extends StatelessWidget {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.only(left: 20),
           children: [
-            _QuickActionCard(
-              size: cardSize,
-              title: 'Psychiatrists',
-              subtitle: 'Browse • Send request',
-              icon: Icons.folder_shared_rounded,
-              gradient: const [
-                Color(0xFFFFB382),
-                Color(0xFFF98F5B),
-              ],
-              buttonText: 'Browse',
-              buttonIcon: Icons.search_rounded,
-              buttonTextColor: const Color(0xFF9E4E2C),
-              onTap: () {
-                pushWithSnakeLoader(
-                  context,
-                  const PsychiatristDirectoryScreen(),
-                );
-              },
-            ),
-            const SizedBox(width: 14),
             _QuickActionCard(
               size: cardSize,
               title: 'Facts',
@@ -1195,6 +1178,26 @@ class _QuickActionsRow extends StatelessWidget {
                 pushWithSnakeLoader(
                   context,
                   const SupportWallScreen(),
+                );
+              },
+            ),
+            const SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Psychiatrists',
+              subtitle: 'Browse • Send request',
+              icon: Icons.folder_shared_rounded,
+              gradient: const [
+                Color(0xFFFFB382),
+                Color(0xFFF98F5B),
+              ],
+              buttonText: 'Browse',
+              buttonIcon: Icons.search_rounded,
+              buttonTextColor: const Color(0xFF9E4E2C),
+              onTap: () {
+                pushWithSnakeLoader(
+                  context,
+                  const PsychiatristDirectoryScreen(),
                 );
               },
             ),
@@ -1598,7 +1601,7 @@ class _DailyJournalCard extends StatelessWidget {
                         child: Text(
                           'Write',
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF1F9873),
                           ),
