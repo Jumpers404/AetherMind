@@ -4,12 +4,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/fact_model.dart';
+import '../services/auth_session_cache.dart';
 import '../services/onboarding_service.dart';
 import '../services/journal_service.dart';
 import '../models/journal_entry.dart';
 import '../services/insight_service.dart';
 import '../services/fact_reels_service.dart';
 import '../widgets/auth_flow_loader.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onSignOut;
@@ -57,6 +59,35 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     _nameController.dispose();
     _usernameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleSignOut() async {
+    try {
+      await runWithAuthFlowLoader<void>(
+        context: context,
+        message: 'Signing you out...',
+        action: () async {
+          await FirebaseAuth.instance.signOut();
+          await AuthSessionCache.clear();
+        },
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to sign out right now.')),
+      );
+    }
   }
 
   Future<void> _fetchProfile() async {
@@ -1393,7 +1424,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: widget.onSignOut,
+                onTap: _handleSignOut,
                 borderRadius: BorderRadius.circular(14),
                 child: Container(
                   alignment: Alignment.center,

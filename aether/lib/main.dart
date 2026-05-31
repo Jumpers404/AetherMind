@@ -17,6 +17,7 @@ import 'screens/admin_dashboard_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/psychiatrist_screen.dart';
+import 'services/auth_session_cache.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,14 +63,7 @@ class MyApp extends StatelessWidget {
 class _StartupGate extends StatelessWidget {
   const _StartupGate();
 
-  Future<Widget> _resolveLandingScreen(User user) async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-    final data = snapshot.data();
-    final role = data?['role'] as String?;
-
+  Widget _screenForRole(String? role) {
     switch (role) {
       case 'psychiatrist':
         return const PsychiatristScreen();
@@ -77,6 +71,24 @@ class _StartupGate extends StatelessWidget {
         return const AdminDashboardScreen();
       default:
         return const HomeScreen();
+    }
+  }
+
+  Future<Widget> _resolveLandingScreen(User user) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final data = snapshot.data();
+      final role = data?['role'] as String?;
+      if (role != null) {
+        await AuthSessionCache.saveRole(role);
+      }
+      return _screenForRole(role);
+    } catch (_) {
+      final cachedRole = await AuthSessionCache.getRole();
+      return _screenForRole(cachedRole);
     }
   }
 
@@ -106,7 +118,7 @@ class _StartupGate extends StatelessWidget {
             }
 
             if (landingSnapshot.hasError) {
-              return const LoginScreen();
+              return const HomeScreen();
             }
 
             return landingSnapshot.data ?? const HomeScreen();

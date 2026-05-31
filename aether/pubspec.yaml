@@ -43,6 +43,7 @@ dependencies:
     http: ^1.5.0
     audioplayers: ^6.1.1
     flutter_svg: ^2.3.0
+    shared_preferences: ^2.3.2
 
 dev_dependencies:
     flutter_test:
@@ -121,6 +122,6 @@ flutter:
     # see https://flutter.dev/to/font-from-package
 
 flutter_icons:
-  android: true
-  ios: true
-  image_path: "assets/imgs/temp-logo.png"
+    android: true
+    ios: true
+    image_path: "assets/imgs/temp-logo.png"

@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../services/admin_service.dart';
+import '../services/auth_session_cache.dart';
 import '../widgets/auth_flow_loader.dart';
 import 'login_screen.dart';
 
@@ -56,7 +57,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 await runWithAuthFlowLoader<void>(
                   context: context,
                   message: 'Signing you out...',
-                  action: () => FirebaseAuth.instance.signOut(),
+                  action: () async {
+                    await FirebaseAuth.instance.signOut();
+                    await AuthSessionCache.clear();
+                  },
                 );
                 if (!context.mounted) return;
                 Navigator.of(context).pushAndRemoveUntil(

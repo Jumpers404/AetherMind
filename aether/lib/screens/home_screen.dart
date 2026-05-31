@@ -23,6 +23,7 @@ import 'psychiatrist_directory_screen.dart';
 
 import '../services/report_controller.dart';
 import '../services/onboarding_service.dart';
+import '../services/auth_session_cache.dart';
 import '../widgets/auth_flow_loader.dart';
 import '../app_theme.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -253,7 +254,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       await runWithAuthFlowLoader<void>(
         context: context,
         message: 'Signing you out...',
-        action: () => FirebaseAuth.instance.signOut(),
+        action: () async {
+          await FirebaseAuth.instance.signOut();
+          await AuthSessionCache.clear();
+        },
       );
       if (!mounted) {
         return;

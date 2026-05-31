@@ -3,6 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'auth_session_cache.dart';
+
 class AuthResult {
   const AuthResult({required this.success, this.error, this.role});
 
@@ -18,6 +20,10 @@ class AuthService {
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+
+  Future<void> _cacheRole(String role) async {
+    await AuthSessionCache.saveRole(role);
+  }
 
   String _mapAuthError(FirebaseAuthException error) {
     switch (error.code) {
@@ -67,6 +73,7 @@ class AuthService {
         'role': 'user',
         'created_at': FieldValue.serverTimestamp(),
       });
+      await _cacheRole('user');
       return null;
     } on FirebaseAuthException catch (error) {
       print('AUTH ERROR: $error');
@@ -102,6 +109,7 @@ class AuthService {
         'is_verified': false,
         'created_at': FieldValue.serverTimestamp(),
       });
+      await _cacheRole('psychiatrist');
       return null;
     } on FirebaseAuthException catch (error) {
       print('AUTH ERROR: $error');
@@ -137,6 +145,7 @@ class AuthService {
           error: 'No role assigned to this account.',
         );
       }
+      await _cacheRole(role);
       return AuthResult(success: true, role: role);
     } on FirebaseAuthException catch (error) {
       return AuthResult(

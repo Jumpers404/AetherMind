@@ -8,6 +8,7 @@ import '../app_theme.dart';
 import '../models/patient_link.dart';
 import '../models/patient_request.dart';
 import '../services/psychiatrist_service.dart';
+import '../services/auth_session_cache.dart';
 import '../widgets/app_card.dart';
 import '../widgets/auth_flow_loader.dart';
 import 'login_screen.dart';
@@ -107,7 +108,10 @@ class _PsychiatristScreenState extends State<PsychiatristScreen>
                     await runWithAuthFlowLoader<void>(
                       context: context,
                       message: 'Signing you out...',
-                      action: () => FirebaseAuth.instance.signOut(),
+                      action: () async {
+                        await FirebaseAuth.instance.signOut();
+                        await AuthSessionCache.clear();
+                      },
                     );
                     if (!mounted) return;
                     Navigator.of(context).pushAndRemoveUntil(
