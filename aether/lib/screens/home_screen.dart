@@ -20,6 +20,7 @@ import 'profile_screen.dart';
 import 'notification_screen.dart';
 import 'emotional_analytics_screen.dart';
 import 'psychiatrist_directory_screen.dart';
+import 'lumos_chat_screen.dart';
 
 import '../services/report_controller.dart';
 import '../services/onboarding_service.dart';
@@ -919,12 +920,13 @@ class _ProgressSection extends StatelessWidget {
                   const EmotionalAnalyticsScreen(),
                 );
               },
-              child: _ProgressStatCard(
+              child: const _ProgressStatCard(
                 title: 'Streak',
-                valueText: '0 days',
-                progress: 0.0,
+                valueText: '12 days',
+                subtitle: 'Consistency',
+                progress: 0.72,
                 ringColor: _HomePalette.accent,
-                icon: Icons.local_fire_department,
+                icon: Icons.local_fire_department_rounded,
               ),
             );
 
@@ -935,12 +937,13 @@ class _ProgressSection extends StatelessWidget {
                   const EmotionalAnalyticsScreen(),
                 );
               },
-              child: _ProgressStatCard(
-                title: 'Entries',
-                valueText: '0 journals',
-                progress: 0.0,
-                ringColor: const Color(0xFF3AA9DE),
-                icon: Icons.track_changes,
+              child: const _ProgressStatCard(
+                title: 'Weekly',
+                valueText: '4 / 5',
+                subtitle: 'Entries',
+                progress: 0.8,
+                ringColor: Color(0xFF3AA9DE),
+                icon: Icons.track_changes_rounded,
               ),
             );
 
@@ -968,6 +971,7 @@ class _ProgressStatCard extends StatelessWidget {
   const _ProgressStatCard({
     required this.title,
     required this.valueText,
+    required this.subtitle,
     required this.progress,
     required this.ringColor,
     required this.icon,
@@ -975,6 +979,7 @@ class _ProgressStatCard extends StatelessWidget {
 
   final String title;
   final String valueText;
+  final String subtitle;
   final double progress;
   final Color ringColor;
   final IconData icon;
@@ -987,144 +992,127 @@ class _ProgressStatCard extends StatelessWidget {
     final valueSuffix = hasSuffix ? valueParts.sublist(1).join(' ') : '';
 
     return SizedBox(
-      height: 80,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(22),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            color: Colors.white,
-            border: Border.all(
-              color: const Color(0xFFE4ECE8),
-              width: 1.1,
+      height: 100, // Increased height to accommodate 3 lines
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: _HomePalette.textPrimary.withValues(alpha: 0.05),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 58,
+              height: 58,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 58,
+                    height: 58,
+                    child: CircularProgressIndicator(
+                      value: progress.clamp(0.0, 1.0),
+                      strokeWidth: 4.5,
+                      strokeCap: StrokeCap.round,
+                      backgroundColor: ringColor.withValues(alpha: 0.12),
+                      valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+                    ),
+                  ),
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(
+                        color: ringColor.withValues(alpha: 0.08),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ringColor.withValues(alpha: 0.06),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Icon(
+                        icon,
+                        size: 20,
+                        color: ringColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: CircularProgressIndicator(
-                          value: progress.clamp(0.0, 1.0),
-                          strokeWidth: 2.8,
-                          backgroundColor: ringColor.withValues(alpha: 0.18),
-                          valueColor: AlwaysStoppedAnimation<Color>(ringColor),
-                        ),
-                      ),
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white.withValues(alpha: 0.82),
-                              Colors.white.withValues(alpha: 0.46),
-                            ],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: ringColor.withValues(alpha: 0.16),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                            BoxShadow(
-                              color: _HomePalette.accent.withValues(alpha: 0.12),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Icon(
-                            icon,
-                            size: 16,
-                            color: ringColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.poppins(
-                          fontSize: 11.2,
-                          fontWeight: FontWeight.w600,
-                          color: _HomePalette.textPrimary.withValues(alpha: 0.78),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      if (hasSuffix)
-                        RichText(
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          text: TextSpan(
-                            style: GoogleFonts.poppins(
-                              color: ringColor,
-                              height: 1.0,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: valueMain,
-                                style: const TextStyle(
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              TextSpan(
-                                text: ' $valueSuffix',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      else
-                        Text(
-                          valueText,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w800,
-                            color: ringColor,
-                            height: 1.0,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
             ),
-          ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF5F7380),
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      style: GoogleFonts.poppins(
+                        color: ringColor,
+                        height: 1.1,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: valueMain,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        if (hasSuffix)
+                          TextSpan(
+                            text: ' $valueSuffix',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF8E999F),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1136,7 +1124,7 @@ class _QuickActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const cardSize = 157.0;
+    const cardSize = 178.0;
     return SizedBox(
       height: cardSize,
       child: ScrollConfiguration(
@@ -1844,65 +1832,73 @@ class _MoodInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          height: 62,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.42),
-                Colors.white.withValues(alpha: 0.22),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LumosChatScreen()),
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            height: 62,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.42),
+                  Colors.white.withValues(alpha: 0.22),
+                ],
+              ),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.48),
+                width: 1.1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _HomePalette.accent.withValues(alpha: 0.15),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
               ],
             ),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.48),
-              width: 1.1,
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'How are you feeling today?',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: _HomePalette.textMuted,
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.30),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.45),
+                      width: 0.9,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.mic_rounded,
+                    color: Color(0xFF22A178),
+                    size: 20,
+                  ),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: _HomePalette.accent.withValues(alpha: 0.15),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 18),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'How are you feeling today?',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: _HomePalette.textMuted,
-                  ),
-                ),
-              ),
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.30),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.45),
-                    width: 0.9,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.mic_rounded,
-                  color: Color(0xFF22A178),
-                  size: 20,
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -1921,7 +1917,7 @@ class _SectionTitle extends StatelessWidget {
       text,
       style: TextStyle(
         fontFamily: 'Doto',
-        fontSize: 19,
+        fontSize: 23,
         fontWeight: FontWeight.lerp(FontWeight.w800, FontWeight.w900, 0.4),
         color: _HomePalette.textPrimary,
       ),

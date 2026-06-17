@@ -1141,7 +1141,7 @@ class _AuthInputFieldState extends State<_AuthInputField> {
   Widget build(BuildContext context) {
     const fieldText = Color(0xFF3D6760);
     const fieldLabel = Color(0xFF6D8D87);
-    const fieldFill = Color(0xFFEFF6F3);
+    const fieldFill = Color(0xFFDDE7E1); // Match the container bg
     const fieldBorder = Color(0xFFC5D7D1);
     const fieldFocus = Color(0xFF8EB2AB);
     final shouldObscure = widget.obscureText && !_isPasswordVisible;
