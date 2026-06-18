@@ -55,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isLoading = false;
   late final AnimationController _shimmerController;
   final ReportController _reportController = ReportController();
-  final CurrencyService _currencyService = CurrencyService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlayingNature = false;
 
@@ -312,36 +311,18 @@ class _HeaderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hi, $userName ',
-                style: TextStyle(
-                  fontFamily: 'Doto',
-                  fontSize: 25,
-                  fontWeight: FontWeight.lerp(
-                    FontWeight.w800,
-                    FontWeight.w900,
-                    0.4,
-                  ),
-                  color: _HomePalette.textPrimary,
-                  height: 1.12,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Welcome to Aether',
-                style: GoogleFonts.poppins(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w500,
-                  color: _HomePalette.textMuted.withValues(alpha: 0.78),
-                ),
-              ),
-            ],
+          child: Text(
+            'Aether',
+            style: TextStyle(
+              fontFamily: 'Doto',
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              color: _HomePalette.textPrimary,
+              height: 1.12,
+            ),
           ),
         ),
         Row(
@@ -350,36 +331,50 @@ class _HeaderSection extends StatelessWidget {
               stream: _currencyService.coinsStream(),
               builder: (context, snapshot) {
                 final coins = snapshot.data ?? 0;
-                return Container(
-                  height: 32,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFF4DB6AC).withValues(alpha: 0.15),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        'assets/imgs/coin-pro.png',
-                        width: 16,
-                        height: 16,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '$coins',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1E3C44),
+                return SizedBox(
+                  height: 46, // Match notification size
+                  child: ClipOval(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(23),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.65),
+                              Colors.white.withValues(alpha: 0.46),
+                            ],
+                          ),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/imgs/coin-pro.png',
+                              width: 20,
+                              height: 20,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '$coins',
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1E3C44),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 );
               },
@@ -1735,94 +1730,84 @@ class _SuggestedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 170;
-        final dense = constraints.maxWidth < 150;
-
-        return GestureDetector(
-          onTap: onTap,
-          child: ClipRRect(
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                color: Colors.white,
-                border: Border.all(
-                  color: Color(0xFFE4ECE8),
-                  width: 1.1,
+            color: Colors.white,
+            border: Border.all(
+              color: const Color(0xFFE4ECE8),
+              width: 1.1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _HomePalette.textPrimary.withValues(alpha: 0.05),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Container(
+            height: 100, // Matched height of Daily Journal Card
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                _GradientCircleIcon(
+                  icon: icon,
+                  gradientColors: iconGradient,
+                  iconColor: iconColor,
+                  size: 48,
+                  iconSize: 22,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: _HomePalette.textPrimary.withValues(alpha: 0.05),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF223F4A),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF6C808C),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (trailing != null) ...[
+                  const SizedBox(width: 8),
+                  trailing!,
+                ] else ...[
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: Colors.black.withValues(alpha: 0.2),
+                    size: 22,
                   ),
                 ],
-              ),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  dense ? 8 : 12,
-                  dense ? 10 : 12,
-                  dense ? 8 : 12,
-                  dense ? 10 : 12,
-                ),
-                child: Row(
-                  children: [
-                      _GradientCircleIcon(
-                        icon: icon,
-                        gradientColors: iconGradient,
-                        iconColor: iconColor,
-                        size: dense ? 36 : (compact ? 40 : 44),
-                        iconSize: dense ? 14 : (compact ? 15 : 16),
-                      ),
-                      SizedBox(width: dense ? 7 : 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.poppins(
-                                fontSize: dense ? 11.8 : (compact ? 13 : 15.5),
-                                fontWeight: FontWeight.w600,
-                                color: iconColor,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              subtitle,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.poppins(
-                                fontSize: dense ? 9.0 : (compact ? 10.0 : 11.4),
-                                fontWeight: FontWeight.w500,
-                                color: _HomePalette.textMuted.withValues(alpha: 0.8),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (trailing != null) ...[
-                        const SizedBox(width: 8),
-                        trailing!,
-                      ] else ...[
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: Colors.black.withValues(alpha: 0.2),
-                          size: 20,
-                        ),
-                      ],
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
@@ -1875,8 +1860,30 @@ class _GradientCircleIcon extends StatelessWidget {
   }
 }
 
-class _MoodInputBar extends StatelessWidget {
+class _MoodInputBar extends StatefulWidget {
   const _MoodInputBar();
+
+  @override
+  State<_MoodInputBar> createState() => _MoodInputBarState();
+}
+
+class _MoodInputBarState extends State<_MoodInputBar> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1887,68 +1894,86 @@ class _MoodInputBar extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const LumosChatScreen()),
         );
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            height: 62,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.42),
-                  Colors.white.withValues(alpha: 0.22),
-                ],
-              ),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.48),
-                width: 1.1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: _HomePalette.accent.withValues(alpha: 0.15),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'How are you feeling today?',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: _HomePalette.textMuted,
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 34,
-                  height: 34,
+      child: Stack(
+        children: [
+          // Animated Glowing Border (Google Search style)
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.30),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.45),
-                      width: 0.9,
+                    borderRadius: BorderRadius.circular(30),
+                    gradient: SweepGradient(
+                      center: Alignment.center,
+                      startAngle: 0.0,
+                      endAngle: math.pi * 2,
+                      colors: [
+                        _HomePalette.accent.withValues(alpha: 0.0),
+                        _HomePalette.accent.withValues(alpha: 0.8),
+                        _HomePalette.accent.withValues(alpha: 0.0),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                      transform: GradientRotation(_controller.value * math.pi * 2),
                     ),
                   ),
-                  child: const Icon(
-                    Icons.mic_rounded,
-                    color: Color(0xFF22A178),
-                    size: 20,
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-        ),
+          // Inner Surface
+          Padding(
+            padding: const EdgeInsets.all(1.2), // Minimal space for the glow
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28.8),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28.8),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withValues(alpha: 0.9),
+                        Colors.white.withValues(alpha: 0.8),
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'How are you feeling today?',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: _HomePalette.textMuted,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: _HomePalette.accent.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.mic_rounded,
+                          color: _HomePalette.accent,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
