@@ -21,10 +21,12 @@ import 'notification_screen.dart';
 import 'emotional_analytics_screen.dart';
 import 'psychiatrist_directory_screen.dart';
 import 'lumos_chat_screen.dart';
+import 'gratitude_screen.dart';
 
 import '../services/report_controller.dart';
 import '../services/onboarding_service.dart';
 import '../services/auth_session_cache.dart';
+import '../services/currency_service.dart';
 import '../widgets/auth_flow_loader.dart';
 import '../app_theme.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -53,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isLoading = false;
   late final AnimationController _shimmerController;
   final ReportController _reportController = ReportController();
+  final CurrencyService _currencyService = CurrencyService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlayingNature = false;
 
@@ -300,10 +303,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 }
 
 class _HeaderSection extends StatelessWidget {
-  const _HeaderSection({required this.userName, required this.onSignOut});
+  _HeaderSection({required this.userName, required this.onSignOut});
 
   final String userName;
   final VoidCallback onSignOut;
+  final CurrencyService _currencyService = CurrencyService();
 
   @override
   Widget build(BuildContext context) {
@@ -342,6 +346,45 @@ class _HeaderSection extends StatelessWidget {
         ),
         Row(
           children: [
+            StreamBuilder<int>(
+              stream: _currencyService.coinsStream(),
+              builder: (context, snapshot) {
+                final coins = snapshot.data ?? 0;
+                return Container(
+                  height: 32,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFF4DB6AC).withValues(alpha: 0.15),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/imgs/coin-pro.png',
+                        width: 16,
+                        height: 16,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '$coins',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1E3C44),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 12),
             _RoundActionIcon(
               icon: Icons.notifications_none_rounded,
               showDot: true,
@@ -1136,26 +1179,6 @@ class _QuickActionsRow extends StatelessWidget {
           children: [
             _QuickActionCard(
               size: cardSize,
-              title: 'Facts',
-              subtitle: 'Mind in moments • 1–2 min',
-              icon: Icons.psychology_rounded,
-              gradient: const [
-                Color(0xFF32C88F),
-                Color(0xFF2FB08E),
-              ],
-              buttonText: 'Open',
-              buttonIcon: Icons.play_arrow_rounded,
-              buttonTextColor: const Color(0xFF1E5D4A),
-              onTap: () {
-                pushWithSnakeLoader(
-                  context,
-                  const FactReelsScreen(),
-                );
-              },
-            ),
-            const SizedBox(width: 14),
-            _QuickActionCard(
-              size: cardSize,
               title: 'Safe Space',
               subtitle: 'Connect • Anonymous',
               icon: Icons.favorite_rounded,
@@ -1170,6 +1193,26 @@ class _QuickActionsRow extends StatelessWidget {
                 pushWithSnakeLoader(
                   context,
                   const SupportWallScreen(),
+                );
+              },
+            ),
+            const SizedBox(width: 14),
+            _QuickActionCard(
+              size: cardSize,
+              title: 'Facts',
+              subtitle: 'Mind in moments • 1–2 min',
+              icon: Icons.psychology_rounded,
+              gradient: const [
+                Color(0xFF32C88F),
+                Color(0xFF2FB08E),
+              ],
+              buttonText: 'Open',
+              buttonIcon: Icons.play_arrow_rounded,
+              buttonTextColor: const Color(0xFF1E5D4A),
+              onTap: () {
+                pushWithSnakeLoader(
+                  context,
+                  const FactReelsScreen(),
                 );
               },
             ),
@@ -1320,12 +1363,12 @@ class _QuickActionCard extends StatelessWidget {
             final iconBox = (cardW * 0.235).clamp(30.0, 40.0);
             final iconGlyph = (iconBox * 0.56).clamp(18.0, 24.0);
             final sparkleSize = (cardW * 0.065).clamp(9.0, 12.0);
-            final titleSize = (cardW * 0.074).clamp(10.5, 12.5);
-            final subtitleSize = (cardW * 0.062).clamp(9.0, 10.5);
+            final titleSize = (cardW * 0.088).clamp(12.5, 14.5);
+            final subtitleSize = (cardW * 0.072).clamp(10.5, 12.0);
             final buttonHeight = (cardH * 0.205).clamp(30.0, 36.0);
             final buttonRadius = buttonHeight / 2;
             final buttonIconSize = (buttonHeight * 0.48).clamp(14.0, 18.0);
-            final buttonTextSize = (cardW * 0.075).clamp(10.0, 12.0);
+            final buttonTextSize = (cardW * 0.082).clamp(11.5, 13.0);
             final topIconOffset = (cardH * 0.03).clamp(2.0, 5.0);
 
             return Container(
@@ -1556,7 +1599,7 @@ class _DailyJournalCard extends StatelessWidget {
                         'Daily Journal',
                         style: const TextStyle(
                           fontFamily: 'Doto',
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF223F4A),
                         ),
@@ -1565,7 +1608,7 @@ class _DailyJournalCard extends StatelessWidget {
                       Text(
                         'Reflect & grow peace',
                         style: GoogleFonts.poppins(
-                          fontSize: 12.6,
+                          fontSize: 14.2,
                           fontWeight: FontWeight.w500,
                           color: const Color(0xFF6C808C),
                         ),
@@ -1581,7 +1624,7 @@ class _DailyJournalCard extends StatelessWidget {
                     onTap: onTapWrite,
                     child: Ink(
                       height: 46,
-                      width: 88,
+                      width: 92,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
@@ -1593,7 +1636,7 @@ class _DailyJournalCard extends StatelessWidget {
                         child: Text(
                           'Write',
                           style: GoogleFonts.poppins(
-                            fontSize: 12,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF1F9873),
                           ),
@@ -1660,6 +1703,11 @@ class _SuggestedRow extends StatelessWidget {
           iconGradient: const [Color(0xFFFFF7EA), Color(0xFFFFE3B8)],
           title: 'Gratitude',
           subtitle: '3 min • Guide',
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const GratitudeScreen()),
+            );
+          },
         ),
       ],
     );

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'call_screen.dart';
 
 class LumosChatScreen extends StatefulWidget {
   const LumosChatScreen({super.key});
@@ -98,7 +99,6 @@ class _LumosChatScreenState extends State<LumosChatScreen> with TickerProviderSt
             child: Column(
               children: [
                 _ChatHeader(),
-                const _BreathingGuide(),
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -124,43 +124,81 @@ class _LumosChatScreenState extends State<LumosChatScreen> with TickerProviderSt
   }
 }
 
-class _AuroraBackground extends StatelessWidget {
+// ... _BreathingGuide removed ...
+
+class _AuroraBackground extends StatefulWidget {
   const _AuroraBackground();
 
   @override
+  State<_AuroraBackground> createState() => _AuroraBackgroundState();
+}
+
+class _AuroraBackgroundState extends State<_AuroraBackground> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 15),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFF7FBF9),
-            Color(0xFFF0F7F4),
-            Color(0xFFE6F1EC),
-          ],
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -100,
-            left: -50,
-            child: _GlowOrb(
-              color: const Color(0xFF4DB6AC).withValues(alpha: 0.12),
-              size: 400,
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFFF7FBF9),
+                Color(0xFFE0F2F1), // Lite teal touch
+                Color(0xFFE6F1EC),
+              ],
             ),
           ),
-          Positioned(
-            bottom: -50,
-            right: -100,
-            child: _GlowOrb(
-              color: const Color(0xFF2FB07E).withValues(alpha: 0.08),
-              size: 500,
-            ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: -100 + (math.sin(_controller.value * 2 * math.pi) * 50),
+                left: -50 + (math.cos(_controller.value * 2 * math.pi) * 30),
+                child: _GlowOrb(
+                  color: const Color(0xFF80CBC4).withValues(alpha: 0.15),
+                  size: 450,
+                ),
+              ),
+              Positioned(
+                bottom: -50 + (math.cos(_controller.value * 2 * math.pi) * 60),
+                right: -100 + (math.sin(_controller.value * 2 * math.pi) * 40),
+                child: _GlowOrb(
+                  color: const Color(0xFF4DB6AC).withValues(alpha: 0.1),
+                  size: 550,
+                ),
+              ),
+              // Extra accent orb for complexity
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.4 + (math.sin(_controller.value * 2 * math.pi + 1) * 100),
+                left: MediaQuery.of(context).size.width * 0.5 + (math.cos(_controller.value * 2 * math.pi + 1) * 80),
+                child: _GlowOrb(
+                  color: const Color(0xFFB2DFDB).withValues(alpha: 0.08),
+                  size: 400,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -216,7 +254,7 @@ class _ChatHeader extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: const DecorationImage(
-                image: AssetImage('assets/imgs/AppIcons/lumos_avatar.png'),
+                image: AssetImage('assets/imgs/temp-logo.png'),
                 fit: BoxFit.cover,
               ),
               border: Border.all(
@@ -252,7 +290,17 @@ class _ChatHeader extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.call_outlined, color: Color(0xFF1E3C44), size: 22),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CallScreen(
+                    name: 'Lumos',
+                    avatarAsset: 'assets/imgs/temp-logo.png',
+                  ),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.more_vert, color: Color(0xFF1E3C44), size: 24),
@@ -414,64 +462,6 @@ class _NeonInput extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _BreathingGuide extends StatelessWidget {
-  const _BreathingGuide();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF4DB6AC).withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF4DB6AC).withValues(alpha: 0.1), width: 1),
-      ),
-      child: Row(
-        children: [
-          const _PulseCircle(),
-          const SizedBox(width: 12),
-          Text(
-            'Deep Breath: Inhale...',
-            style: GoogleFonts.poppins(
-              color: const Color(0xFF80CBC4),
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PulseCircle extends StatefulWidget {
-  const _PulseCircle();
-  @override
-  State<_PulseCircle> createState() => _PulseCircleState();
-}
-
-class _PulseCircleState extends State<_PulseCircle> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
-  }
-  @override
-  void dispose() { _controller.dispose(); super.dispose(); }
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: Tween(begin: 0.8, end: 1.2).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut)),
-      child: Container(
-        width: 10, height: 10,
-        decoration: const BoxDecoration(color: Color(0xFF4DB6AC), shape: BoxShape.circle),
       ),
     );
   }

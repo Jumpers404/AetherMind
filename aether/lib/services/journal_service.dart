@@ -15,12 +15,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/journal_entry.dart';
+import 'currency_service.dart';
 
 class JournalService {
   JournalService({FirebaseFirestore? firestore})
       : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
+  final CurrencyService _currencyService = CurrencyService();
 
   CollectionReference<Map<String, dynamic>> get _collection =>
       _firestore.collection('journals');
@@ -34,7 +36,11 @@ class JournalService {
       data['keystroke_confidence'] = entry.keystrokeConfidence;
       data['timestamp'] = FieldValue.serverTimestamp();
       await _collection.doc(entry.id).set(data);
-      print('SERVICE: Write successful');
+      
+      // Add 10 coins for a new journal entry
+      await _currencyService.addCoins(10);
+      
+      print('SERVICE: Write successful + 10 coins added');
     } catch (error) {
       print('SERVICE ERROR: $error');
     }
