@@ -318,8 +318,8 @@ class _HeaderSection extends StatelessWidget {
             'Aether',
             style: TextStyle(
               fontFamily: 'Doto',
-              fontSize: 32,
-              fontWeight: FontWeight.w900,
+              fontSize: 27,
+              fontWeight: FontWeight.w700,
               color: _HomePalette.textPrimary,
               height: 1.12,
             ),
@@ -1751,7 +1751,7 @@ class _SuggestedCard extends StatelessWidget {
             ],
           ),
           child: Container(
-            height: 100, // Matched height of Daily Journal Card
+            height: 80, // Matched height of Daily Journal Card
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
