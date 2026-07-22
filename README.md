@@ -69,5 +69,8 @@ AetherMind/
 <a href="https://github.com/alurubalakarthikeya">@Aluru Bala Karthikeya</a><br>
 <a href="https://github.com/ArjiJethin">@Arji Jethin Naga Sai Eswar</a><br> 
 
+## Repo Activity:
+![Alt](https://repobeats.axiom.co/api/embed/d35b3011852e8672120e44f339ce2100febe5484.svg "Repobeats analytics image")
+
 ## License
 Refer to the `LICENSE` file for full terms and conditions.
